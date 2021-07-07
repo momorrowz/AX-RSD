@@ -34,6 +34,7 @@ SRC_DIRS = \
 	MisalignedMemAccess \
 	UncachableLoadAndStore \
 	CacheFlush \
+	Sandbox \
 
 # 中間ファイルのリスト
 ASM_SRCS  = $(SRC_DIRS:%=%/code.s)

@@ -17,7 +17,7 @@ export RSD_ROOT=~/work/rsd-git/
 
 
 # Specify the path of a directory that contains a gcc cross compiler binary for RISC-V. 
-export RSD_GCC_PATH=/opt/gcc/riscv/7.1.0/bin
+export RSD_GCC_PATH=/opt/gcc/riscv/10.2.0/bin
 # Specify the prefix of the file name of the compiler binary.
 export RSD_GCC_PREFIX=riscv32-unknown-elf-
 
