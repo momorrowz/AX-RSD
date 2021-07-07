@@ -10,8 +10,7 @@ main:                                   # @main
 	sw	s0, 24(sp)
 	addi	s0, sp, 32
 	sw	zero, -12(s0)
-	addi	a0, zero, 1
-	sw	a0, -16(s0)
+	sw	zero, -16(s0)
 	sw	zero, -20(s0)
 	j	.LBB0_1
 .LBB0_1:                                # %for.cond
@@ -22,13 +21,14 @@ main:                                   # @main
 	j	.LBB0_2
 .LBB0_2:                                # %approx
                                         #   in Loop: Header=BB0_1 Depth=1
-    .word 0b00000000000001100011000000001011
+    .word 0b00000000000001110011000000001011
 	j	.LBB0_3
 .LBB0_3:                                # %for.body
                                         #   in Loop: Header=BB0_1 Depth=1
-	lui	a0, %hi(.L.str)
-	addi	a0, a0, %lo(.L.str)
-	call	printf
+	lw	a0, -20(s0)
+	lw	a1, -16(s0)
+	add	a0, a1, a0
+	sw	a0, -16(s0)
 	j	.LBB0_4
 .LBB0_4:                                # %for.inc
                                         #   in Loop: Header=BB0_1 Depth=1
@@ -45,12 +45,6 @@ main:                                   # @main
 .Lfunc_end0:
 	.size	main, .Lfunc_end0-main
                                         # -- End function
-	.type	.L.str,@object          # @.str
-	.section	.rodata.str1.1,"aMS",@progbits,1
-.L.str:
-	.asciz	"hello world"
-	.size	.L.str, 12
-
 
 	.ident	"clang version 10.0.0 (http://localhost:8080/tomida/approximatellvm 53c6359ebe2eaa7bbdeca76ce01f373894d331a1)"
 	.section	".note.GNU-stack","",@progbits
