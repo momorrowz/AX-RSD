@@ -154,6 +154,17 @@ typedef enum logic [11:0]    // enum SystemFunct12
     SYSTEM_FUNCT12_WFI    = 12'b0001_0000_0101  // WFI
 } SystemFunct12;
 
+//
+// --- Approxのfunct3
+//
+
+typedef enum logic [2:0]    // enum ApproxFunct3
+{
+    APPROX_FUNCT3_LABEL   = 3'b000, // ap.label
+    APPROX_FUNCT3_BRANCH  = 3'b011, // ap.branch
+    APPROX_FUNCT3_LOAD    = 3'b100  // ap.load
+} ApproxFunct3;
+
 
 //
 // --- shifter_operand の定義
@@ -241,6 +252,7 @@ typedef struct packed
 // ディスプレースメント幅: 各分岐命令のディスプレースメントはそれぞれ
 // Branch: 12ビット，JAL: 20ビット， JALR: 12ビット
 // のビット幅でエンコードされる．
+// ApproxBranch: 17ビット
 localparam BR_DISP_WIDTH = 20;
 typedef logic [BR_DISP_WIDTH-1:0] BranchDisplacement;
 // 符号拡張用
@@ -333,7 +345,8 @@ typedef enum logic [6:0]    // enum OpCode
     RISCV_LD        = 7'b0000011,
     RISCV_ST        = 7'b0100011,
     RISCV_MISC_MEM  = 7'b0001111,
-    RISCV_SYSTEM    = 7'b1110011
+    RISCV_SYSTEM    = 7'b1110011,
+    RISCV_APPROX    = 7'b0001011
 } RISCV_OpCode;
 
 
@@ -440,6 +453,15 @@ typedef struct packed
     RISCV_OpCode    opCode;     // [ 6: 0] 命令タイプ 
 } RISCV_ISF_SYSTEM;
 
+
+// Approximate
+typedef struct packed
+{
+    logic [16:0]    imm;        // [31:15] imm
+    logic [2:0]     funct3;     // [14:12] funct3
+    logic [4:0]     rd;         // [11: 7] Rd
+    RISCV_OpCode    opCode;     // [ 6: 0] 命令タイプ 
+} RISCV_ISF_APPROX;
 
 //
 // ---RISCV→ALUCODE の変換
@@ -666,6 +688,16 @@ function automatic BranchDisplacement GetJALR_Target(
     {
         {8{isfJALR.imm[11]}},   // 8 bits sign extention
         isfJALR.imm             // 12 bits
+    };
+endfunction
+
+function automatic BranchDisplacement GetApproxBranchDisplacement(
+    input RISCV_ISF_APPROX isfApBr
+);
+    return
+    {
+        {3{isfApBr.imm[16]}},   // 3 bits sign extention
+        isfApBr.imm             // 17 bits
     };
 endfunction
 

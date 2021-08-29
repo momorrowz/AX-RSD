@@ -1177,6 +1177,112 @@ function automatic void RISCV_DecodeSystem(
 
 endfunction
 
+function automatic void RISCV_EmitApproxBranch(
+    output OpInfo opInfo,
+    input RISCV_ISF_Common isf
+);
+
+    RISCV_ISF_R isfR;
+
+    isfR = isf;
+
+    // 論理レジスタ番号
+`ifdef RSD_ENABLE_VECTOR_PATH
+    opInfo.operand.brOp.dstRegNum.isVector  = FALSE;
+    opInfo.operand.brOp.srcRegNumA.isVector = FALSE;
+    opInfo.operand.brOp.srcRegNumB.isVector = FALSE;
+`endif
+    opInfo.operand.brOp.dstRegNum.regNum  = 0;
+    opInfo.operand.brOp.srcRegNumA.regNum = 0;
+    opInfo.operand.brOp.srcRegNumB.regNum = 0;
+
+    // レジスタ書き込みを行うかどうか
+    // 比較系の命令はレジスタに書き込みを行わない
+    // ゼロレジスタへの書き込みは書き込みフラグをFALSEとする
+    opInfo.writeReg  = FALSE;
+
+    // 論理レジスタを読むかどうか
+    opInfo.opTypeA = OOT_REG;
+    opInfo.opTypeB = OOT_REG;
+
+    // 命令の種類
+    opInfo.mopType = MOP_TYPE_INT;
+    opInfo.mopSubType.intType = INT_MOP_TYPE_BR;
+
+    // 条件コード
+    // ApproxBranchは確率的に分岐(条件で分岐しない)
+    opInfo.cond = COND_AL;
+
+    // 分岐ターゲット
+    // pc + 先頭17bitの即値
+    opInfo.operand.brOp.brDisp = GetApproxBranchDisplacement( isfR );
+    opInfo.operand.brOp.padding = '0;
+
+    // 未定義命令
+    opInfo.unsupported = FALSE;
+    opInfo.undefined = FALSE;
+
+    // Serialized
+    opInfo.serialized = FALSE;
+
+    // Control
+    opInfo.valid = TRUE;    // Valid outputs
+
+endfunction
+
+function automatic void RISCV_EmitApproxLoad(
+    output OpInfo opInfo,
+    input RISCV_ISF_Common isf
+);
+    // Control
+    opInfo.valid = TRUE;    // Valid outputs
+endfunction
+
+function automatic void RISCV_EmitApproxLabel(
+    output OpInfo opInfo,
+    input RISCV_ISF_Common isf
+);
+    // Control
+    opInfo.valid = TRUE;    // Valid outputs
+endfunction
+
+function automatic void RISCV_DecodeApprox(
+    output OpInfo [MICRO_OP_MAX_NUM-1:0] microOps,
+    output InsnInfo insnInfo,
+    input RISCV_ISF_Common isf
+);
+    OpInfo opInfo;
+    MicroOpIndex mid;
+    logic writePC, isRelBranch;
+    if (ApproxFunct3'(isf.funct3) == APPROX_FUNCT3_BRANCH) begin
+        RISCV_EmitApproxBranch(.opInfo(opInfo), .isf(isf));
+        writePC = TRUE;
+        isRelBranch = TRUE;
+    end else if (ApproxFunct3'(isf.funct3) == APPROX_FUNCT3_LOAD) begin
+        RISCV_EmitApproxLoad(.opInfo(opInfo), .isf(isf));
+        writePC = FALSE;
+        isRelBranch = FALSE;
+    end else begin
+        RISCV_EmitApproxLabel(.opInfo(opInfo), .isf(isf));
+        writePC = FALSE;
+        isRelBranch = FALSE;
+    end
+
+    mid = 0;
+    for(int i = 0; i < MICRO_OP_MAX_NUM; i++) begin
+        EmitInvalidOp(microOps[i]);
+    end
+
+    microOps[1] = ModifyMicroOp(opInfo, mid, FALSE, TRUE);
+
+    insnInfo.writePC    = writePC;
+    insnInfo.isCall     = FALSE;
+    insnInfo.isReturn   = FALSE;
+    insnInfo.isRelBranch = isRelBranch;
+    insnInfo.isSerialized = FALSE;
+
+endfunction
+
 
 function automatic void RISCV_EmitIllegalOp(
     output OpInfo opInfo,
@@ -1330,6 +1436,11 @@ output
             // I: SYSTEM (ebreak/ecall/csr)
             RISCV_SYSTEM : begin
                 RISCV_DecodeSystem(microOps, insnInfo, insn);
+            end
+
+            // I: APPROXIMATE
+            RISCV_APPROX : begin
+                RISCV_DecodeApprox(microOps, insnInfo, insn);
             end
 
             default : begin
