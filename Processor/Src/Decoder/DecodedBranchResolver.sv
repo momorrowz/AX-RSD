@@ -191,6 +191,10 @@ output
                 if (isfU[i].opCode == RISCV_JAL) begin
                     decodedPC[i] = pc[i] + ExtendBranchDisplacement( GetJAL_Target(isfU[i]));
                 end
+                else if (isfU[i].opCode == RISCV_APPROX) begin
+                    
+                    decodedPC[i] = pc[i] + ExtendApproxBranchDisplacement( GetApproxBranchDisplacement(isfU[i]));
+                end
                 else begin
                     decodedPC[i] = pc[i] + ExtendBranchDisplacement( GetBranchDisplacement(isfU[i]));
                 end
@@ -241,6 +245,11 @@ output
                 end
             end
             insnFlushTriggering[addrCheckLane] = TRUE;
+        end
+
+        // for approximate branch
+        for (int i = 0; i < DECODE_WIDTH; i++) begin
+            brPredOut[i].isAX = (brTargetType[i] == BTT_PC_RELATIVE && isfU[i].opCode == RISCV_APPROX);
         end
     end // always_comb
 

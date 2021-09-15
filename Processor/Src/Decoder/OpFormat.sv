@@ -727,6 +727,18 @@ function automatic AddrPath ExtendBranchDisplacement(
     };
 endfunction
 
+// Approx Branchの即値も普通のBranchと同じように最下位に0をつける
+function automatic AddrPath ExtendApproxBranchDisplacement(
+    input BranchDisplacement brDisp
+);
+    return
+    {
+        { (ADDR_WIDTH-BR_DISP_WIDTH-1){brDisp[BR_DISP_WIDTH-1]} },
+        brDisp,
+        1'b0
+    };
+endfunction
+
 function automatic AddrPath ExtendJALR_Target(
     input BranchDisplacement brDisp
 );

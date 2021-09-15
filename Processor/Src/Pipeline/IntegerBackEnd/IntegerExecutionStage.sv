@@ -214,7 +214,10 @@ module IntegerExecutionStage(
             brResult[i].brAddr = ToPC_FromAddr(pc[i]);
 
             // ターゲットアドレスの計算
-            if( brTaken[i] ) begin
+            if( bPred[i].isAX ) begin
+                brResult[i].nextAddr = ToPC_FromAddr(pc[i] +  ExtendApproxBranchDisplacement(brSubInfo[i].brDisp));
+            end
+            else if( brTaken[i] ) begin
                 brResult[i].nextAddr =
                     ToPC_FromAddr(
                         (iqData[i].opType == INT_MOP_TYPE_BR) ?  
@@ -242,6 +245,8 @@ module IntegerExecutionStage(
                 );
 
             brResult[i].mispred = predMiss[i];
+            // Approximate branch?
+            brResult[i].isAX = bPred[i].isAX;
         end
     end
 

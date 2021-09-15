@@ -3,16 +3,16 @@
 
 
 //
-// Branch target buffer
+// Branch target buffer for approximate branch
 //
 
 import BasicTypes::*;
 import MemoryMapTypes::*;
 import FetchUnitTypes::*;
 
-module BTB(
-    NextPCStageIF.BTB port,
-    FetchStageIF.BTB next
+module AXBTB(
+    NextPCStageIF.AXBTB port,
+    FetchStageIF.AXBTB next
 );
 
     // BTB access
@@ -129,7 +129,7 @@ module BTB(
         // Write to BTB.
         for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
             // Make BTB entry when branch is Taken.
-            if(!port.brResult[i].isAX) begin
+            if (port.brResult[i].isAX) begin
                 if (updateBtb) begin
                     pushBtbQueue = port.brResult[i].valid && port.brResult[i].execTaken;
                 end
@@ -178,11 +178,11 @@ module BTB(
             popBtbQueue = FALSE;
         end
 
-        next.readIsCondBr = readIsCondBr;
-        next.btbOut = btbOut;
-        next.btbHit = btbHit;
+        next.axreadIsCondBr = readIsCondBr;
+        next.axbtbOut = btbOut;
+        next.axbtbHit = btbHit;
         
     end
 
 
-endmodule : BTB
+endmodule : AXBTB

@@ -1202,8 +1202,8 @@ function automatic void RISCV_EmitApproxBranch(
     opInfo.writeReg  = FALSE;
 
     // 論理レジスタを読むかどうか
-    opInfo.opTypeA = OOT_REG;
-    opInfo.opTypeB = OOT_REG;
+    opInfo.opTypeA = OOT_PC;
+    opInfo.opTypeB = OOT_IMM;
 
     // 命令の種類
     opInfo.mopType = MOP_TYPE_INT;

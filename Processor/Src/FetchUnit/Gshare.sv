@@ -170,14 +170,16 @@ module Gshare(
 
         // Discard the result of previous cycle
         for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
-            phtWE[i] = FALSE;
-            phtWV[i] = '0;
-            // Counter's value.
-            phtPrevValue[i] = port.brResult[i].phtPrevValue; 
-            phtWA[i] = ToPHT_Index_Global(
-                port.brResult[i].brAddr,
-                port.brResult[i].globalHistory
-            );
+                phtWE[i] = FALSE;
+                phtWV[i] = '0;
+                // Counter's value.
+                phtPrevValue[i] = port.brResult[i].phtPrevValue; 
+            if(!port.brResult[i].isAX) begin
+                phtWA[i] = ToPHT_Index_Global(
+                    port.brResult[i].brAddr,
+                    port.brResult[i].globalHistory
+                );
+            end
         end
 
         updatePht = FALSE;
@@ -185,34 +187,36 @@ module Gshare(
 
         for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
             // When branch instruction is executed, update PHT.
-            if (updatePht) begin
-                pushPhtQueue = port.brResult[i].valid;
-            end
-            else begin
-                phtWE[i] = port.brResult[i].valid;
-                updatePht |= phtWE[i];
-            end
-
-            mispred = port.brResult[i].mispred && port.brResult[i].valid;
-
-            // Update PHT's counter (saturated up/down counter).
-            if (port.brResult[i].execTaken) begin
-                phtWV[i] = (phtPrevValue[i] == PHT_ENTRY_MAX) ? 
-                    PHT_ENTRY_MAX : phtPrevValue[i] + 1;
-            end
-            else begin
-                phtWV[i] = (phtPrevValue[i] == 0) ? 
-                    0 : phtPrevValue[i] - 1;
-            end
-
-            // When miss prediction is occured, recovory history.
-            if (mispred) begin
-                if (port.brResult[i].isCondBr) begin
-                    nextBrGlobalHistory = 
-                        (port.brResult[i].globalHistory << 1) | port.brResult[i].execTaken;
+            if(!port.brResult[i].isAX) begin
+                if (updatePht) begin
+                    pushPhtQueue = port.brResult[i].valid;
                 end
                 else begin
-                    nextBrGlobalHistory = port.brResult[i].globalHistory;
+                    phtWE[i] = port.brResult[i].valid;
+                    updatePht |= phtWE[i];
+                end
+    
+                mispred = port.brResult[i].mispred && port.brResult[i].valid;
+    
+                // Update PHT's counter (saturated up/down counter).
+                if (port.brResult[i].execTaken) begin
+                    phtWV[i] = (phtPrevValue[i] == PHT_ENTRY_MAX) ? 
+                        PHT_ENTRY_MAX : phtPrevValue[i] + 1;
+                end
+                else begin
+                    phtWV[i] = (phtPrevValue[i] == 0) ? 
+                        0 : phtPrevValue[i] - 1;
+                end
+    
+                // When miss prediction is occured, recovory history.
+                if (mispred) begin
+                    if (port.brResult[i].isCondBr) begin
+                        nextBrGlobalHistory = 
+                            (port.brResult[i].globalHistory << 1) | port.brResult[i].execTaken;
+                    end
+                    else begin
+                        nextBrGlobalHistory = port.brResult[i].globalHistory;
+                    end
                 end
             end
         end

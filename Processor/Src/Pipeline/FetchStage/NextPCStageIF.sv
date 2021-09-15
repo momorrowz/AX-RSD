@@ -77,7 +77,25 @@ interface NextPCStageIF( input logic clk, rst, rstStart );
         brResult
     );
 
+    modport AXBTB(
+    input
+        clk,
+        rst,
+        rstStart,
+        predNextPC,
+        brResult
+    );
+
     modport BranchPredictor(
+    input
+        clk,
+        rst,
+        rstStart,
+        predNextPC,
+        brResult
+    );
+
+    modport BranchDecider(
     input
         clk,
         rst,

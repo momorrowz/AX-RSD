@@ -156,11 +156,24 @@ module NextPCStage(
                 // If BTB is hit, the instruction is predicted to be a branch. 
                 // In addition, if the branch is predicted as Taken, 
                 // the address read from BTB is used as next PC.
+                /*
                 if (!regStall && next.fetchStageIsValid[i] && 
                         next.btbHit[i] && next.brPredTaken[i]) begin
                     // Use PC from BTB
                     predNextPC = next.btbOut[i];
                     break;
+                end
+                */
+                if (!regStall && next.fetchStageIsValid[i]) begin
+                    if( next.btbHit[i] && next.brPredTaken[i]) begin
+                        // Use PC from BTB
+                        predNextPC = next.btbOut[i];
+                        break;
+                    end else if (next.axbtbHit[i] && next.brDecidTaken[i]) begin
+                        // Use PC from AXBTB
+                        predNextPC = next.axbtbOut[i];
+                        break;
+                    end
                 end
             end
         end

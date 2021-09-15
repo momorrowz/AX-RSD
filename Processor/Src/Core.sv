@@ -133,6 +133,8 @@ output
         PC pc( npStageIF );
         BTB btb( npStageIF, ifStageIF );
         BranchPredictor brPred( npStageIF, ifStageIF, ctrlIF );
+        AXBTB axbtb(npStageIF, ifStageIF );
+        BranchDecider brDecid( npStageIF, ifStageIF, 5'b10000 );
     FetchStage ifStage( ifStageIF, npStageIF, ctrlIF, debugIF, perfCounterIF );
         ICache iCache( npStageIF, ifStageIF, cacheSystemIF );
     
