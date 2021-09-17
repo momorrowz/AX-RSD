@@ -132,6 +132,8 @@ typedef struct packed // struct BranchResult
     BranchGlobalHistoryPath globalHistory;  // The global history of branches.
     PHT_EntryPath phtPrevValue;             // PHT's counter value
     logic isAX;         // Whether this branch is approximate or not.
+    logic decidTaken;   // approximate branch is taken or not.
+    PC_Path apAddr;     // address writeback for AXBTB.
 } BranchResult;
 
 typedef struct packed // struct BranchPred
@@ -142,6 +144,7 @@ typedef struct packed // struct BranchPred
     BranchGlobalHistoryPath globalHistory;  // The global history of branches.
     PHT_EntryPath phtPrevValue;             // PHT's counter value
     logic isAX;                             // approixmate branch or not(predicted in IF & decided in ID).
+    logic decidTaken;   // approximate branch is taken or not.
 } BranchPred;
 
 endpackage : FetchUnitTypes

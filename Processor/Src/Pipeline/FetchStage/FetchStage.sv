@@ -122,6 +122,7 @@ module FetchStage(
             brPred[i].predTaken = port.brPredTaken[i] | port.brDecidTaken[i]; // used in IE Stage
             brPred[i].globalHistory = port.brGlobalHistory[i];
             brPred[i].phtPrevValue = port.phtPrevValue[i];
+            brPred[i].decidTaken = port.brDecidTaken[i];
         end
 
         // Check whether instructions are flushed by branch prediction

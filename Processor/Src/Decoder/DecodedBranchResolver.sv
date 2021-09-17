@@ -192,8 +192,11 @@ output
                     decodedPC[i] = pc[i] + ExtendBranchDisplacement( GetJAL_Target(isfU[i]));
                 end
                 else if (isfU[i].opCode == RISCV_APPROX) begin
-                    
-                    decodedPC[i] = pc[i] + ExtendApproxBranchDisplacement( GetApproxBranchDisplacement(isfU[i]));
+                    if (brPredIn[i].decidTaken) begin
+                        decodedPC[i] = pc[i] + ExtendApproxBranchDisplacement( GetApproxBranchDisplacement(isfU[i]));
+                    end else begin
+                        decodedPC[i] = nextPC[i];
+                    end
                 end
                 else begin
                     decodedPC[i] = pc[i] + ExtendBranchDisplacement( GetBranchDisplacement(isfU[i]));

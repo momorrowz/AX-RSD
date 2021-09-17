@@ -35,7 +35,7 @@ function automatic logic IsConditionEnabledInt( CondCode cond, DataPath opA, Dat
 
         // AL 常時（無条件） -
         COND_AL: ce = 1;
-
+        COND_AP: ce = 0;
         default:
             ce = 1;
     endcase
@@ -205,7 +205,8 @@ module IntegerExecutionStage(
                     || iqData[i].opType == INT_MOP_TYPE_RIJ;
 
             // 分岐orレジスタ間接分岐で，条件が有効ならTaken
-            brTaken[i] = pipeReg[i].valid && isBranch[i] && isCondEnabled[i];
+            // approximate branchのときは分岐決定器がtakenのときもtaken
+            brTaken[i] = (pipeReg[i].valid && isBranch[i] && isCondEnabled[i] ) || bPred[i].decidTaken;
 
             // Whether this branch is conditional one or not.
             brResult[i].isCondBr = !isJump[i];
@@ -214,17 +215,21 @@ module IntegerExecutionStage(
             brResult[i].brAddr = ToPC_FromAddr(pc[i]);
 
             // ターゲットアドレスの計算
-            if( bPred[i].isAX ) begin
-                brResult[i].nextAddr = ToPC_FromAddr(pc[i] +  ExtendApproxBranchDisplacement(brSubInfo[i].brDisp));
-            end
-            else if( brTaken[i] ) begin
-                brResult[i].nextAddr =
-                    ToPC_FromAddr(
-                        (iqData[i].opType == INT_MOP_TYPE_BR) ?  
-                            (pc[i] + ExtendBranchDisplacement(brSubInfo[i].brDisp) ) : // 方向分岐 
-                            (AddJALR_TargetOffset(fuOpA[i].data, brSubInfo[i].brDisp) // レジスタ間接分岐 
-                        ) 
-                    );
+            //if( bPred[i].isAX ) begin
+            //    brResult[i].nextAddr = ToPC_FromAddr(pc[i] +  ExtendApproxBranchDisplacement(brSubInfo[i].brDisp));
+            //end
+            if( brTaken[i] ) begin
+                if( bPred[i].isAX ) begin
+                    brResult[i].nextAddr = ToPC_FromAddr(pc[i] +  ExtendApproxBranchDisplacement(brSubInfo[i].brDisp));
+                end else begin
+                    brResult[i].nextAddr =
+                        ToPC_FromAddr(
+                            (iqData[i].opType == INT_MOP_TYPE_BR) ?  
+                                (pc[i] + ExtendBranchDisplacement(brSubInfo[i].brDisp) ) : // 方向分岐 
+                                (AddJALR_TargetOffset(fuOpA[i].data, brSubInfo[i].brDisp) // レジスタ間接分岐 
+                            ) 
+                        );
+                end
             end
             else begin
                 brResult[i].nextAddr = ToPC_FromAddr(pc[i] + INSN_BYTE_WIDTH);
@@ -234,6 +239,10 @@ module IntegerExecutionStage(
             brResult[i].valid = isBranch[i] && pipeReg[i].valid && regValid[i];
             brResult[i].globalHistory = bPred[i].globalHistory;
             brResult[i].phtPrevValue = bPred[i].phtPrevValue;
+            // writeback for AXBTB
+            if( bPred[i].isAX ) begin
+                brResult[i].apAddr = ToPC_FromAddr(pc[i] +  ExtendApproxBranchDisplacement(brSubInfo[i].brDisp));
+            end
                     
             // 予測ミス判定
             predMiss[i] =

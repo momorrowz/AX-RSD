@@ -140,7 +140,7 @@ module AXBTB(
     
                 btbWA[i] = ToBTB_Index(port.brResult[i].brAddr);
                 btbWV[i].tag = ToBTB_Tag(port.brResult[i].brAddr);
-                btbWV[i].data = ToBTB_Addr(port.brResult[i].nextAddr);
+                btbWV[i].data = ToBTB_Addr(port.brResult[i].apAddr);
                 btbWV[i].valid = TRUE;
                 btbWV[i].isCondBr = port.brResult[i].isCondBr;
             end

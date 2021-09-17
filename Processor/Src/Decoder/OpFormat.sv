@@ -20,7 +20,8 @@ typedef enum logic [2:0]    // enum CondCode
     COND_GE  = 3'b101, // GE  符号付き'>'
     COND_LTU = 3'b110, // LTU 符号なし'<'
     COND_GEU = 3'b111, // GEU 符号なし'>'
-    COND_AL  = 3'b010  // AL 常時（無条件）
+    COND_AL  = 3'b010, // AL 常時（無条件）
+    COND_AP  = 3'b011  // AP 常時不成立. approximate branch用
 } CondCode;
 
 //

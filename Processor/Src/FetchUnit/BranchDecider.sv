@@ -35,6 +35,7 @@ endgenerate
 always_comb begin
     for(int i = 0; i < FETCH_WIDTH; ++i) begin
         is_taken[i] = ((32'(csr_val) << (LFSR_WIDTH - AX_LEVEL_WIDTH)) > randomval[i]);
+        next.brDecidTaken[i] = (is_taken[i] && next.axbtbHit[i]);
     end
 end
 
@@ -54,9 +55,5 @@ LFSR #(
     .randomval(randomval)
 );
 */
-
-always_comb begin
-    next.brDecidTaken = is_taken;
-end
 
 endmodule : BranchDecider

@@ -1210,8 +1210,8 @@ function automatic void RISCV_EmitApproxBranch(
     opInfo.mopSubType.intType = INT_MOP_TYPE_BR;
 
     // 条件コード
-    // ApproxBranchは確率的に分岐(条件で分岐しない)
-    opInfo.cond = COND_AL;
+    // ApproxBranchは確率的に分岐なので、条件は常時不成立とする.
+    opInfo.cond = COND_AP;
 
     // 分岐ターゲット
     // pc + 先頭17bitの即値

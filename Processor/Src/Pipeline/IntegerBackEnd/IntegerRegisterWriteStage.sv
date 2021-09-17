@@ -105,6 +105,11 @@ module IntegerRegisterWriteStage(
             brResult[i] = pipeReg[i].brResult;
             brResult[i].valid = pipeReg[i].brResult.valid && update[i] && regValid[i];
             ifStage.brResult = brResult;
+            // modify wb data for approximate branch.
+            // TODO: execTakenを1にするんじゃなくてAXBTBを変えたほうがよさそ
+            if (pipeReg[i].brResult.isAX) begin
+                ifStage.brResult[i].execTaken = 1;
+            end
 
             // ExecState
             if ( update[i] ) begin
