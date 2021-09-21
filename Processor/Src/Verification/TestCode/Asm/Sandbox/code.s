@@ -12,23 +12,23 @@ main:                                   # @main
 	sw	zero, -12(s0)
 	sw	zero, -16(s0)
 	sw	zero, -20(s0)
+    addi a3, zero, 1
 	j	.LBB0_1
 .LBB0_1:                                # %for.cond
                                         # =>This Inner Loop Header: Depth=1
 	lw	a0, -20(s0)
-	addi	a1, zero, 99
+	addi	a1, zero, 999
 	blt	a1, a0, .LBB0_5
 	j	.LBB0_2
 .LBB0_2:                                # %approx
                                         #   in Loop: Header=BB0_1 Depth=1
-    .word 0b00000000000001110011000000001011
+    .word 0b00000000000001100011000000001011
 	j	.LBB0_3
 .LBB0_3:                                # %for.body
                                         #   in Loop: Header=BB0_1 Depth=1
-	lw	a0, -20(s0)
-	lw	a1, -16(s0)
-	add	a0, a1, a0
-	sw	a0, -16(s0)
+	lw	a3, -16(s0)
+	add	a3, a3, 1
+	sw	a3, -16(s0)
 	j	.LBB0_4
 .LBB0_4:                                # %for.inc
                                         #   in Loop: Header=BB0_1 Depth=1
