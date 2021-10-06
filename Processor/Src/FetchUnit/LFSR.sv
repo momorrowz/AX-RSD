@@ -6,6 +6,7 @@ module LFSR
     input logic clk,
     input logic rst,
     input logic [WIDTH-1 : 0] seed,
+    input logic update,
     output logic [WIDTH-1 : 0] randomval
 );
 
@@ -15,7 +16,7 @@ logic cap;
 always @(posedge clk) begin
     if(rst) begin
         r <= seed; 
-    end else begin
+    end else if(update) begin
         r <= (r >> 1) | (32'(cap) << (32 - 1));
     end
 end

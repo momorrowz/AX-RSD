@@ -358,6 +358,9 @@ int main(int argc, char** argv) {
     RegisterFileHexDumper registerFileHexDumper;
     DataPath regData[LSCALAR_NUM];
     GetCommittedRegisterValue(top, commitNumInLastCycle, regData);
+    for (int i = 0; i < LSCALAR_NUM; ++i){
+        printf("r%d : %d\n", i, regData[i]);
+    }
     registerFileHexDumper.Open(regOutFileName);
     registerFileHexDumper.Dump(lastCommittedPC, regData);
     registerFileHexDumper.Close();

@@ -122,6 +122,7 @@ interface FetchStageIF( input logic clk, rst, rstStart );
     input
         axbtbOut,
         axbtbHit,
+        btbHit,
         axreadIsCondBr,
     output
         brDecidTaken
