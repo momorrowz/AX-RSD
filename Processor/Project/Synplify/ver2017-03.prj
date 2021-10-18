@@ -1,7 +1,7 @@
 #--  Synopsys, Inc.
-#--  Version M-2017.03-SP1
-#--  Project file /home/shioya/work/rsd-open/Processor/Project/Synplify/ver2017-03.prj
-#--  Written on Wed Jan 13 02:14:59 2021
+#--  Version P-2019.09-SP1
+#--  Project file /home/tomorrow/workspace/AX-RSD/Processor/Project/Synplify/ver2017-03.prj
+#--  Written on Mon Oct 18 11:35:49 2021
 
 
 #project files
@@ -153,6 +153,9 @@ add_file -verilog -vlog_std sysv "../../Src/Scheduler/MemoryDependencyPredictor.
 add_file -verilog -vlog_std sysv "../../Src/Main_Zynq_Wrapper.sv"
 add_file -verilog -vlog_std sysv "../../Src/Primitives/Divider.sv"
 add_file -verilog -vlog_std sysv "../../Src/ExecUnit/DividerUnit.sv"
+add_file -verilog -vlog_std sysv "../../Src/FetchUnit/BranchDecider.sv"
+add_file -verilog -vlog_std sysv "../../Src/FetchUnit/AXBTB.sv"
+add_file -verilog -vlog_std sysv "../../Src/FetchUnit/LFSR.sv"
 
 
 
@@ -183,6 +186,7 @@ set_option -top_module "Main_Zynq_Wrapper"
 
 # hdl_compiler_options
 set_option -distributed_compile 0
+set_option -hdl_strict_syntax 0
 
 # mapper_without_write_options
 set_option -frequency auto
@@ -204,6 +208,7 @@ set_option -pipe 1
 set_option -update_models_cp 0
 set_option -retiming 1
 set_option -no_sequential_opt 0
+set_option -no_sequential_opt_bram_mapping both
 set_option -fix_gated_and_generated_clocks 1
 
 # Xilinx Zynq
@@ -261,6 +266,7 @@ set_option -top_module "Main_Zynq_Wrapper"
 
 # hdl_compiler_options
 set_option -distributed_compile 1
+set_option -hdl_strict_syntax 0
 
 # mapper_without_write_options
 set_option -frequency auto
@@ -282,6 +288,7 @@ set_option -pipe 1
 set_option -update_models_cp 0
 set_option -retiming 0
 set_option -no_sequential_opt 0
+set_option -no_sequential_opt_bram_mapping both
 set_option -fix_gated_and_generated_clocks 1
 
 # Xilinx Zynq
@@ -332,6 +339,7 @@ set_option -top_module "Main_Zynq_Wrapper"
 
 # hdl_compiler_options
 set_option -distributed_compile 0
+set_option -hdl_strict_syntax 0
 
 # mapper_without_write_options
 set_option -frequency auto
@@ -358,6 +366,10 @@ set_option -retiming 0
 set_option -report_path 4000
 set_option -update_models_cp 0
 set_option -preserve_registers 0
+set_option -disable_ramindex 0
+set_option -rep_clkint_driver 1
+set_option -microsemi_enhanced_flow 1
+set_option -ternary_adder_decomp 66
 
 # NFilter
 set_option -no_sequential_opt 0

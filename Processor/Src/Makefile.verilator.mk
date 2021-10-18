@@ -4,7 +4,7 @@ SHOW_SERIAL_OUT = 1
 ENABLE_PC_GOAL = 1
 TEST_CODE = Verification/TestCode/Asm/Sandbox
 #TEST_CODE = Verification/TestCode/C/Sandbox
-#TEST_CODE = Verification/TestCode/C/Fibonacci
+#TEST_CODE = Verification/TestCode/C/HelloWorld
 
 ifndef RSD_VERILATOR_BIN
 VERILATOR_BIN = verilator
