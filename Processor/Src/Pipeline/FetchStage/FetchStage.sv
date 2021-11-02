@@ -118,7 +118,7 @@ module FetchStage(
         // The result of branch prediction
         for (int i = 0; i < FETCH_WIDTH; i++) begin
             brPred[i].predAddr = port.brPredTaken[i] ? 
-                port.btbOut[i] : (port.brDecidTaken ? port.axbtbOut[i] : pipeReg[i].pc + INSN_BYTE_WIDTH );
+                port.btbOut[i] : (port.brDecidTaken[i] ? port.axbtbOut[i] : pipeReg[i].pc + INSN_BYTE_WIDTH );
             brPred[i].predTaken = port.brPredTaken[i] | port.brDecidTaken[i]; // used in IE Stage
             brPred[i].globalHistory = port.brGlobalHistory[i];
             brPred[i].phtPrevValue = port.phtPrevValue[i];

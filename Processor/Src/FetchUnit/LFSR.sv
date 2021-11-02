@@ -21,6 +21,6 @@ always @(posedge clk) begin
     end
 end
 
-assign cap = r[31] ^ r[29] ^ r[28] ^ 1'b1;
+assign cap = r[31] ^ r[21] ^ r[1] ^ r[0];
 assign randomval = r;
 endmodule : LFSR

@@ -42,6 +42,8 @@ class RISCV_Disassembler( object ):
                 insn = self.InstructionMiscMem( code )
             elif common.IsSystem():
                 insn = self.InstructionSystem( code )
+            elif common.IsApprox():
+                insn = self.InstructionApprox( code )
             return insn.__str__()
 
         except ValueError:
@@ -88,6 +90,7 @@ class RISCV_Disassembler( object ):
         OC_LUI      = "0110111"
         OC_MISC_MEM = "0001111"
         OC_SYSTEM   = "1110011"
+        OC_APPROX   = "0001011"
 
         intRegName = ['zero', 'ra', 'sp', 'gp', 'tp', 't0', 't1', 't2',
                           's0/fp', 's1', 'a0', 'a1', 'a2', 'a3', 'a4', 'a5',
@@ -126,6 +129,7 @@ class RISCV_Disassembler( object ):
                                 + '0' * 12, 2)))
             self.J_Imm = str(hex(int(inst[-32] * 12 + inst[-20:-12] + inst[-21]
                                 + inst[-31:-21] + '0', 2)))
+            self.A_Imm = str(hex(int(inst[-32] * 15 + inst[-31:-15] + '0', 2)))
 
         def IsLoad( self ):
             return self.opCode == self.OC_LOAD
@@ -159,7 +163,22 @@ class RISCV_Disassembler( object ):
 
         def IsSystem( self ):
             return self.opCode == self.OC_SYSTEM
+        
+        def IsApprox( self ):
+            return self.opCode == self.OC_APPROX
 
+    class InstructionApprox( InstructionCommon ):
+        """ Load instruction """
+        def __init__( self, code ):
+            RISCV_Disassembler.InstructionCommon.__init__( self, code )
+
+        def __str__( self ):
+            if self.funct3 == '011' and self.RV32I:
+                opType = 'ap.branch '
+            else:
+                opType = 'Unknown'
+            asmStr = opType + self.A_Imm
+            return asmStr
     class InstructionLoad( InstructionCommon ):
         """ Load instruction """
 
