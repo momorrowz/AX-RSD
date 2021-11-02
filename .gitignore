@@ -74,6 +74,7 @@ synlog.tcl
 /Processor/Src/*.vcd
 /Processor/Src/*.gz
 /Processor/Src/wlft*
+/Processor/Src/stdout*
 
 # python
 *.pyc
@@ -98,4 +99,3 @@ hs*.dmp
 /.library_mapping.xml
 /.project
 /.history
-
