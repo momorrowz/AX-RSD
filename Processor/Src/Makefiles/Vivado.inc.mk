@@ -153,7 +153,7 @@ $(INITRD):
 	wget -N -P $(ARM_LINUX_ROOT) http://www.wiki.xilinx.com/file/view/arm_ramdisk.image.gz/419243558/arm_ramdisk.image.gz
 
 $(ARM_LINUX_BOOT):
-	mkdir $(ARM_LINUX_BOOT)
+	mkdir -p $(ARM_LINUX_BOOT)
 
 # Do NOT use this command.
 xilinx-arm-linux-all:
