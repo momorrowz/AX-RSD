@@ -6,27 +6,31 @@ ENTRY(_start);
 
 
 MEMORY {
-    ROM(rxai) :     ORIGIN = 0x00001000, LENGTH = 32k
-    RAM(wa) :       ORIGIN = 0x80000000, LENGTH = 32k
+    ROM(rxai) :     ORIGIN = 0x00001000, LENGTH = 512k
+    RAM(wa) :       ORIGIN = 0x80000000, LENGTH = 512k
 }
 
 SECTIONS
 {
-    .text : { *(.text) }     > ROM
-    .rodata : { *(.rodata) } > ROM
-    .srodata : { *(.srodata) } > ROM
+    .text : { *(.text) *(.text.*) }     > ROM
+    .rodata : { *(.rodata) *(.rodata.*) } > ROM
+    .srodata : { *(.srodata) *(.srodata.*) } > ROM
     __rodata_end = .;
     .data : { 
       __data_start = .;
       *(.data)
+      *(.data.*)
       *(.sdata)
+      *(.sdata.*)
       __data_end = .;
     } > RAM  AT> ROM 
     . = ALIGN(4);
     .bss : { 
       __bss_start = .;
       *(.bss)
+      *(.bss.*)
       *(.sbss)
+      *(.sbss.*)
       __bss_end = . ;
     } > RAM AT> ROM
     

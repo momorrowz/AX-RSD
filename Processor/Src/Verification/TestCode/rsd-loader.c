@@ -1,5 +1,5 @@
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 extern int __rodata_end;
 extern int __data_start;
@@ -9,7 +9,8 @@ extern int __bss_end;
 
 #define ram_start 0x80000000
 
-static void* _rsd_memcpy(void* dest_, const void* src_, size_t n) {
+static void* _rsd_memcpy(void* dest_, const void* src_, size_t n)
+{
     uint8_t* dest = dest_;
     const uint8_t* src = src_;
 
@@ -19,7 +20,8 @@ static void* _rsd_memcpy(void* dest_, const void* src_, size_t n) {
     return dest;
 }
 
-static void* _rsd_memset(void* str_, int c, size_t n) {
+static void* _rsd_memset(void* str_, int c, size_t n)
+{
     uint8_t* str = str_;
     for (size_t i = 0; i < n; i++) {
         str[i] = (uint8_t)c;
@@ -27,7 +29,8 @@ static void* _rsd_memset(void* str_, int c, size_t n) {
     return str;
 }
 
-void _load() {
+void _load()
+{
     // The core function of the RSD loader called at the very beggining of run time.
     // It copies data in .data and .sdata sections from ROM to RAM
     // and sets 0 in .bss and .sbss sections in RAM.

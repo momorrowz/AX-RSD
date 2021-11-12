@@ -59,22 +59,26 @@ CFLAGS = \
 	-fno-zero-initialized-in-bss \
 	-ffreestanding \
 	-fno-builtin \
-	-nostdlib \
 	-nodefaultlibs \
 	-nostartfiles \
 	-mstrict-align \
 	-march=rv32im \
 
+MYCFLAGS=$(CFLAGS)
+
 LDFLAGS= \
 	-static \
+	--gc-sections \
 
-LIBC =
+LIBC = \
+	-lm \
+	-lc \
+
 LIBGCC = \
 	-L$(RSD_GCC_NATIVE)/../lib/gcc/${RSD_GCC_NAME}/$(RSD_GCC_VERSION) \
 	-lgcc \
 	-lgcov \
 	-L$(RSD_GCC_NATIVE)/../${RSD_GCC_NAME}/lib \
-	-lm
 
 
 
@@ -109,12 +113,12 @@ $(DUMMY_ROM):
 # RAM は ローダでROMから必要なデータをコピーしたり初期化したりするので関係ない
 ROM_PADDING_SIZE = 4096 # 0x1000
 ROM_START_ADDR = 0x00001000
-ROM_END_ADDR   = 0x00010000
+ROM_END_ADDR   = 0x00100000
 
-ROM_SIZE   = 65536      # 0x1000 + (0x10000 - 0x1000) = 0x10000
+ROM_SIZE   = 1048576      # 0x1000 + (0x100000 - 0x1000) = 0x100000
 
 # BIN_SIZE は ROM+CODE の合計サイズ
-BIN_SIZE   = 0x10000
+BIN_SIZE   = 0x100000
 
 # .text* と .rodata* ，.bss，.dataなどを ROM として取り出すコマンド
 # （.text* は，名前が .text から始まるセクションすべて）

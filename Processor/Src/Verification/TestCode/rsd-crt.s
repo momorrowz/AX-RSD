@@ -13,7 +13,7 @@
 	.extern main
 	.extern _load
 
-	stack_top = 0x80020000
+	stack_top = 0x80200000
 
 	# entry point: 0x1000
 _start:
@@ -31,7 +31,7 @@ _init:
 	la a0, trap_vector
 	csrw mtvec, a0
 
-	li	sp,0x80020000
+	li	sp,0x80200000
 	call _load
 
 	# clear registers
@@ -66,7 +66,7 @@ _init:
 	li	x29,0
 	li	x30,0
 	li	x31,0
-	li	sp,0x80020000
+	li	sp,0x80200000
 
 	j _call_main
 

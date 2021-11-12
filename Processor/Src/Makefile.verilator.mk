@@ -1,10 +1,11 @@
 # Specify test code and simulation cycles
-MAX_TEST_CYCLES = 100000
+MAX_TEST_CYCLES = 50000000
 SHOW_SERIAL_OUT = 1
 ENABLE_PC_GOAL = 1
-TEST_CODE = Verification/TestCode/Asm/Sandbox
+#TEST_CODE = Verification/TestCode/Sandbox/bin
+TEST_CODE = Verification/TestCode/approximate_benchmarks/jpeg/bin
 #TEST_CODE = Verification/TestCode/C/Sandbox
-#TEST_CODE = Verification/TestCode/C/HelloWorld
+#TEST_CODE = Verification/TestCode/C/Fibonacci
 
 ifndef RSD_VERILATOR_BIN
 VERILATOR_BIN = verilator

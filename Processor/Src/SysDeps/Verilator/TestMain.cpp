@@ -1,36 +1,38 @@
 #include "VMain_Zynq_Wrapper.h"
-#include "VMain_Zynq_Wrapper__Syms.h"    // To see all public symbols
+#include "VMain_Zynq_Wrapper__Syms.h"  // To see all public symbols
 
-#include "VerilatorHelper.h"
 #include "Dumper.h"
+#include "VerilatorHelper.h"
 
-#include <verilated.h>    // Defines common routines
+
+#include <verilated.h>  // Defines common routines
 #include <verilated_vcd_c.h>
 
-#include <stdexcept>
-#include <regex>
 #include <fstream>
 #include <iostream>
+#include <regex>
+#include <stdexcept>
 
 
 using namespace std;
 
-unsigned int main_time = 0;     // Current simulation time
+unsigned int main_time = 0;  // Current simulation time
 
-double sc_time_stamp () {       // Called by $time in Verilog
+double sc_time_stamp()
+{  // Called by $time in Verilog
     return main_time;
 }
 
 int GetCommittedRegisterValue(
     VMain_Zynq_Wrapper* top,
     int commitNumInThisCycle,
-    DataPath* regData
-){
+    DataPath* regData)
+{
     auto* core = top->Main_Zynq_Wrapper->main->core;
     auto* helper = top->VerilatorHelper;
     static const int LSCALAR_NUM = helper->LSCALAR_NUM;
 
-    typeof (core->retirementRMT->regRMT->debugValue) phyRegNum;
+    typeof(core->retirementRMT->regRMT->debugValue) phyRegNum;
 
     // Copy RMT to local variable.
     for (int i = 0; i < LSCALAR_NUM; i++) {
@@ -50,20 +52,21 @@ int GetCommittedRegisterValue(
     }
 
     // Get regData
-    for(int i = 0; i < LSCALAR_NUM; i++) {
+    for (int i = 0; i < LSCALAR_NUM; i++) {
         regData[i] = core->registerFile->phyReg->debugValue[phyRegNum[i]];
     }
-    
+
     return 0;
 }
 
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
 
     // Initialize verilated modules
-    Verilated::commandArgs(argc, argv);   // Remember args
+    Verilated::commandArgs(argc, argv);  // Remember args
 
-    auto *top = new VMain_Zynq_Wrapper();
+    auto* top = new VMain_Zynq_Wrapper();
     auto* core = top->Main_Zynq_Wrapper->main->core;
     auto* helper = top->VerilatorHelper;
 
@@ -88,30 +91,22 @@ int main(int argc, char** argv) {
             auto value = results[2].str();
             if (name == "MAX_TEST_CYCLES") {
                 MAX_TEST_CYCLES = stoi(value);
-            }
-            else if (name == "ENABLE_PC_GOAL") {
+            } else if (name == "ENABLE_PC_GOAL") {
                 ENABLE_PC_GOAL = stoi(value) ? true : false;
-            }
-            else if (name == "SHOW_SERIAL_OUT") {
+            } else if (name == "SHOW_SERIAL_OUT") {
                 SHOW_SERIAL_OUT = stoi(value) ? true : false;
-            }
-            else if (name == "REG_CSV_FILE") {
+            } else if (name == "REG_CSV_FILE") {
                 REG_CSV_FILE = value;
-            }
-            else if (name == "RSD_LOG_FILE") {
+            } else if (name == "RSD_LOG_FILE") {
                 RSD_LOG_FILE = value;
-            }
-            else if (name == "TEST_CODE") {
+            } else if (name == "TEST_CODE") {
                 TEST_CODE = value;
-            }
-            else if (name == "WAVE_LOG_FILE") {
+            } else if (name == "WAVE_LOG_FILE") {
                 WAVE_LOG_FILE = value;
-            }
-            else {
+            } else {
                 printf("Unknown parameter:%s\n", argv[i]);
             }
-        }
-        else {
+        } else {
             printf("Unknown parameter:%s\n", argv[i]);
         }
     }
@@ -166,11 +161,10 @@ int main(int argc, char** argv) {
 
     // Load code data
     auto loadHexFile = [&](
-        const string& fileName, 
-        uint32_t* mainMem, 
-        uint32_t offset, 
-        bool neccesary
-    ) {
+                           const string& fileName,
+                           uint32_t* mainMem,
+                           uint32_t offset,
+                           bool neccesary) {
         ifstream ifs(fileName);
         if (ifs.fail()) {
             if (neccesary) {
@@ -191,13 +185,12 @@ int main(int argc, char** argv) {
                 mainMem[wordAddr + i] = word;
             }
             wordAddr += 4;
-        }    
+        }
         printf(
             "Loaded %s into a physical memory region [%x-%x].\n",
             fileName.c_str(),
             (uint32_t)offset,
-            (uint32_t)(offset + wordAddr * sizeof(uint32_t) - 1)
-        );
+            (uint32_t)(offset + wordAddr * sizeof(uint32_t) - 1));
     };
     // ファイル内容は物理メモリ空間の先頭から連続して展開される
     // ファイル先頭 64KB は ROM とみなされ，残りが RAM の空間に展開される
@@ -207,7 +200,7 @@ int main(int argc, char** argv) {
     // 先頭 64KB は 論理空間の 0x0000_0000 - 0x0000_FFFF に，
     // 後続 64KB は 論理空間の 0x8000_0000 - 0x8000_FFFF に展開されることになる
     loadHexFile(codeFileName, mainMem, 0, true);
-    
+
 
     int numCommittedARM_Op = 0;
     int numCommittedMicroOp = 0;
@@ -217,32 +210,33 @@ int main(int argc, char** argv) {
 
 
     // TestBenchClockGenerator にあわせる
-    const int RSD_STEP = 8;   
+    const int RSD_STEP = 8;
     const int RSD_KANATA_CYCLE_DISPLACEMENT = -1;
     const int RSD_INITIALIZATION_CYCLE = 8;
     int64_t cycle = -1;
     int64_t kanataCycle = cycle - RSD_KANATA_CYCLE_DISPLACEMENT;
 
-    bool start = false; // タイミングを TestMain.sv にあわせるため
+    bool start = false;  // タイミングを TestMain.sv にあわせるため
 
-    try{
+    try {
 
-        top->negResetIn = 0;        // Set some inputs
+        top->negResetIn = 0;  // Set some inputs
         top->clk_p = 0;
         top->clk_n = 1;
         top->rxd = 0;
 
         top->eval();
 #ifdef RSD_VERILATOR_TRACE
-        if (tfp) tfp->dump(main_time);
+        if (tfp)
+            tfp->dump(main_time);
 #endif
-        main_time += RSD_STEP*2; 
+        main_time += RSD_STEP * 2;
 
         while (!Verilated::gotFinish()) {
             // クロック更新
             top->clk_p = !top->clk_p;
             top->clk_n = !top->clk_n;
-            top->eval();    // 評価
+            top->eval();  // 評価
 
             // ダンプ
 #ifdef RSD_VERILATOR_TRACE
@@ -250,23 +244,22 @@ int main(int argc, char** argv) {
                 tfp->dump(main_time);
 #endif
             // 実行が開始されていたらクロックをインクリメント
-            if (top->clk_p && start){
+            if (top->clk_p && start) {
                 kanataCycle++;
                 cycle++;
 
                 // ダンプ
                 GetDebugRegister(&debugRegister, top);
-                if (!SHOW_SERIAL_OUT && (kanataCycle < 10000 || kanataCycle % 10000 == 0)){
+                if (!SHOW_SERIAL_OUT && (kanataCycle < 10000 || kanataCycle % 10000 == 0)) {
                     printf("%d cycle, %d KanataCycle, %d ns\n", (uint32_t)cycle, (uint32_t)kanataCycle, (uint32_t)main_time);
                 }
 
                 serialDumper.CheckSignal(
-                    top->serialWE, 
-                    top->serialWriteData
-                );
+                    top->serialWE,
+                    top->serialWriteData);
 
                 // Dump RSD.log for Kanata
-                if (enableDumpKanata){
+                if (enableDumpKanata) {
                     kanataDumper.DumpCycle(debugRegister);
                 }
 
@@ -280,8 +273,7 @@ int main(int argc, char** argv) {
                             GetCommittedRegisterValue(top, i, regData);
                             registerFileCSV_Dumper.Dump(
                                 helper->ActiveListEntry_pc(core->cmStage->alReadData[i]),
-                                regData
-                            );
+                                regData);
                         }
                     }
                 }
@@ -290,15 +282,15 @@ int main(int argc, char** argv) {
                 for (int i = 0; i < COMMIT_WIDTH; i++) {
                     if (debugRegister.cmReg[i].commit) {
                         numCommittedMicroOp += 1;
-                        if ( debugRegister.cmReg[i].opId.mid == 0 ){
+                        if (debugRegister.cmReg[i].opId.mid == 0) {
                             numCommittedARM_Op += 1;
                         }
                     }
                 }
-
                 // Check end of simulation.
                 if (ENABLE_PC_GOAL) {
                     lastCommittedPC = top->ledOut;
+                    //printf("PC : %x\n", lastCommittedPC);
                     if (lastCommittedPC == static_cast<typeof(top->ledOut)>(PC_GOAL)) {
                         // lastCommittedPC は 16bit 分しか外に出てきていないので，下位で判定しておく
                         printf("PC reached PC_GOAL: %08x\n", PC_GOAL);
@@ -308,19 +300,18 @@ int main(int argc, char** argv) {
             }
             start = !top->posResetOut;
 
-            main_time += RSD_STEP; // 62.5MHz
-            if (main_time == RSD_INITIALIZATION_CYCLE*RSD_STEP*2) {
-                top->negResetIn = 1; // リセット解除
+            main_time += RSD_STEP;  // 62.5MHz
+            if (main_time == RSD_INITIALIZATION_CYCLE * RSD_STEP * 2) {
+                top->negResetIn = 1;  // リセット解除
             }
-            
+
             // 指定サイクル数の実行で終了
             // Modelsim 側とクロック数の計算をあわすため +1
             if (cycle + 1 >= MAX_TEST_CYCLES)
-                break;         
+                break;
         }
 
     } catch (const std::runtime_error& error) {
-
     }
 
     // Count the number of commit in the last cycle.
@@ -329,7 +320,7 @@ int main(int argc, char** argv) {
         if (!core->cmStage->commit[count])
             break;
         commitNumInLastCycle++;
-    }   
+    }
 
     // Close Dumpers
     //serialDumper.DumpToFile(serialDumpFileName);
@@ -358,9 +349,9 @@ int main(int argc, char** argv) {
     RegisterFileHexDumper registerFileHexDumper;
     DataPath regData[LSCALAR_NUM];
     GetCommittedRegisterValue(top, commitNumInLastCycle, regData);
-    for (int i = 0; i < LSCALAR_NUM; ++i){
-        printf("r%d : %d\n", i, regData[i]);
-    }
+    //for (int i = 0; i < LSCALAR_NUM; ++i) {
+    //    printf("r%d : %d\n", i, regData[i]);
+    //}
     registerFileHexDumper.Open(regOutFileName);
     registerFileHexDumper.Dump(lastCommittedPC, regData);
     registerFileHexDumper.Close();
@@ -372,5 +363,5 @@ int main(int argc, char** argv) {
         tfp = nullptr;
     }
 #endif
-    top->final();        // シミュレーション終了
+    top->final();  // シミュレーション終了
 }

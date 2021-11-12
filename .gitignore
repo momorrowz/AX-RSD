@@ -99,3 +99,6 @@ hs*.dmp
 /.library_mapping.xml
 /.project
 /.history
+
+hoge.*
+temp.*
