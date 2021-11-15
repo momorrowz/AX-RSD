@@ -1,3 +1,3 @@
 [submodule "Processor/Src/Verification/TestCode/approximate_benchmarks"]
-	path = Processor/Src/Verification/TestCode/approximate_benchmarks
-    utl = http://geopelia.mtl.t.u-tokyo.ac.jp/tomorrow/approximate_benchmark_for_fpga
+    path = Processor/Src/Verification/TestCode/approximate_benchmarks
+    url = http://geopelia.mtl.t.u-tokyo.ac.jp/tomorrow/approximate_benchmark_for_fpga
