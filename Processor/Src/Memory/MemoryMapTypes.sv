@@ -43,7 +43,7 @@ localparam PC_GOAL = 32'h80001004;
 // Note that when handling exceptions, it is necessary to handle with a 32-bit address.
 
 `ifdef RSD_NARROW_PC
-localparam PC_WIDTH = 25;
+localparam PC_WIDTH = 26;
 `else
 localparam PC_WIDTH = ADDR_WIDTH;
 `endif
@@ -109,8 +109,8 @@ typedef struct packed {
 // logical [0x0000_1000 - 0x000f_ffff] -> physical [0x00_1000 - 0x0f_ffff]
 //
 localparam LOG_ADDR_SECTION_0_BEGIN = ADDR_WIDTH'('h0000_1000);
-localparam LOG_ADDR_SECTION_0_END   = ADDR_WIDTH'('h0010_0000);
-localparam LOG_ADDR_SECTION_0_ADDR_BIT_WIDTH = 20;
+localparam LOG_ADDR_SECTION_0_END   = ADDR_WIDTH'('h0040_0000);
+localparam LOG_ADDR_SECTION_0_ADDR_BIT_WIDTH = 22;
 
 // Ignore 0x1000 so that the lower address bits can be added as it is
 localparam PHY_ADDR_SECTION_0_BASE = PHY_RAW_ADDR_WIDTH'('h00_0000);
@@ -118,20 +118,20 @@ localparam PHY_ADDR_SECTION_0_BASE = PHY_RAW_ADDR_WIDTH'('h00_0000);
 
 //
 // Section 1 (RAM?)
-// logical [0x8000_0000 - 0x80ef_ffff] -> physical [0x10_0000 - 0xff_ffff]
+// logical [0x8000_0000 - 0x80bf_ffff] -> physical [0x40_0000 - 0xff_ffff]
 //
 localparam LOG_ADDR_SECTION_1_BEGIN = ADDR_WIDTH'('h8000_0000);
-localparam LOG_ADDR_SECTION_1_END   = ADDR_WIDTH'('h80f0_0000);
+localparam LOG_ADDR_SECTION_1_END   = ADDR_WIDTH'('h80c0_0000);
 localparam LOG_ADDR_SECTION_1_ADDR_BIT_WIDTH = 24;
-localparam PHY_ADDR_SECTION_1_BASE = PHY_RAW_ADDR_WIDTH'('h10_0000);
+localparam PHY_ADDR_SECTION_1_BASE = PHY_RAW_ADDR_WIDTH'('h40_0000);
 
 //
 // Uncachable section (RAM?)
 // logical [0x80f0_0000 - 0x80f0_ffff] -> uncachable [0x250_0000 -> 0x250_ffff]
 //
-localparam LOG_ADDR_UNCACHABLE_BEGIN = ADDR_WIDTH'('h80f0_0000);
-localparam LOG_ADDR_UNCACHABLE_END   = ADDR_WIDTH'('h80f1_0000);
-localparam LOG_ADDR_UNCACHABLE_ADDR_BIT_WIDTH = 24;
+localparam LOG_ADDR_UNCACHABLE_BEGIN = ADDR_WIDTH'('h8200_0000);
+localparam LOG_ADDR_UNCACHABLE_END   = ADDR_WIDTH'('h8201_0000);
+localparam LOG_ADDR_UNCACHABLE_ADDR_BIT_WIDTH = 26;
 
 // Ignore 0x1000 so that the lower address bits can be added as it is
 localparam PHY_ADDR_UNCACHABLE_BASE = PHY_RAW_ADDR_WIDTH'('h250_0000);

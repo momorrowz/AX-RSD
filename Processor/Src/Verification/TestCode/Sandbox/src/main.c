@@ -14,6 +14,7 @@ int fibo(int n)
 int main()
 {
     // printf
+    /*
     int n = fibo(20);
     printf("20th fibonacci number is %d\n", n);
     // math function
@@ -28,7 +29,10 @@ int main()
     }
 
     // print float
+    */
+
     double a = 2.5;
     printf("%f\n",a*a*a*a);
+    printf("Hello World from newlib!\n");
     return 0;
 }

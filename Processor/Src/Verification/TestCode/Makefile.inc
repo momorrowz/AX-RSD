@@ -113,12 +113,12 @@ $(DUMMY_ROM):
 # RAM は ローダでROMから必要なデータをコピーしたり初期化したりするので関係ない
 ROM_PADDING_SIZE = 4096 # 0x1000
 ROM_START_ADDR = 0x00001000
-ROM_END_ADDR   = 0x00100000
+ROM_END_ADDR   = 0x00400000
 
-ROM_SIZE   = 1048576      # 0x1000 + (0x100000 - 0x1000) = 0x100000
+ROM_SIZE   = 4194304      # 0x1000 + (0x400000 - 0x1000) = 0x400000
 
 # BIN_SIZE は ROM+CODE の合計サイズ
-BIN_SIZE   = 0x100000
+BIN_SIZE   = 0x400000
 
 # .text* と .rodata* ，.bss，.dataなどを ROM として取り出すコマンド
 # （.text* は，名前が .text から始まるセクションすべて）

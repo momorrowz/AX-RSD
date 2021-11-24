@@ -6,8 +6,8 @@ ENTRY(_start);
 
 
 MEMORY {
-    ROM(rxai) :     ORIGIN = 0x00001000, LENGTH = 512k
-    RAM(wa) :       ORIGIN = 0x80000000, LENGTH = 512k
+    ROM(rxai) :     ORIGIN = 0x00001000, LENGTH = 4m
+    RAM(wa) :       ORIGIN = 0x80000000, LENGTH = 12m
 }
 
 SECTIONS
