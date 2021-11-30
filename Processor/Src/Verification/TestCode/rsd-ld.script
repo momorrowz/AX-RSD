@@ -16,7 +16,7 @@ SECTIONS
     .rodata : { *(.rodata) *(.rodata.*) } > ROM
     .srodata : { *(.srodata) *(.srodata.*) } > ROM
     __rodata_end = .;
-    .data : { 
+    .data : ALIGN(8) { 
       __data_start = .;
       *(.data)
       *(.data.*)
@@ -25,6 +25,12 @@ SECTIONS
       __data_end = .;
     } > RAM  AT> ROM 
     . = ALIGN(4);
+    .vram : ALIGN(8) {
+      __vram_start = .;
+      *(.vram)
+      . = ALIGN(4);
+      __vram_end = .;
+    } > RAM  AT> ROM
     .bss : { 
       __bss_start = .;
       *(.bss)

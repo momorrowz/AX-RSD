@@ -75,6 +75,7 @@ synlog.tcl
 /Processor/Src/*.gz
 /Processor/Src/wlft*
 /Processor/Src/stdout*
+/Processor/Src/log/
 
 # python
 *.pyc

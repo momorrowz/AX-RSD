@@ -133,6 +133,7 @@ ROM_COPY = $(OBJCOPY) \
 		--only-section .data* \
 		--only-section .sbss* \
 		--only-section .sdata* \
+		--only-section .vram* \
 		--set-start=$(ROM_START_ADDR) \
 		--pad-to=$(ROM_END_ADDR) \
 

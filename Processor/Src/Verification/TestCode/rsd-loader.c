@@ -6,6 +6,8 @@ extern int __data_start;
 extern int __data_end;
 extern int __bss_start;
 extern int __bss_end;
+extern int __vram_start;
+extern int __vram_end;
 
 #define ram_start 0x80000000
 
@@ -34,8 +36,9 @@ void _load()
     // The core function of the RSD loader called at the very beggining of run time.
     // It copies data in .data and .sdata sections from ROM to RAM
     // and sets 0 in .bss and .sbss sections in RAM.
-    size_t data_size = (size_t)&__data_end - (size_t)&__data_start;
+    //size_t data_size = (size_t)&__data_end - (size_t)&__data_start;
     size_t bss_size = (size_t)&__bss_end - (size_t)&__bss_start;
-    _rsd_memcpy((void*)ram_start, &__rodata_end, data_size);
+    size_t size = (size_t)&__vram_end - (size_t)&__data_start;
+    _rsd_memcpy((void*)ram_start, &__rodata_end, size);
     _rsd_memset(&__bss_start, 0, bss_size);
 }

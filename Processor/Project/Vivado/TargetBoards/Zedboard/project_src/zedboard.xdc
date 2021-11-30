@@ -64,4 +64,7 @@ set_property IOSTANDARD TMDS_33 [get_ports {TMDS_data_p[2]}]
 set_property PACKAGE_PIN AB7 [get_ports {TMDS_data_p[2]}]
 set_property PACKAGE_PIN AB6 [get_ports {TMDS_data_n[2]}]
 
+# false path
+set_clock_groups -asynchronous -group [get_clocks clk_fpga_1] \
+    -group [get_clocks -include_generated_clocks clk_fpga_1 -filter {NAME !~ clk_fpga_1}]
 
