@@ -250,6 +250,9 @@ typedef struct packed // OpInfo
     // * Already fetched succeeding instructions are flushed when this 
     // instruction is decoded.
     logic serialized;    
+
+    // ap.load?
+    logic isApLoad;
 } OpInfo;
 
 typedef struct packed { // InsnInfo

@@ -24,7 +24,6 @@ SECTIONS
       *(.sdata.*)
       __data_end = .;
     } > RAM  AT> ROM 
-    . = ALIGN(4);
     .vram : ALIGN(8) {
       __vram_start = .;
       *(.vram)

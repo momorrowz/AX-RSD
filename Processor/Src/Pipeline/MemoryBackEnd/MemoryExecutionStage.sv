@@ -90,6 +90,9 @@ module MemoryExecutionStage(
     // FENCE.I
     logic cacheFlushReq;
 
+    // ap.load
+    logic isApLoad[LOAD_ISSUE_WIDTH];
+
     always_comb begin
         stall = ctrl.backEnd.stall;
         clear = ctrl.backEnd.clear;
@@ -141,6 +144,9 @@ module MemoryExecutionStage(
                     (memOpInfo[i].operandTypeB != OOT_REG || fuOpB[i].valid );
             `endif
 
+            // for ap.load
+            isApLoad[i] = memOpInfo[i].isApLoad;
+
         end // for ( int i = 0; i < MEM_ISSUE_WIDTH; i++ ) begin
 
         for ( int i = 0; i < LOAD_ISSUE_WIDTH; i++ ) begin
@@ -159,6 +165,7 @@ module MemoryExecutionStage(
 
             // To notify MSHR that the requester is its allocator load.
             loadStoreUnit.makeMSHRCanBeInvalid[i] = makeMSHRCanBeInvalid[i];
+            loadStoreUnit.isApLoad[i] = isApLoad[i];
         end
 
         // FENCE.I (with ICache and DCache flush)

@@ -288,6 +288,9 @@ typedef struct packed // MemOpInfo
     // MSHRをAllocateした命令かどうか
     logic hasAllocatedMSHR;
     MSHR_IndexPath mshrID;
+    
+    // load命令がap.loadか
+    logic isApLoad;
 
 } MemOpInfo;
 

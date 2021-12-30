@@ -698,7 +698,13 @@ public:
         // 書込データがあったらm_strに追加する
         // (data != 0xff) = 0 は verilog 側のコードと仕様をあわせるため
         // 終端文字はださない
+#if 0
         if (we && (data & 0xff) != 0 && m_file) {
+            //fprintf(m_file, "%c", (char)data);
+            fwrite(&data, 1, 1, m_file);
+        }
+#endif
+        if (we && m_file) {
             //fprintf(m_file, "%c", (char)data);
             fwrite(&data, 1, 1, m_file);
         }

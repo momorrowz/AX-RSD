@@ -31,14 +31,45 @@ static void* _rsd_memset(void* str_, int c, size_t n)
     return str;
 }
 
+static void* _rsd_apmemcpy(void* dest_, const void* src_, size_t n) //src_からdst_までap.loadでcopy
+{
+    uint8_t* dest = dest_;
+    const uint8_t* src = src_;
+    uint8_t dummy;
+    //先頭の56Bは正確にロード
+    for (size_t i=0;i<56;i++){
+        dest[i] = src[i];
+    }
+    for (size_t i = 56; i < n; i++) {
+        //dest[i] = src[i];
+        asm (
+                "mv t1,%0\n\t"
+                ".word 0b00000000000000110000001010001011\n\t"
+                "sb t0,0(%1) \n\t"
+                ::"r"(&src[i]),"r"(&dest[i])
+                :"t0","t1","memory"
+            );
+    }
+    return dest;
+}
+
 void _load()
 {
     // The core function of the RSD loader called at the very beggining of run time.
     // It copies data in .data and .sdata sections from ROM to RAM
     // and sets 0 in .bss and .sbss sections in RAM.
     //size_t data_size = (size_t)&__data_end - (size_t)&__data_start;
-    size_t bss_size = (size_t)&__bss_end - (size_t)&__bss_start;
-    size_t size = (size_t)&__vram_end - (size_t)&__data_start;
-    _rsd_memcpy((void*)ram_start, &__rodata_end, size);
+    //size_t bss_size = (size_t)&__bss_end - (size_t)&__bss_start;
+    //size_t data_size = (size_t)&__vram_end - (size_t)&__data_start;
+    //size_t data_size = (size_t)&__data_end - (size_t)&__data_start;
+    //size_t vram_size = (size_t)&__vram_end - (size_t)&__vram_start;
+    uint32_t bss_size = (uint32_t)&__bss_end - (uint32_t)&__bss_start;
+    //size_t data_size = (size_t)&__vram_end - (size_t)&__data_start;
+    uint32_t data_size = (uint32_t)&__data_end - (uint32_t)&__data_start;
+    uint32_t vram_size = (uint32_t)&__vram_end - (uint32_t)&__vram_start;
+    
+    _rsd_memcpy((void*)ram_start, &__rodata_end, data_size);
+    _rsd_apmemcpy((void*)&__vram_start, (uint32_t)&__rodata_end+data_size+4, vram_size);
     _rsd_memset(&__bss_start, 0, bss_size);
+
 }

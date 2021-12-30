@@ -3,7 +3,7 @@ import MemoryMapTypes::*;
 import FetchUnitTypes::*;
 
 module BranchDecider #(
-    parameter SEED = 32'h1010
+    parameter SEED = LFSRSEED
 )
 (
     NextPCStageIF.BranchDecider port,

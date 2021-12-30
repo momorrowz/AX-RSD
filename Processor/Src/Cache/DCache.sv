@@ -29,6 +29,7 @@ import CacheSystemTypes::*;
 import OpFormatTypes::*;
 import MemoryMapTypes::*;
 import LoadStoreUnitTypes::*;
+import FetchUnitTypes::*;
 
 // Merge stored data and fetched line.
 function automatic void MergeStoreDataToLine(
@@ -889,7 +890,8 @@ endmodule : DCacheArray
 module DCache(
     LoadStoreUnitIF.DCache lsu,
     CacheSystemIF.DCache cacheSystem,
-    ControllerIF.DCache ctrl
+    ControllerIF.DCache ctrl,
+    input logic [AX_LEVEL_WIDTH-1:0] csr_val
 );
 
     logic hit[DCACHE_LSU_PORT_NUM];
@@ -1015,6 +1017,36 @@ module DCache(
         "The width of a DCache line must be same or greater than that of an LSQ block."
     );
 
+    logic [LFSR_WIDTH-1:0] randomval, lfsrseed;
+    logic is_taken, updateLFSR;
+    logic [DCACHE_LSU_READ_PORT_NUM-1:0] isApLoad;
+    LFSR #(
+        .WIDTH(LFSR_WIDTH)
+    ) l0 (
+        .clk(port.clk),
+        .rst(port.rst),
+        .seed(lfsrseed),
+        .randomval(randomval),
+        .update(updateLFSR)
+    );
+    initial begin
+        lfsrseed = LFSRSEED;
+    end
+    always_comb begin
+        is_taken = ((32'(csr_val) << (LFSR_WIDTH - AX_LEVEL_WIDTH)) > randomval);
+    end
+    always_ff @(posedge port.clk) begin
+        if (port.rst) begin
+            for (int i = 0; i < DCACHE_LSU_READ_PORT_NUM; i++) begin
+                isApLoad[i] <= '0;
+            end
+        end else begin
+            for (int i = 0; i < DCACHE_LSU_READ_PORT_NUM; i++) begin
+                isApLoad[i] <= lsu.isApLoad[i];
+            end
+        end
+    end
+
     always_comb begin
 
         for (int i = 0; i < DCACHE_LSU_READ_PORT_NUM; i++) begin
@@ -1043,10 +1075,19 @@ module DCache(
 
         // --- In the tag access stage (MemoryTagAccessStage)
         // Hit/miss detection
+        //
+        updateLFSR = FALSE; 
         for (int i = 0; i < DCACHE_LSU_READ_PORT_NUM; i++) begin
             hit[i] = FALSE;
             if (port.lsuMuxTagOut[(i+DCACHE_LSU_READ_PORT_BEGIN)].tagHit && lsuCacheGrtReg[(i+DCACHE_LSU_READ_PORT_BEGIN)]) begin
                 hit[i] = TRUE;
+            end else begin
+                if (isApLoad[i]) begin
+                    updateLFSR = TRUE;
+                    if (is_taken) begin
+                        hit[i] = TRUE; // 
+                    end
+                end
             end
         end
 

@@ -161,9 +161,9 @@ typedef enum logic [11:0]    // enum SystemFunct12
 
 typedef enum logic [2:0]    // enum ApproxFunct3
 {
-    APPROX_FUNCT3_LABEL   = 3'b000, // ap.label
+    APPROX_FUNCT3_LOAD    = 3'b000, // ap.load
     APPROX_FUNCT3_BRANCH  = 3'b011, // ap.branch
-    APPROX_FUNCT3_LOAD    = 3'b100  // ap.load
+    APPROX_FUNCT3_LABEL   = 3'b111  // ap.label
 } ApproxFunct3;
 
 

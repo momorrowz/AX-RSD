@@ -141,6 +141,8 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
     logic conflict [ STORE_ISSUE_WIDTH ];
     logic memAccessOrderViolation [ STORE_ISSUE_WIDTH ];
     PC_Path conflictLoadPC [ STORE_ISSUE_WIDTH ];
+
+    logic isApLoad[ LOAD_ISSUE_WIDTH ];
     
     modport DCache(
     input
@@ -160,6 +162,7 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
         makeMSHRCanBeInvalid,
         makeMSHRCanBeInvalidByMemoryTagAccessStage,
         makeMSHRCanBeInvalidByReplayQueue,
+        isApLoad,
     output
         dcReadHit,
         dcReadBusy,
@@ -319,7 +322,8 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
         dcReadReq,
         dcReadAddr,
         dcReadUncachable,
-        makeMSHRCanBeInvalid
+        makeMSHRCanBeInvalid,
+        isApLoad
     );
 
     modport MemoryTagAccessStage(

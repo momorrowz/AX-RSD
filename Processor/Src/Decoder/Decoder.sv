@@ -718,6 +718,9 @@ function automatic void RISCV_EmitMemOp(
 
     // Serialized
     opInfo.serialized = FALSE;
+
+    // is ap.load?
+    opInfo.isApLoad = FALSE;
 endfunction
 
 function automatic void RISCV_DecodeMemOp(
@@ -1234,8 +1237,60 @@ function automatic void RISCV_EmitApproxLoad(
     output OpInfo opInfo,
     input RISCV_ISF_Common isf
 );
+    // 現状lb相当分のみ
+    RISCV_ISF_I isfI;
+    MemFunct3 memFunct3;
+    MemAccessMode memAccessMode;
+
+    isfI = isf;
+    memFunct3 = MemFunct3'(isfI.funct3);
+
+    // 論理レジスタ番号
+`ifdef RSD_ENABLE_VECTOR_PATH
+    opInfo.operand.memOp.dstRegNum.isVector  = FALSE;
+    opInfo.operand.memOp.srcRegNumA.isVector = FALSE;
+    opInfo.operand.memOp.srcRegNumB.isVector = FALSE;
+`endif
+    opInfo.operand.memOp.dstRegNum.regNum  = isfI.rd;
+    opInfo.operand.memOp.srcRegNumA.regNum = isfI.rs1;
+    opInfo.operand.memOp.srcRegNumB.regNum = '0;
+    opInfo.operand.memOp.csrCtrl = '0; // unused
+    opInfo.operand.memOp.padding = '0;
+
+    // レジスタ書き込みを行うかどうか
+    // ゼロレジスタへの書き込みは書き込みフラグをFALSEとする
+    opInfo.writeReg  = (isfI.rd != ZERO_REGISTER);
+
+    // 論理レジスタを読むかどうか
+    opInfo.opTypeA = OOT_REG;
+    opInfo.opTypeB = OOT_IMM;
+
+    // 命令の種類
+    opInfo.mopType = MOP_TYPE_MEM;
+    opInfo.mopSubType.intType = MEM_MOP_TYPE_LOAD;
+
+    // 条件コード
+    opInfo.cond = COND_AL;
+
+    // アドレッシング
+    opInfo.operand.memOp.addrIn    = isfI.imm;
+    opInfo.operand.memOp.isAddAddr = TRUE;
+    opInfo.operand.memOp.isRegAddr = TRUE;
+    RISCV_DecodeMemAccessMode( memAccessMode, memFunct3 );
+    opInfo.operand.memOp.memAccessMode = memAccessMode;
+
+    // 未定義命令
+    opInfo.unsupported = FALSE;
+    opInfo.undefined = FALSE;
+
+    // Serialized
+    opInfo.serialized = FALSE;
+
     // Control
     opInfo.valid = TRUE;    // Valid outputs
+
+    // is ap.load?
+    opInfo.isApLoad = TRUE;
 endfunction
 
 function automatic void RISCV_EmitApproxLabel(

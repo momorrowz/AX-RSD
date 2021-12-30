@@ -191,6 +191,9 @@ module DispatchStage(
             memEntry[i].memOpInfo.hasAllocatedMSHR = 0;
             memEntry[i].memOpInfo.mshrID = '0;
 
+            // ap.load
+            memEntry[i].memOpInfo.isApLoad = opInfo[i].isApLoad;
+
             // OpSrc
             memEntry[i].opSrc = opSrc[i];
             memEntry[i].opDst = opDst[i];
