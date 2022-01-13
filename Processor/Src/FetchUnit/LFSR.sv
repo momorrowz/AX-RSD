@@ -21,6 +21,8 @@ always @(posedge clk) begin
     end
 end
 
-assign cap = r[31] ^ r[21] ^ r[1] ^ r[0];
-assign randomval = r;
+always_comb begin
+    cap = r[31] ^ r[21] ^ r[1] ^ r[0];
+    randomval = r;
+end
 endmodule : LFSR

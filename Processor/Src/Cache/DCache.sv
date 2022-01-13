@@ -1017,9 +1017,10 @@ module DCache(
         "The width of a DCache line must be same or greater than that of an LSQ block."
     );
 
+    // for ap.load
     logic [LFSR_WIDTH-1:0] randomval, lfsrseed;
     logic is_taken, updateLFSR;
-    logic [DCACHE_LSU_READ_PORT_NUM-1:0] isApLoad;
+    logic [DCACHE_LSU_READ_PORT_NUM-1:0] isApLoad, fromAVT;
     LFSR #(
         .WIDTH(LFSR_WIDTH)
     ) l0 (
@@ -1076,21 +1077,12 @@ module DCache(
         // --- In the tag access stage (MemoryTagAccessStage)
         // Hit/miss detection
         //
-        updateLFSR = FALSE; 
         for (int i = 0; i < DCACHE_LSU_READ_PORT_NUM; i++) begin
             hit[i] = FALSE;
             if (port.lsuMuxTagOut[(i+DCACHE_LSU_READ_PORT_BEGIN)].tagHit && lsuCacheGrtReg[(i+DCACHE_LSU_READ_PORT_BEGIN)]) begin
                 hit[i] = TRUE;
-            end else begin
-                if (isApLoad[i]) begin
-                    updateLFSR = TRUE;
-                    if (is_taken) begin
-                        hit[i] = TRUE; // 
-                    end
-                end
             end
         end
-
         //
         // --- In the data array access stage.
         // Load data from a cache line.
@@ -1099,6 +1091,7 @@ module DCache(
             // Read data address is aligned to word boundary in ReadDataFromLine.
             lsu.dcReadData[i] = port.lsuMuxDataOut[i].dataDataOut;
             lsu.dcReadHit[i] = hit[i];
+            lsu.fromAVT[i] = fromAVT[i];
         end
 /*
         for (int i = DCACHE_LSU_READ_PORT_NUM; i < MEM_ISSUE_WIDTH; i++) begin
@@ -1170,12 +1163,19 @@ module DCache(
 
         // Read requests from a memory execution stage.
         for (int i = 0; i < DCACHE_LSU_READ_PORT_NUM; i++) begin
+            fromAVT[i] = FALSE;
             missReq[i] = 
                 !hit[i] && 
                 !port.lsuMuxTagOut[i].mshrConflict && 
                 dcReadReqReg[i] && 
                 lsuCacheGrtReg[i] && 
                 !lsu.dcReadCancelFromMT_Stage[i];
+            if(missReq[i] && isApLoad[i]) begin
+                updateLFSR=TRUE;
+                if(is_taken) begin
+                    fromAVT[i] = TRUE;
+                end
+            end
             missAddr[i] = dcReadAddrRegTagStg[i];
             missIsUncachable[i] = dcReadUncachableReg[i];
         end
@@ -1248,7 +1248,7 @@ module DCache(
         end
 
         for (int i = 0; i < DCACHE_LSU_PORT_NUM; i++) begin
-            if (!missReq[i] || mshrConflict[i]) begin
+            if (!missReq[i] || (isApLoad[i] && is_taken) || mshrConflict[i]) begin
                 // This access hits the cache or is invalid.
                 // An access with the same index cannot enter to the MSHR.
                 continue;

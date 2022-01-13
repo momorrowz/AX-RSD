@@ -143,6 +143,7 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
     PC_Path conflictLoadPC [ STORE_ISSUE_WIDTH ];
 
     logic isApLoad[ LOAD_ISSUE_WIDTH ];
+    logic fromAVT[ LOAD_ISSUE_WIDTH ];
     
     modport DCache(
     input
@@ -180,7 +181,8 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
         loadHasAllocatedMSHR,
         loadMSHRID,
         storeHasAllocatedMSHR,
-        storeMSHRID
+        storeMSHRID,
+        fromAVT
     );
 
 
@@ -293,6 +295,7 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
         busyInRecovery,
         mshrReadHit,
         mshrReadData,
+        fromAVT,
     output
         executedLoadData,
         executedLoadVectorData,
@@ -337,6 +340,7 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
         mshrReadHit,
         loadHasAllocatedMSHR,
         loadMSHRID,
+        fromAVT,
     output
         dcReadCancelFromMT_Stage,
         executeLoad,

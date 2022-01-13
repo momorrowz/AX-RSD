@@ -182,7 +182,7 @@ output
         LoadQueue loadQueue( loadStoreUnitIF, recoveryManagerIF );
         StoreQueue storeQueue( loadStoreUnitIF, recoveryManagerIF );
         StoreCommitter storeCommitter(loadStoreUnitIF, recoveryManagerIF, ioUnitIF, debugIF, perfCounterIF);
-        DCache dCache( loadStoreUnitIF, cacheSystemIF, ctrlIF , 4);
+        DCache dCache( loadStoreUnitIF, cacheSystemIF, ctrlIF , 8);
     MemoryRegisterWriteStage memRwStage( /*memRwStageIF,*/ maStageIF, registerFileIF, activeListIF, recoveryManagerIF, ctrlIF, debugIF );
 
     RegisterFile registerFile( registerFileIF );

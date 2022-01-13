@@ -211,6 +211,9 @@ module MemoryTagAccessStage(
                 else if (loadStoreUnit.mshrReadHit[i]) begin
                     ldRegValid[i] = ldPipeReg[i].regValid;
                 end
+                else if (loadStoreUnit.fromAVT[i]) begin
+                    ldRegValid[i] = ldPipeReg[i].regValid;
+                end
                 else begin
                     // The consumers of a missed load is invalidate.
                     ldRegValid[i] = loadStoreUnit.dcReadHit[i] ? ldPipeReg[i].regValid : FALSE;
@@ -282,6 +285,9 @@ module MemoryTagAccessStage(
                             loadStoreUnit.mshrReadHit[i] ? EXEC_STATE_SUCCESS : EXEC_STATE_REFETCH_THIS;
                 end
                 else if (loadStoreUnit.mshrReadHit[i]) begin
+                    ldNextStage[i].execState = EXEC_STATE_SUCCESS;
+                end
+                else if (loadStoreUnit.fromAVT[i]) begin
                     ldNextStage[i].execState = EXEC_STATE_SUCCESS;
                 end
                 else begin
