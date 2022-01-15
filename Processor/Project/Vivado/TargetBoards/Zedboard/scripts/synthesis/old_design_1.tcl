@@ -37,13 +37,6 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 # To test this script, run the following commands from Vivado Tcl console:
 # source design_1_script.tcl
 
-
-# The design that will be created by this Tcl script contains the following 
-# module references:
-# display, setting_display
-
-# Please add the sources of those modules before sourcing this Tcl script.
-
 # If there is no project opened, this script will create a
 # project, but make sure you do not have an existing project
 # <./myproj/project_1.xpr> in the current working folder.
@@ -132,10 +125,8 @@ set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
 xilinx.com:user:RSD:1.0\
-xilinx.com:user:hdmi_vga:1.0\
 xilinx.com:ip:proc_sys_reset:5.0\
 xilinx.com:ip:processing_system7:5.5\
-xilinx.com:ip:xlconcat:2.1\
 "
 
    set list_ips_missing ""
@@ -153,32 +144,6 @@ xilinx.com:ip:xlconcat:2.1\
       set bCheckIPsPassed 0
    }
 
-}
-
-##################################################################
-# CHECK Modules
-##################################################################
-set bCheckModules 1
-if { $bCheckModules == 1 } {
-   set list_check_mods "\ 
-display\
-setting_display\
-"
-
-   set list_mods_missing ""
-   common::send_msg_id "BD_TCL-006" "INFO" "Checking if the following modules exist in the project's sources: $list_check_mods ."
-
-   foreach mod_vlnv $list_check_mods {
-      if { [can_resolve_reference $mod_vlnv] == 0 } {
-         lappend list_mods_missing $mod_vlnv
-      }
-   }
-
-   if { $list_mods_missing ne "" } {
-      catch {common::send_msg_id "BD_TCL-115" "ERROR" "The following module(s) are not found in the project: $list_mods_missing" }
-      common::send_msg_id "BD_TCL-008" "INFO" "Please add source files for the missing module(s) above."
-      set bCheckIPsPassed 0
-   }
 }
 
 if { $bCheckIPsPassed != 1 } {
@@ -231,11 +196,7 @@ proc create_root_design { parentCell } {
 
 
   # Create ports
-  set TMDS_clk_n [ create_bd_port -dir O TMDS_clk_n ]
-  set TMDS_clk_p [ create_bd_port -dir O TMDS_clk_p ]
-  set TMDS_data_n [ create_bd_port -dir O -from 2 -to 0 TMDS_data_n ]
-  set TMDS_data_p [ create_bd_port -dir O -from 2 -to 0 TMDS_data_p ]
-  set ledOut [ create_bd_port -dir O -from 1 -to 0 ledOut ]
+  set ledOut [ create_bd_port -dir O -from 7 -to 0 ledOut ]
 
   # Create instance: RSD_0, and set properties
   set RSD_0 [ create_bd_cell -type ip -vlnv xilinx.com:user:RSD:1.0 RSD_0 ]
@@ -254,31 +215,8 @@ proc create_root_design { parentCell } {
    CONFIG.SYNCHRONIZATION_STAGES {2} \
  ] $axi_interconnect_1
 
-  # Create instance: axi_interconnect_2, and set properties
-  set axi_interconnect_2 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_2 ]
-  set_property -dict [ list \
-   CONFIG.NUM_MI {1} \
- ] $axi_interconnect_2
-
-  # Create instance: display_0, and set properties
-  set block_name display
-  set block_cell_name display_0
-  if { [catch {set display_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_msg_id "BD_TCL-105" "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $display_0 eq "" } {
-     catch {common::send_msg_id "BD_TCL-106" "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create instance: hdmi_vga_0, and set properties
-  set hdmi_vga_0 [ create_bd_cell -type ip -vlnv xilinx.com:user:hdmi_vga:1.0 hdmi_vga_0 ]
-
   # Create instance: proc_sys_reset_0, and set properties
   set proc_sys_reset_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0 ]
-
-  # Create instance: proc_sys_reset_1, and set properties
-  set proc_sys_reset_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_1 ]
 
   # Create instance: processing_system7_0, and set properties
   set processing_system7_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0 ]
@@ -291,7 +229,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_ACT_ENET0_PERIPHERAL_FREQMHZ {125.000000} \
    CONFIG.PCW_ACT_ENET1_PERIPHERAL_FREQMHZ {10.000000} \
    CONFIG.PCW_ACT_FPGA0_PERIPHERAL_FREQMHZ {50.000000} \
-   CONFIG.PCW_ACT_FPGA1_PERIPHERAL_FREQMHZ {100.000000} \
+   CONFIG.PCW_ACT_FPGA1_PERIPHERAL_FREQMHZ {10.000000} \
    CONFIG.PCW_ACT_FPGA2_PERIPHERAL_FREQMHZ {10.000000} \
    CONFIG.PCW_ACT_FPGA3_PERIPHERAL_FREQMHZ {10.000000} \
    CONFIG.PCW_ACT_I2C_PERIPHERAL_FREQMHZ {50} \
@@ -333,7 +271,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_CAN_PERIPHERAL_FREQMHZ {100} \
    CONFIG.PCW_CAN_PERIPHERAL_VALID {0} \
    CONFIG.PCW_CLK0_FREQ {50000000} \
-   CONFIG.PCW_CLK1_FREQ {100000000} \
+   CONFIG.PCW_CLK1_FREQ {10000000} \
    CONFIG.PCW_CLK2_FREQ {10000000} \
    CONFIG.PCW_CLK3_FREQ {10000000} \
    CONFIG.PCW_CORE0_FIQ_INTR {0} \
@@ -393,7 +331,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_EN_CAN0 {0} \
    CONFIG.PCW_EN_CAN1 {0} \
    CONFIG.PCW_EN_CLK0_PORT {1} \
-   CONFIG.PCW_EN_CLK1_PORT {1} \
+   CONFIG.PCW_EN_CLK1_PORT {0} \
    CONFIG.PCW_EN_CLK2_PORT {0} \
    CONFIG.PCW_EN_CLK3_PORT {0} \
    CONFIG.PCW_EN_CLKTRIG0_PORT {0} \
@@ -438,7 +376,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_EN_PTP_ENET1 {0} \
    CONFIG.PCW_EN_QSPI {1} \
    CONFIG.PCW_EN_RST0_PORT {1} \
-   CONFIG.PCW_EN_RST1_PORT {1} \
+   CONFIG.PCW_EN_RST1_PORT {0} \
    CONFIG.PCW_EN_RST2_PORT {0} \
    CONFIG.PCW_EN_RST3_PORT {0} \
    CONFIG.PCW_EN_SDIO0 {1} \
@@ -458,8 +396,8 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR0 {5} \
    CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR1 {4} \
    CONFIG.PCW_FCLK1_PERIPHERAL_CLKSRC {IO PLL} \
-   CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR0 {5} \
-   CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR1 {2} \
+   CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR0 {1} \
+   CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR1 {1} \
    CONFIG.PCW_FCLK2_PERIPHERAL_CLKSRC {IO PLL} \
    CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR1 {1} \
@@ -467,15 +405,15 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR1 {1} \
    CONFIG.PCW_FCLK_CLK0_BUF {TRUE} \
-   CONFIG.PCW_FCLK_CLK1_BUF {TRUE} \
+   CONFIG.PCW_FCLK_CLK1_BUF {FALSE} \
    CONFIG.PCW_FCLK_CLK2_BUF {FALSE} \
    CONFIG.PCW_FCLK_CLK3_BUF {FALSE} \
-   CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {50} \
-   CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {100} \
+   CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {50.000000} \
+   CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {150.000000} \
    CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {50} \
    CONFIG.PCW_FPGA3_PERIPHERAL_FREQMHZ {50} \
    CONFIG.PCW_FPGA_FCLK0_ENABLE {1} \
-   CONFIG.PCW_FPGA_FCLK1_ENABLE {1} \
+   CONFIG.PCW_FPGA_FCLK1_ENABLE {0} \
    CONFIG.PCW_FPGA_FCLK2_ENABLE {0} \
    CONFIG.PCW_FPGA_FCLK3_ENABLE {0} \
    CONFIG.PCW_FTM_CTI_IN0 {<Select>} \
@@ -1073,7 +1011,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_USE_S_AXI_GP0 {0} \
    CONFIG.PCW_USE_S_AXI_GP1 {0} \
    CONFIG.PCW_USE_S_AXI_HP0 {1} \
-   CONFIG.PCW_USE_S_AXI_HP1 {1} \
+   CONFIG.PCW_USE_S_AXI_HP1 {0} \
    CONFIG.PCW_USE_S_AXI_HP2 {0} \
    CONFIG.PCW_USE_S_AXI_HP3 {0} \
    CONFIG.PCW_USE_TRACE {0} \
@@ -1086,61 +1024,24 @@ proc create_root_design { parentCell } {
    CONFIG.preset {ZedBoard} \
  ] $processing_system7_0
 
-  # Create instance: setting_display_0, and set properties
-  set block_name setting_display
-  set block_cell_name setting_display_0
-  if { [catch {set setting_display_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_msg_id "BD_TCL-105" "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $setting_display_0 eq "" } {
-     catch {common::send_msg_id "BD_TCL-106" "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create instance: xlconcat_0, and set properties
-  set xlconcat_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_0 ]
-
   # Create interface connections
   connect_bd_intf_net -intf_net RSD_0_axi4MemoryIF_M_AXI [get_bd_intf_pins RSD_0/axi4MemoryIF_M_AXI] [get_bd_intf_pins axi_interconnect_1/S00_AXI]
-  connect_bd_intf_net -intf_net S00_AXI_1 [get_bd_intf_pins axi_interconnect_2/S00_AXI] [get_bd_intf_pins display_0/M_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins RSD_0/axi4LitePlToPsControlRegisterIF_S_AXI] [get_bd_intf_pins axi_interconnect_0/M00_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins RSD_0/axi4LitePsToPlControlRegisterIF_S_AXI] [get_bd_intf_pins axi_interconnect_0/M01_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_1_M00_AXI [get_bd_intf_pins axi_interconnect_1/M00_AXI] [get_bd_intf_pins processing_system7_0/S_AXI_HP0]
-  connect_bd_intf_net -intf_net axi_interconnect_2_M00_AXI [get_bd_intf_pins axi_interconnect_2/M00_AXI] [get_bd_intf_pins processing_system7_0/S_AXI_HP1]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
   connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP0 [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins processing_system7_0/M_AXI_GP0]
 
   # Create port connections
   connect_bd_net -net ACLK_1 [get_bd_pins RSD_0/axi4LitePlToPsControlRegisterIF_S_AXI_ACLK] [get_bd_pins RSD_0/axi4LitePsToPlControlRegisterIF_S_AXI_ACLK] [get_bd_pins RSD_0/axi4MemoryIF_M_AXI_ACLK] [get_bd_pins RSD_0/clk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_interconnect_1/ACLK] [get_bd_pins axi_interconnect_1/M00_ACLK] [get_bd_pins axi_interconnect_1/S00_ACLK] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK]
-  connect_bd_net -net ACLK_2 [get_bd_pins axi_interconnect_2/ACLK] [get_bd_pins axi_interconnect_2/M00_ACLK] [get_bd_pins axi_interconnect_2/S00_ACLK] [get_bd_pins display_0/ACLK] [get_bd_pins proc_sys_reset_1/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK1] [get_bd_pins processing_system7_0/S_AXI_HP1_ACLK] [get_bd_pins setting_display_0/clk]
   connect_bd_net -net ARESETN_1 [get_bd_pins RSD_0/axi4LitePlToPsControlRegisterIF_S_AXI_ARESETN] [get_bd_pins RSD_0/axi4LitePsToPlControlRegisterIF_S_AXI_ARESETN] [get_bd_pins RSD_0/axi4MemoryIF_M_AXI_ARESETN] [get_bd_pins RSD_0/negResetIn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_1/ARESETN] [get_bd_pins proc_sys_reset_0/interconnect_aresetn]
   connect_bd_net -net M01_ARESETN_1 [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_interconnect_1/M00_ARESETN] [get_bd_pins axi_interconnect_1/S00_ARESETN] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
-  connect_bd_net -net display_0_FIFO_OVER [get_bd_pins display_0/FIFO_OVER] [get_bd_pins xlconcat_0/In1]
-  connect_bd_net -net display_0_FIFO_UNDER [get_bd_pins display_0/FIFO_UNDER] [get_bd_pins xlconcat_0/In0]
-  connect_bd_net -net display_0_PCK [get_bd_pins display_0/PCK] [get_bd_pins hdmi_vga_0/PCK]
-  connect_bd_net -net display_0_VBLANK [get_bd_pins display_0/VBLANK] [get_bd_pins setting_display_0/VBLANK]
-  connect_bd_net -net display_0_VGA_B [get_bd_pins display_0/VGA_B] [get_bd_pins hdmi_vga_0/IN_VGA_B]
-  connect_bd_net -net display_0_VGA_DE [get_bd_pins display_0/VGA_DE] [get_bd_pins hdmi_vga_0/IN_VGA_DE]
-  connect_bd_net -net display_0_VGA_G [get_bd_pins display_0/VGA_G] [get_bd_pins hdmi_vga_0/IN_VGA_G]
-  connect_bd_net -net display_0_VGA_HS [get_bd_pins display_0/VGA_HS] [get_bd_pins hdmi_vga_0/IN_VGA_HS]
-  connect_bd_net -net display_0_VGA_R [get_bd_pins display_0/VGA_R] [get_bd_pins hdmi_vga_0/IN_VGA_R]
-  connect_bd_net -net display_0_VGA_VS [get_bd_pins display_0/VGA_VS] [get_bd_pins hdmi_vga_0/IN_VGA_VS]
-  connect_bd_net -net hdmi_vga_0_HDMI_CLK_N [get_bd_ports TMDS_clk_n] [get_bd_pins hdmi_vga_0/HDMI_CLK_N]
-  connect_bd_net -net hdmi_vga_0_HDMI_CLK_P [get_bd_ports TMDS_clk_p] [get_bd_pins hdmi_vga_0/HDMI_CLK_P]
-  connect_bd_net -net hdmi_vga_0_HDMI_N [get_bd_ports TMDS_data_n] [get_bd_pins hdmi_vga_0/HDMI_N]
-  connect_bd_net -net hdmi_vga_0_HDMI_P [get_bd_ports TMDS_data_p] [get_bd_pins hdmi_vga_0/HDMI_P]
-  connect_bd_net -net proc_sys_reset_1_peripheral_aresetn [get_bd_pins axi_interconnect_2/ARESETN] [get_bd_pins axi_interconnect_2/M00_ARESETN] [get_bd_pins axi_interconnect_2/S00_ARESETN] [get_bd_pins display_0/ARESETN] [get_bd_pins hdmi_vga_0/nRST] [get_bd_pins proc_sys_reset_1/peripheral_aresetn] [get_bd_pins setting_display_0/rst]
+  connect_bd_net -net RSD_0_ledOut [get_bd_ports ledOut] [get_bd_pins RSD_0/ledOut]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins proc_sys_reset_0/ext_reset_in] [get_bd_pins processing_system7_0/FCLK_RESET0_N]
-  connect_bd_net -net processing_system7_0_FCLK_RESET1_N [get_bd_pins proc_sys_reset_1/ext_reset_in] [get_bd_pins processing_system7_0/FCLK_RESET1_N]
-  connect_bd_net -net setting_display_0_CLRVBLNK [get_bd_pins display_0/CLRVBLNK] [get_bd_pins setting_display_0/CLRVBLNK]
-  connect_bd_net -net setting_display_0_DISPADDR [get_bd_pins display_0/DISPADDR] [get_bd_pins setting_display_0/DISPADDR]
-  connect_bd_net -net setting_display_0_DISPON [get_bd_pins display_0/DISPON] [get_bd_pins setting_display_0/DISPON]
-  connect_bd_net -net xlconcat_0_dout [get_bd_ports ledOut] [get_bd_pins xlconcat_0/dout]
 
   # Create address segments
   assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces RSD_0/axi4MemoryIF_M_AXI] [get_bd_addr_segs processing_system7_0/S_AXI_HP0/HP0_DDR_LOWOCM] -force
-  assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces display_0/M_AXI] [get_bd_addr_segs processing_system7_0/S_AXI_HP1/HP1_DDR_LOWOCM] -force
   assign_bd_address -offset 0x43C00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs RSD_0/axi4LitePlToPsControlRegisterIF_S_AXI/reg0] -force
   assign_bd_address -offset 0x43C10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs RSD_0/axi4LitePsToPlControlRegisterIF_S_AXI/reg0] -force
 
@@ -1148,6 +1049,7 @@ proc create_root_design { parentCell } {
   # Restore current instance
   current_bd_instance $oldCurInst
 
+  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
@@ -1159,6 +1061,4 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
-
-common::send_msg_id "BD_TCL-1000" "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 

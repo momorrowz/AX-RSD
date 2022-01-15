@@ -149,6 +149,14 @@ set_property -name "xsim.trace_limit" -value "65536" -objects $obj
 if {[string equal [get_filesets -quiet sources_1] ""]} {
   create_fileset -srcset sources_1
 }
+############################################33
+# Add source files to the project
+set list_source_files [glob -nocomplain [file join $origin_dir ../../../../Src/display/disp_ip/HDL *]]
+if { [llength $list_source_files] > 0 } {
+	# adding the same file more than once is okay
+	catch { add_files -fileset sources_1 $list_source_files }
+}
+############################################33
 
 # Set IP repository paths
 set obj [get_filesets sources_1]
@@ -165,7 +173,13 @@ save_bd_design
 set origin_dir $origin_dir_b
 make_wrapper -files [get_files "$origin_dir/rsd/rsd.srcs/sources_1/bd/design_1/design_1.bd"] -top
 add_files -norecurse "$origin_dir/rsd/rsd.srcs/sources_1/bd/design_1/hdl/design_1_wrapper.v"
-
+############################################
+import_files -fileset sources_1 "$origin_dir/../../../../Src/display/disp_ip/disp_fifo/disp_fifo.xci"
+set file "disp_fifo/disp_fifo.xci"
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
+set_property -name "registered_with_manager" -value "1" -objects $file_obj
+############################################
 # Set 'sources_1' fileset object
 # set obj [get_filesets sources_1]
 # Add local files from the original project (-no_copy_sources specified)
