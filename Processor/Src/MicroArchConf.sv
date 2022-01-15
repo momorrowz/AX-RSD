@@ -4,6 +4,10 @@
 
 package MicroArchConf;
 
+// ---- Approx
+// default apptoximation level
+localparam CONF_DEFAULT_AX_LEVEL = 4;
+
 // ---- Front-end
 // Fetch width (instructions). This parameter is configurable.
 localparam CONF_FETCH_WIDTH = 2;

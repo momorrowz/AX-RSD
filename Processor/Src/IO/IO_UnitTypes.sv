@@ -42,6 +42,10 @@ localparam LED_WIDTH = 16;
 `endif
 typedef logic [ LED_WIDTH-1:0 ] LED_Path;
 
+// Switch IO
+localparam SW_WIDTH = 8;
+typedef logic [ SW_WIDTH-1:0 ] SW_Path;
+
 // Serial IO
 `ifdef RSD_SYNTHESIS_FPGA
     localparam SERIAL_OUTPUT_WIDTH = 8;
@@ -50,6 +54,9 @@ typedef logic [ LED_WIDTH-1:0 ] LED_Path;
 `endif
 typedef logic [ SERIAL_OUTPUT_WIDTH-1:0 ] SerialDataPath;
 
+// VRAM IO
+localparam VRAM_ADDRESS_OUTPUT_WIDTH = 32;
+typedef logic [VRAM_ADDRESS_OUTPUT_WIDTH-1:0] VramAddressDataPath;
 
 
 endpackage

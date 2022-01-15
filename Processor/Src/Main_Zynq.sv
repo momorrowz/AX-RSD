@@ -28,8 +28,11 @@ module Main_Zynq #(
 input
     logic clk,
     logic negResetIn, // 負論理
+    SW_Path swIn, // Switch Input
 output
     LED_Path ledOut, // LED Output
+    VramAddressDataPath vramAddress, //VRAM Address Output
+    logic vramEnable, // VRAM Address Enable
 `else
 // RSD_POST_SYNTHESIS
 // RSD_FUNCTIONAL_SIMULATION
@@ -59,7 +62,9 @@ output
     SerialDataPath serialWriteData,
     logic posResetOut, // 正論理
     LED_Path ledOut, // LED Output
-    logic txd
+    logic txd,
+    VramAddressDataPath vramAddress, //VRAM Address Output
+    logic vramEnable // VRAM Address Enable
 `endif
 );
 
@@ -238,6 +243,23 @@ logic clk;
     assign ledOut = lastCommittedPC[ LED_WIDTH-1:0 ];
 `endif
 
+
+    // --- Switch IO => axLevel
+    logic axLevelEn;
+    logic [ AX_LEVEL_WIDTH-1:0 ] axLevelData;
+
+`ifdef RSD_SYNTHESIS_ZEDBOARD
+    always_ff @( posedge clk ) begin
+        axLevelEn <= swIn[0];
+        axLevelData <= swIn[ AX_LEVEL_WIDTH : 1];
+    end
+`else
+    always_comb begin
+        axLevelEn = '0;
+        axLevelData = '0;
+    end
+`endif
+
     //
     // --- AXI4Lite Control Register IO for ZYNQ
     //
@@ -286,7 +308,11 @@ logic clk;
         .serialWE( serialWE ),
         .serialWriteData( serialWriteData ),
         .lastCommittedPC( lastCommittedPC ),
-        .debugRegister ( debugRegister )
+        .debugRegister ( debugRegister ),
+        .vramAddress(vramAddress),
+        .vramEnable(vramEnable),
+        .axLevelData(axLevelData),
+        .axLevelEn(axLevelEn)
     );
     
 endmodule : Main_Zynq

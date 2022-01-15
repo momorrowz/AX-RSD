@@ -15,14 +15,14 @@ set_property PACKAGE_PIN U14 [get_ports {ledOut[7]}]
 # set_property PACKAGE_PIN R18 [get_ports {BTNR}];  # "BTNR"
 # set_property PACKAGE_PIN T18 [get_ports {ibit}];  # "BTNU"
 
-# set_property PACKAGE_PIN F22 [get_ports {SW0}];  # "SW0"
-# set_property PACKAGE_PIN G22 [get_ports {SW1}];  # "SW1"
-# set_property PACKAGE_PIN H22 [get_ports {SW2}];  # "SW2"
-# set_property PACKAGE_PIN F21 [get_ports {SW3}];  # "SW3"
-# set_property PACKAGE_PIN H19 [get_ports {SW4}];  # "SW4"
-# set_property PACKAGE_PIN H18 [get_ports {SW5}];  # "SW5"
-# set_property PACKAGE_PIN H17 [get_ports {SW6}];  # "SW6"
-# set_property PACKAGE_PIN M15 [get_ports {SW7}];  # "SW7"
+set_property PACKAGE_PIN F22 [get_ports {swIn[0]}]  # "SW0"
+set_property PACKAGE_PIN G22 [get_ports {swIn[1]}]  # "SW1"
+set_property PACKAGE_PIN H22 [get_ports {swIn[2]}]  # "SW2"
+set_property PACKAGE_PIN F21 [get_ports {swIn[3]}]  # "SW3"
+set_property PACKAGE_PIN H19 [get_ports {swIn[4]}]  # "SW4"
+set_property PACKAGE_PIN H18 [get_ports {swIn[5]}]  # "SW5"
+set_property PACKAGE_PIN H17 [get_ports {swIn[6]}]  # "SW6"
+set_property PACKAGE_PIN M15 [get_ports {swIn[7]}]  # "SW7"
 
 # Note that the bank voltage for IO Bank 33 is fixed to 3.3V on ZedBoard.
 set_property IOSTANDARD LVCMOS33 [get_ports -of_objects [get_iobanks 33]]

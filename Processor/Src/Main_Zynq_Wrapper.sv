@@ -31,8 +31,11 @@ module Main_Zynq_Wrapper #(
 input
     logic clk,
     logic negResetIn, // 負論理
+    SW_Path swIn, // Switch Input
 output
     LED_Path ledOut, // LED Output
+    VramAddressDataPath vramAddress, //VRAM Address Output
+    logic vramEnable, // VRAM Address Enable
 `else
 // RSD_POST_SYNTHESIS
 // RSD_FUNCTIONAL_SIMULATION
@@ -59,7 +62,9 @@ output
     SerialDataPath serialWriteData,
     logic posResetOut, // 正論理
     LED_Path ledOut, // LED Output
-    logic txd
+    logic txd,
+    VramAddressDataPath vramAddress, //VRAM Address Output
+    logic vramEnable // VRAM Address Enable
 `endif
 );
 
@@ -94,7 +99,10 @@ output
 `ifdef RSD_SYNTHESIS_ZEDBOARD
         clk,
         negResetIn,
+        swIn,
         ledOut,
+        vramAddress,
+        vramEnable,
 `else
         clk_p,
         clk_n,
@@ -118,7 +126,9 @@ output
         serialWriteData,
         posResetOut,
         ledOut,
-        txd
+        txd,
+        vramAddress,
+        vramEnable
 `endif
     );
 

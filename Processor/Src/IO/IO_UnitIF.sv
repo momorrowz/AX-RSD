@@ -17,7 +17,9 @@ interface IO_UnitIF(
         logic clk, rst, rstStart,
     output
         logic serialWE,
-        SerialDataPath serialWriteDataOut
+        SerialDataPath serialWriteDataOut,
+        VramAddressDataPath vramAddressOut,
+        logic vramEnableOut
 );
     // Write request from a store qeueue 
     logic ioWE;
@@ -38,7 +40,9 @@ interface IO_UnitIF(
     output
         ioReadDataOut,
         serialWE,
-        serialWriteDataOut
+        serialWriteDataOut,
+        vramAddressOut,
+        vramEnableOut
     );
 
     modport MemoryAccessStage(

@@ -14,6 +14,8 @@ import MemoryTypes::*;
 import MemoryMapTypes::*;
 import IO_UnitTypes::*;
 import DebugTypes::*;
+import FetchUnitTypes::*;
+import MicroArchConf::*;
 
 module Core (
 input
@@ -29,6 +31,8 @@ input
     logic memAccessWriteBusy,
     logic reqExternalInterrupt,
     ExternalInterruptCodePath externalInterruptCode,
+    [ AX_LEVEL_WIDTH-1:0 ] axLevelData,
+    logic axLevelEn,
 output
     DebugRegister debugRegister,
     PC_Path lastCommittedPC,
@@ -37,7 +41,9 @@ output
     logic memAccessRE,
     logic memAccessWE,
     logic serialWE,
-    SerialDataPath serialWriteData
+    SerialDataPath serialWriteData,
+    VramAddressDataPath vramAddress,
+    logic vramEnable
 );
     //
     // --- For Debug
@@ -57,6 +63,25 @@ output
 
 `ifndef RSD_DISABLE_PERFORMANCE_COUNTER
     PerformanceCounter perfCounter(perfCounterIF, debugIF);
+`endif
+
+    //
+    // --- AX LEVEL
+    //
+    logic [ AX_LEVEL_WIDTH-1:0 ] axLevel;
+`ifdef RSD_SYNTHESIS_ZEDBOARD
+    always_comb begin
+        if (axLevelEn) begin
+            axLevel = axLevelData;
+        end
+        else begin
+            axLevel = CONF_DEFAULT_AX_LEVEL;
+        end
+    end
+`else
+    always_comb begin
+        axLevel = CONF_DEFAULT_AX_LEVEL;
+    end
 `endif
 
     //
@@ -104,7 +129,7 @@ output
     LoadStoreUnitIF loadStoreUnitIF( clk, rst, rstStart );
     RecoveryManagerIF recoveryManagerIF( clk, rst );
     CSR_UnitIF csrUnitIF(clk, rst, rstStart, reqExternalInterrupt, externalInterruptCode);
-    IO_UnitIF ioUnitIF(clk, rst, rstStart, serialWE, serialWriteData);
+    IO_UnitIF ioUnitIF(clk, rst, rstStart, serialWE, serialWriteData, vramAddress, vramEnable);
     MulDivUnitIF mulDivUnitIF(clk, rst);
     CacheFlushManagerIF cacheFlushManagerIF(clk, rst);
 
@@ -134,7 +159,7 @@ output
         BTB btb( npStageIF, ifStageIF );
         BranchPredictor brPred( npStageIF, ifStageIF, ctrlIF );
         AXBTB axbtb(npStageIF, ifStageIF);
-        BranchDecider brDecid( npStageIF, ifStageIF, 8 );
+        BranchDecider brDecid( npStageIF, ifStageIF, axLevel );
     FetchStage ifStage( ifStageIF, npStageIF, ctrlIF, debugIF, perfCounterIF );
         ICache iCache( npStageIF, ifStageIF, cacheSystemIF );
     
@@ -182,7 +207,7 @@ output
         LoadQueue loadQueue( loadStoreUnitIF, recoveryManagerIF );
         StoreQueue storeQueue( loadStoreUnitIF, recoveryManagerIF );
         StoreCommitter storeCommitter(loadStoreUnitIF, recoveryManagerIF, ioUnitIF, debugIF, perfCounterIF);
-        DCache dCache( loadStoreUnitIF, cacheSystemIF, ctrlIF , 8);
+        DCache dCache( loadStoreUnitIF, cacheSystemIF, ctrlIF , axLevel);
     MemoryRegisterWriteStage memRwStage( /*memRwStageIF,*/ maStageIF, registerFileIF, activeListIF, recoveryManagerIF, ctrlIF, debugIF );
 
     RegisterFile registerFile( registerFileIF );
