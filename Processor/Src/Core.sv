@@ -159,7 +159,7 @@ output
         BTB btb( npStageIF, ifStageIF );
         BranchPredictor brPred( npStageIF, ifStageIF, ctrlIF );
         AXBTB axbtb(npStageIF, ifStageIF);
-        BranchDecider brDecid( npStageIF, ifStageIF, axLevel );
+        BranchDecider brDecid( npStageIF, ifStageIF, 4 );
     FetchStage ifStage( ifStageIF, npStageIF, ctrlIF, debugIF, perfCounterIF );
         ICache iCache( npStageIF, ifStageIF, cacheSystemIF );
     
@@ -207,7 +207,7 @@ output
         LoadQueue loadQueue( loadStoreUnitIF, recoveryManagerIF );
         StoreQueue storeQueue( loadStoreUnitIF, recoveryManagerIF );
         StoreCommitter storeCommitter(loadStoreUnitIF, recoveryManagerIF, ioUnitIF, debugIF, perfCounterIF);
-        DCache dCache( loadStoreUnitIF, cacheSystemIF, ctrlIF , axLevel);
+        DCache dCache( loadStoreUnitIF, cacheSystemIF, ctrlIF , 16);
     MemoryRegisterWriteStage memRwStage( /*memRwStageIF,*/ maStageIF, registerFileIF, activeListIF, recoveryManagerIF, ctrlIF, debugIF );
 
     RegisterFile registerFile( registerFileIF );

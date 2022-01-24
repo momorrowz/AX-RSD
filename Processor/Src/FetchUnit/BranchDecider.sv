@@ -21,7 +21,7 @@ LFSR #(
 ) l0 (
     .clk(port.clk),
     .rst(port.rst),
-    .seed(seed),
+    .seed(SEED),
     .randomval(randomval),
     .update(update)
 );
@@ -46,9 +46,10 @@ always_comb begin
         end
     end
 end
-
+/*
 initial begin
     seed = SEED;
 end
+*/
 
 endmodule : BranchDecider

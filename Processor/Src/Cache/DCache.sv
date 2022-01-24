@@ -1026,13 +1026,15 @@ module DCache(
     ) l0 (
         .clk(port.clk),
         .rst(port.rst),
-        .seed(lfsrseed),
+        .seed(LFSRSEED),
         .randomval(randomval),
         .update(updateLFSR)
     );
+    /*
     initial begin
         lfsrseed = LFSRSEED;
     end
+    */
     always_comb begin
         is_taken = ((32'(csr_val) << (LFSR_WIDTH - AX_LEVEL_WIDTH)) > randomval);
     end
