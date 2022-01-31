@@ -80,12 +80,13 @@ localparam CONF_STORE_QUEUE_ENTRY_NUM = 16; // The size of a store queue
 // --- Predictors
 // Branch predictor
 localparam CONF_BTB_ENTRY_NUM = 1024;
-localparam CONF_PHT_ENTRY_NUM = 2048;
+localparam CONF_PHT_ENTRY_NUM = 8192;
 localparam CONF_BRANCH_GLOBAL_HISTORY_BIT_WIDTH = 10;   // Global history length for g-share 
 
 // Memory dependency predictor
 localparam CONF_MDT_ENTRY_NUM = 1024;   // The number of prediction table entries.
 
+localparam CONF_MEM_WIDTH = 4;
 
 // --- D-cache
 // Total capacity = CONF_DCACHE_WAY_NUM * 2^CONF_DCACHE_INDEX_BIT_WIDTH * CONF_DCACHE_LINE_BYTE_NUM
@@ -97,7 +98,7 @@ localparam CONF_DCACHE_WAY_NUM = 2;
 localparam CONF_DCACHE_INDEX_BIT_WIDTH = 9 - $clog2(CONF_DCACHE_WAY_NUM);   
 
 // Line size. This parameter must be a power of two.
-localparam CONF_DCACHE_LINE_BYTE_NUM = 8;     
+localparam CONF_DCACHE_LINE_BYTE_NUM = CONF_MEM_WIDTH * 4;     
 
 // The number of MSHR entries.
 localparam CONF_DCACHE_MSHR_NUM = 2;   
@@ -112,7 +113,7 @@ localparam CONF_ICACHE_WAY_NUM = 2;
 localparam CONF_ICACHE_INDEX_BIT_WIDTH = 9 - $clog2(CONF_ICACHE_WAY_NUM);
 
 // Line size. This parameter must be a power of two.
-localparam CONF_ICACHE_LINE_BYTE_NUM = 8;    // Line size
+localparam CONF_ICACHE_LINE_BYTE_NUM = CONF_MEM_WIDTH * 4;    // Line size
 
 
 endpackage : MicroArchConf

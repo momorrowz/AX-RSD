@@ -120,7 +120,7 @@ input
     // MSHRをAllocateしたLoad命令がReplayQueueの先頭でflushされた場合，AllocateされたMSHRは解放可能になる
     logic makeMSHRCanBeInvalidByReplayQueue[MSHR_NUM];
 
-    VectorPath storedLineData;
+    DCacheLinePath storedLineData;
     logic [DCACHE_LINE_BYTE_NUM-1:0] storedLineByteWE;
 
     // Controller

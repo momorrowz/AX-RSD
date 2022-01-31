@@ -8,6 +8,7 @@ package MemoryTypes;
 import BasicTypes::*;
 import CacheSystemTypes::*;
 import MemoryMapTypes::*;
+import MicroArchConf::*;
 
 //
 // Size of Main Memory
@@ -31,7 +32,7 @@ localparam DUMMY_HEX_ENTRY_NUM = 256;
 
 
 // Memory Entry Size
-localparam MEMORY_ENTRY_BIT_NUM /*verilator public*/ = 64; // Bit width of each memory entry
+localparam MEMORY_ENTRY_BIT_NUM /*verilator public*/ = CONF_MEM_WIDTH * 4 * 8; // Bit width of each memory entry
 localparam MEMORY_ENTRY_BYTE_NUM = MEMORY_ENTRY_BIT_NUM / BYTE_WIDTH;
 localparam MEMORY_ADDR_MSB = MEMORY_ADDR_BIT_SIZE - 1;
 localparam MEMORY_ADDR_LSB = $clog2( MEMORY_ENTRY_BYTE_NUM );
