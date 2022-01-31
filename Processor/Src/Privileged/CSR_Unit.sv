@@ -23,6 +23,7 @@ module CSR_Unit(
     DataPath rv;
     CSR_ValuePath wv;
     DataPath mcycle;    // for debug
+    DataPath nextmcycle, nextminstret;
     AddrPath jumpTarget;
     CommitLaneCountPath regCommitNum;
 
@@ -45,6 +46,7 @@ module CSR_Unit(
 
     always_comb begin
         mcycle = csrReg.mcycle;
+        port.axLevel = csrReg.axlevel;
         
         // Read a CSR value
         unique case (port.csrNumber) 
@@ -59,6 +61,10 @@ module CSR_Unit(
 
             CSR_NUM_MCYCLE:   rv = csrReg.mcycle;
             CSR_NUM_MINSTRET: rv = csrReg.minstret;
+            CSR_NUM_MCYCLEH:   rv = csrReg.mcycleh;
+            CSR_NUM_MINSTRETH: rv = csrReg.minstreth;
+            
+            CSR_NUM_AXLEVEL: rv = csrReg.axlevel;
 `ifndef RSD_DISABLE_PERFORMANCE_COUNTER
             CSR_NUM_MHPMCOUNTER3: rv = perfCounter.perfCounter.numLoadMiss;
             CSR_NUM_MHPMCOUNTER4: rv = perfCounter.perfCounter.numStoreMiss;
@@ -73,8 +79,12 @@ module CSR_Unit(
         csrNext = csrReg;
 
         // Update Cycles
-        csrNext.mcycle = csrNext.mcycle + 1;
-        csrNext.minstret = csrNext.minstret + regCommitNum;
+        nextmcycle = csrNext.mcycle + 1;
+        nextminstret = csrNext.minstret + regCommitNum;
+        csrNext.mcycle = nextmcycle;
+        csrNext.minstret = nextminstret;
+        csrNext.mcycleh = nextmcycle < csrNext.mcycle ? csrNext.mcycleh + 1 : csrNext.mcycleh;
+        csrNext.minstreth = nextminstret < csrNext.minstret ? csrNext.minstreth + 1 : csrNext.minstret;
 
         wv = '0;
 
@@ -145,6 +155,10 @@ module CSR_Unit(
 
                 CSR_NUM_MCYCLE:     csrNext.mcycle = wv;
                 CSR_NUM_MINSTRET:   csrNext.minstret = wv;
+                CSR_NUM_MCYCLEH:     csrNext.mcycleh = wv;
+                CSR_NUM_MINSTRETH:   csrNext.minstreth = wv;
+                
+                CSR_NUM_AXLEVEL:   csrNext.axlevel = wv;
                 default:            wv = '0;    // dummy
             endcase 
         end

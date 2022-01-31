@@ -13,10 +13,12 @@ import OpFormatTypes::*;
 import MicroOpTypes::*;
 import SchedulerTypes::*;
 import CSR_UnitTypes::*;
+import FetchUnitTypes::*;
 
 interface CSR_UnitIF(
     input logic clk, rst, rstStart, reqExternalInterrupt, 
-    ExternalInterruptCodePath externalInterruptCode
+    ExternalInterruptCodePath externalInterruptCode,
+    output logic [ AX_LEVEL_WIDTH-1:0 ] axLevel
 );
 
     logic csrWE;  // CSR write enable
@@ -108,7 +110,8 @@ interface CSR_UnitIF(
         csrWholeOut,
         csrReadOut,
         excptTargetAddr,
-        externalInterruptCodeInCSR
+        externalInterruptCodeInCSR,
+        axLevel 
     );
 
     modport InterruptController(

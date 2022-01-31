@@ -128,6 +128,10 @@ typedef union packed {
 
     DataPath mcycle;
     DataPath minstret;
+    DataPath mcycleh;
+    DataPath minstreth;
+    
+    DataPath axlevel;
 } CSR_ValuePath;
 
 typedef struct packed {
@@ -143,6 +147,10 @@ typedef struct packed {
 
     DataPath mcycle;
     DataPath minstret;
+    DataPath mcycleh;
+    DataPath minstreth;
+    
+    DataPath axlevel;
 } CSR_BodyPath;
 
 //
@@ -262,6 +270,9 @@ localparam CSR_NUM_DCSR      = 12'h7B0; // Debug control and status register.
 localparam CSR_NUM_DPC       = 12'h7B1; // Debug PC.
 localparam CSR_NUM_DSCRATCH  = 12'h7B2; // Debug scratch register.
 
+// user-custom CSR
+// the aggressiveness of approximation
+localparam CSR_NUM_AXLEVEL  = 12'h800;
 
 endpackage
 

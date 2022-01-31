@@ -69,6 +69,7 @@ output
     // --- AX LEVEL
     //
     logic [ AX_LEVEL_WIDTH-1:0 ] axLevel;
+/*
 `ifdef RSD_SYNTHESIS_ZEDBOARD
     always_comb begin
         if (axLevelEn) begin
@@ -83,6 +84,7 @@ output
         axLevel = CONF_DEFAULT_AX_LEVEL;
     end
 `endif
+*/
 
     //
     // --- Interfaces
@@ -128,7 +130,7 @@ output
     BypassNetworkIF bypassNetworkIF( clk, rst, rstStart );
     LoadStoreUnitIF loadStoreUnitIF( clk, rst, rstStart );
     RecoveryManagerIF recoveryManagerIF( clk, rst );
-    CSR_UnitIF csrUnitIF(clk, rst, rstStart, reqExternalInterrupt, externalInterruptCode);
+    CSR_UnitIF csrUnitIF(clk, rst, rstStart, reqExternalInterrupt, externalInterruptCode, axLevel);
     IO_UnitIF ioUnitIF(clk, rst, rstStart, serialWE, serialWriteData, vramAddress, vramEnable);
     MulDivUnitIF mulDivUnitIF(clk, rst);
     CacheFlushManagerIF cacheFlushManagerIF(clk, rst);
