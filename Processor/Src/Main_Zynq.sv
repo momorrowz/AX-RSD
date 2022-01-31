@@ -15,6 +15,7 @@ import MemoryTypes::*;
 import MemoryMapTypes::*;
 import IO_UnitTypes::*;
 import DebugTypes::*;
+import FetchUnitTypes::*;
 
 module Main_Zynq #(
 `ifdef RSD_POST_SYNTHESIS

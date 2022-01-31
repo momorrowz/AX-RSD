@@ -1267,7 +1267,7 @@ function automatic void RISCV_EmitApproxLoad(
 
     // 命令の種類
     opInfo.mopType = MOP_TYPE_MEM;
-    opInfo.mopSubType.intType = MEM_MOP_TYPE_LOAD;
+    opInfo.mopSubType.memType = MEM_MOP_TYPE_LOAD;
 
     // 条件コード
     opInfo.cond = COND_AL;
