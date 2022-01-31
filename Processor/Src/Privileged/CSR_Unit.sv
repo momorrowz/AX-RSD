@@ -22,7 +22,7 @@ module CSR_Unit(
     CSR_BodyPath csrReg, csrNext;
     DataPath rv;
     CSR_ValuePath wv;
-    DataPath mcycle;    // for debug
+    DataPath mcycle, mcycleh;    // for debug
     DataPath nextmcycle, nextminstret;
     AddrPath jumpTarget;
     CommitLaneCountPath regCommitNum;
@@ -46,6 +46,7 @@ module CSR_Unit(
 
     always_comb begin
         mcycle = csrReg.mcycle;
+        mcycleh = csrReg.mcycleh;
         port.axLevel = csrReg.axlevel;
         
         // Read a CSR value
@@ -81,10 +82,10 @@ module CSR_Unit(
         // Update Cycles
         nextmcycle = csrNext.mcycle + 1;
         nextminstret = csrNext.minstret + regCommitNum;
+        csrNext.mcycleh = nextmcycle < csrNext.mcycle ? csrNext.mcycleh + 1 : csrNext.mcycleh;
+        csrNext.minstreth = nextminstret < csrNext.minstret ? csrNext.minstreth + 1 : csrNext.minstreth;
         csrNext.mcycle = nextmcycle;
         csrNext.minstret = nextminstret;
-        csrNext.mcycleh = nextmcycle < csrNext.mcycle ? csrNext.mcycleh + 1 : csrNext.mcycleh;
-        csrNext.minstreth = nextminstret < csrNext.minstret ? csrNext.minstreth + 1 : csrNext.minstret;
 
         wv = '0;
 
