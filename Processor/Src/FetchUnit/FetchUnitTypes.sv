@@ -17,6 +17,7 @@ import MemoryMapTypes::*;
 //
 
 localparam BTB_ENTRY_NUM = CONF_BTB_ENTRY_NUM;
+localparam AXBTB_ENTRY_NUM = CONF_AXBTB_ENTRY_NUM;
 
 // Entry: 1(valid)+4(BTB_TAG_WIDTH)+13(BTB_TAG_WIDTH) = 18 bits
 // The width of a block ram is 18bits, thus the sum of these parameters is set to 18 bits.
@@ -29,7 +30,9 @@ localparam BTB_CONTENTS_ADDR_WIDTH = 13;
 
 
 localparam BTB_ENTRY_NUM_BIT_WIDTH = $clog2(BTB_ENTRY_NUM);
+localparam AXBTB_ENTRY_NUM_BIT_WIDTH = $clog2(AXBTB_ENTRY_NUM);
 typedef logic [BTB_ENTRY_NUM_BIT_WIDTH-1:0] BTB_IndexPath;
+typedef logic [AXBTB_ENTRY_NUM_BIT_WIDTH-1:0] AXBTB_IndexPath;
 typedef logic [BTB_CONTENTS_ADDR_WIDTH-1:0] BTB_AddrPath;
 typedef logic [BTB_TAG_WIDTH-1:0] BTB_TagPath;
 
@@ -59,10 +62,24 @@ function automatic BTB_IndexPath ToBTB_Index(PC_Path addr);
     ];
 endfunction
 
+function automatic AXBTB_IndexPath ToAXBTB_Index(PC_Path addr);
+    return addr[
+        AXBTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH - 1: 
+        INSN_ADDR_BIT_WIDTH
+    ];
+endfunction
+
 function automatic BTB_TagPath ToBTB_Tag(PC_Path addr);
     return addr[
         BTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH + BTB_TAG_WIDTH - 1:
         BTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH
+    ];
+endfunction
+
+function automatic BTB_TagPath ToAXBTB_Tag(PC_Path addr);
+    return addr[
+        AXBTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH + BTB_TAG_WIDTH - 1:
+        AXBTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH
     ];
 endfunction
 

@@ -17,9 +17,9 @@ module AXBTB(
 
     // BTB access
     logic btbWE[INT_ISSUE_WIDTH];
-    BTB_IndexPath btbWA[INT_ISSUE_WIDTH];
+    AXBTB_IndexPath btbWA[INT_ISSUE_WIDTH];
     BTB_Entry btbWV[INT_ISSUE_WIDTH];
-    BTB_IndexPath btbRA[FETCH_WIDTH];
+    AXBTB_IndexPath btbRA[FETCH_WIDTH];
     BTB_Entry btbRV[FETCH_WIDTH];
     
     // Output
@@ -42,7 +42,7 @@ module AXBTB(
 
     generate
         BlockMultiBankRAM #(
-            .ENTRY_NUM( BTB_ENTRY_NUM ),
+            .ENTRY_NUM( AXBTB_ENTRY_NUM ),
             .ENTRY_BIT_SIZE( $bits( BTB_Entry ) ),
             .READ_NUM( FETCH_WIDTH ),
             .WRITE_NUM( INT_ISSUE_WIDTH )
@@ -73,7 +73,7 @@ module AXBTB(
     
     
     // Counter for reset sequence.
-    BTB_IndexPath resetIndex;
+    AXBTB_IndexPath resetIndex;
     always_ff @(posedge port.clk) begin
         if(port.rstStart) begin
             resetIndex <= 0;
@@ -109,13 +109,13 @@ module AXBTB(
         
         // Address inputs for read entry.
         for (int i = 0; i < FETCH_WIDTH; i++) begin
-            btbRA[i] = ToBTB_Index(pcIn + i*INSN_BYTE_WIDTH);
+            btbRA[i] = ToAXBTB_Index(pcIn + i*INSN_BYTE_WIDTH);
             nextTagReg[i] = pcIn + i*INSN_BYTE_WIDTH;
         end
             
         // Make logic for using at other module.
         for (int i = 0; i < FETCH_WIDTH; i++) begin
-            btbHit[i] = btbRV[i].valid && (btbRV[i].tag == ToBTB_Tag(tagReg[i]));
+            btbHit[i] = btbRV[i].valid && (btbRV[i].tag == ToAXBTB_Tag(tagReg[i]));
             btbOut[i] = ToRawAddrFromBTB_Addr(btbRV[i].data, tagReg[i]);
             readIsCondBr[i] = btbRV[i].isCondBr;
         end
@@ -138,8 +138,8 @@ module AXBTB(
                     updateBtb |= btbWE[i];
                 end
     
-                btbWA[i] = ToBTB_Index(port.brResult[i].brAddr);
-                btbWV[i].tag = ToBTB_Tag(port.brResult[i].brAddr);
+                btbWA[i] = ToAXBTB_Index(port.brResult[i].brAddr);
+                btbWV[i].tag = ToAXBTB_Tag(port.brResult[i].brAddr);
                 btbWV[i].data = ToBTB_Addr(port.brResult[i].apAddr);
                 btbWV[i].valid = TRUE;
                 btbWV[i].isCondBr = port.brResult[i].isCondBr;
