@@ -31,7 +31,7 @@ input
     logic memAccessWriteBusy,
     logic reqExternalInterrupt,
     ExternalInterruptCodePath externalInterruptCode,
-    [ AX_LEVEL_WIDTH-1:0 ] axLevelData,
+    logic [ AX_LEVEL_WIDTH-1:0 ] axLevelData,
     logic axLevelEn,
 output
     DebugRegister debugRegister,
@@ -65,11 +65,12 @@ output
     PerformanceCounter perfCounter(perfCounterIF, debugIF);
 `endif
 
+
+    logic [ AX_LEVEL_WIDTH-1:0 ] axLevel;
+/*
     //
     // --- AX LEVEL
     //
-    logic [ AX_LEVEL_WIDTH-1:0 ] axLevel;
-/*
 `ifdef RSD_SYNTHESIS_ZEDBOARD
     always_comb begin
         if (axLevelEn) begin
@@ -222,7 +223,7 @@ output
     CommitStage cmStage( cmStageIF, renameLogicIF, activeListIF, loadStoreUnitIF, recoveryManagerIF, csrUnitIF, debugIF );
         RecoveryManager recoveryManager( recoveryManagerIF, activeListIF, csrUnitIF, ctrlIF, perfCounterIF );
 
-    CSR_Unit csrUnit(csrUnitIF, perfCounterIF);
+    CSR_Unit csrUnit(csrUnitIF, perfCounterIF, axLevelEn, axLevelData);
     CacheFlushManager cacheFlushManager( cacheFlushManagerIF, cacheSystemIF );
     InterruptController interruptCtrl(csrUnitIF, ctrlIF, npStageIF, recoveryManagerIF);
     IO_Unit ioUnit(ioUnitIF, csrUnitIF);

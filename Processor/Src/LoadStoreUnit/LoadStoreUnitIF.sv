@@ -29,6 +29,7 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
     logic executeLoad [ LOAD_ISSUE_WIDTH ];
     logic executedLoadRegValid [LOAD_ISSUE_WIDTH];
     PhyAddrPath executedLoadAddr [ LOAD_ISSUE_WIDTH ];
+    MemoryMapType executedLoadMemMapType [LOAD_ISSUE_WIDTH ];
     DataPath executedLoadData [ LOAD_ISSUE_WIDTH ];
     PC_Path executedLoadPC  [LOAD_ISSUE_WIDTH ];
     VectorPath executedLoadVectorData [ LOAD_ISSUE_WIDTH ];
@@ -126,6 +127,9 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
     // そのリクエストがアクセスに成功した場合，AllocateされたMSHRは解放可能になる
     logic makeMSHRCanBeInvalid[LOAD_ISSUE_WIDTH];
 
+    // MSHRをAllocateしたLoad命令がMemoryExecutionStageでflushされた場合，AllocateされたMSHRは解放可能になる
+    logic makeMSHRCanBeInvalidByMemoryExecutionStage[MSHR_NUM];
+    
     // MSHRをAllocateしたLoad命令がStoreForwardingによって完了した場合，AllocateされたMSHRは解放可能になる
     logic makeMSHRCanBeInvalidByMemoryTagAccessStage[MSHR_NUM];
 
@@ -161,6 +165,7 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
         dcReadCancelFromMT_Stage,
         makeMSHRCanBeInvalidByMemoryRegisterReadStage,
         makeMSHRCanBeInvalid,
+        makeMSHRCanBeInvalidByMemoryExecutionStage,
         makeMSHRCanBeInvalidByMemoryTagAccessStage,
         makeMSHRCanBeInvalidByReplayQueue,
         isApLoad,
@@ -218,6 +223,7 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
         allocateStoreQueue,
         executeLoad,
         executedLoadAddr,
+        executedLoadMemMapType,
         executeStore,
         executedStoreQueuePtrByLoad,
         executedStoreQueuePtrByStore,
@@ -326,6 +332,7 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
         dcReadAddr,
         dcReadUncachable,
         makeMSHRCanBeInvalid,
+        makeMSHRCanBeInvalidByMemoryExecutionStage,
         isApLoad
     );
 
@@ -347,6 +354,7 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
         executedLoadQueuePtrByLoad,
         executedLoadQueuePtrByStore,
         executedLoadAddr,
+        executedLoadMemMapType,
         executedLoadPC,
         executedLoadRegValid,
         executeStore,

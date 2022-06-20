@@ -1,3 +1,4 @@
+
 // Copyright 2019- RSD contributors.
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 
@@ -6,6 +7,7 @@
 // CSR Unit
 //
 
+
 `include "BasicMacros.sv"
 
 import BasicTypes::*;
@@ -13,10 +15,13 @@ import MemoryMapTypes::*;
 import CSR_UnitTypes::*;
 import OpFormatTypes::*;
 import SchedulerTypes::*;
+import FetchUnitTypes::*;
 
 module CSR_Unit(
     CSR_UnitIF.CSR_Unit port,
-    PerformanceCounterIF.CSR perfCounter
+    PerformanceCounterIF.CSR perfCounter,
+    input logic axLevelEn,
+    input logic [AX_LEVEL_WIDTH-1 : 0] axLevelData
 );
 
     CSR_BodyPath csrReg, csrNext;
@@ -163,7 +168,10 @@ module CSR_Unit(
                 default:            wv = '0;    // dummy
             endcase 
         end
-
+	
+	//if (axLevelEn == 1'b1) begin
+	//    csrNext.axlevel = {{(DATA_WIDTH-AX_LEVEL_WIDTH){1'b0}},axLevelData};
+	//end
         csrNext.mip.MTIP = port.reqTimerInterrupt;      // Timer interrupt request
         csrNext.mip.MEIP = port.reqExternalInterrupt;   // External interrupt request
         port.externalInterruptCodeInCSR = externalInterruptCodeReg;

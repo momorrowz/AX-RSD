@@ -6,7 +6,7 @@ package MicroArchConf;
 
 // ---- Approx
 // default apptoximation level
-localparam CONF_DEFAULT_AX_LEVEL = 4;
+localparam CONF_DEFAULT_AX_LEVEL = 10;
 
 // ---- Front-end
 // Fetch width (instructions). This parameter is configurable.
@@ -29,7 +29,7 @@ localparam CONF_COMMIT_WIDTH = 2;
 localparam CONF_PSCALAR_NUM = 64;
 
 // The number of issue-queue entries
-localparam CONF_ISSUE_QUEUE_ENTRY_NUM = 16;
+localparam CONF_ISSUE_QUEUE_ENTRY_NUM = 64;
 
 // The number of active-list (ROB: reorder buffer) entries
 localparam CONF_ACTIVE_LIST_ENTRY_NUM = 64;
@@ -80,7 +80,7 @@ localparam CONF_STORE_QUEUE_ENTRY_NUM = 16; // The size of a store queue
 // --- Predictors
 // Branch predictor
 localparam CONF_BTB_ENTRY_NUM = 1024;
-localparam CONF_AXBTB_ENTRY_NUM = 4;
+localparam CONF_AXBTB_ENTRY_NUM = 1024;
 localparam CONF_PHT_ENTRY_NUM = 8192;
 localparam CONF_BRANCH_GLOBAL_HISTORY_BIT_WIDTH = 10;   // Global history length for g-share 
 

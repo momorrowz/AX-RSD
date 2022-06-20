@@ -111,7 +111,7 @@ interface CSR_UnitIF(
         csrReadOut,
         excptTargetAddr,
         externalInterruptCodeInCSR,
-        axLevel 
+        axLevel
     );
 
     modport InterruptController(

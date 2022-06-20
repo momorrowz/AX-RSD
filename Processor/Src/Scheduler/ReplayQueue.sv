@@ -126,6 +126,7 @@ module ReplayQueue(
     ActiveListIndexPath flushRangeTailPtr;  //フラッシュされた命令の範囲のtail
     logic flushInt[ INT_ISSUE_WIDTH ];
     logic flushMem[ MEM_ISSUE_WIDTH ];
+    logic flush[ MEM_ISSUE_WIDTH ];
 `ifndef RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE
     logic flushComplex[ COMPLEX_ISSUE_WIDTH ];
 `endif
@@ -526,6 +527,12 @@ module ReplayQueue(
                             flushRangeTailPtr,
                             replayEntryReg.memData[i].activeListPtr
                             );
+	    flush[i] = SelectiveFlushDetector(
+                            recoveryFromRwStage || recoveryFromCmStage,
+                            recovery.flushRangeHeadPtr,
+                            recovery.flushRangeTailPtr,
+                            replayEntryReg.memData[i].activeListPtr
+			    );
             port.memReplayEntry[i] = replayEntryReg.memValid[i] && !flushMem[i];
             port.memReplayData[i] = replayEntryReg.memData[i];
         end
@@ -536,7 +543,7 @@ module ReplayQueue(
         end
 
         for (int i = 0; i < MEM_ISSUE_WIDTH; i++) begin
-            if (replayEntryReg.memValid[i] && replayEntryReg.memData[i].memOpInfo.hasAllocatedMSHR && flushMem[i]) begin
+            if (replayEntryReg.memValid[i] && replayEntryReg.memData[i].memOpInfo.hasAllocatedMSHR && (flushMem[i] || flush[i])) begin
                 mshrMakeMSHRCanBeInvalidByReplayQueue[replayEntryReg.memData[i].memOpInfo.mshrID] = TRUE;
             end
         end

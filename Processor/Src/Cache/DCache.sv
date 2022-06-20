@@ -957,6 +957,9 @@ module DCache(
     // そのリクエストがアクセスに成功した場合，AllocateされたMSHRは解放可能になる
     logic lsuMakeMSHRCanBeInvalid[DCACHE_LSU_READ_PORT_NUM];
 
+    // MSHRをAllocateしたLoad命令がMemoryExecutionStageでflushされた場合，AllocateされたMSHRは解放可能になる
+    logic lsuMakeMSHRCanBeInvalidByMemoryExecutionStage[MSHR_NUM];
+
     // MSHRをAllocateしたLoad命令がStoreForwardingによって完了した場合，AllocateされたMSHRは解放可能になる
     logic lsuMakeMSHRCanBeInvalidByMemoryTagAccessStage[MSHR_NUM];
 
@@ -1317,6 +1320,7 @@ module DCache(
     always_comb begin
         for (int i = 0; i < MSHR_NUM; i++) begin
             lsuMakeMSHRCanBeInvalidByMemoryRegisterReadStage[i] = lsu.makeMSHRCanBeInvalidByMemoryRegisterReadStage[i];
+            lsuMakeMSHRCanBeInvalidByMemoryExecutionStage[i] = lsu.makeMSHRCanBeInvalidByMemoryExecutionStage[i];
             lsuMakeMSHRCanBeInvalidByMemoryTagAccessStage[i] = lsu.makeMSHRCanBeInvalidByMemoryTagAccessStage[i];
             lsuMakeMSHRCanBeInvalidByReplayQueue[i] = lsu.makeMSHRCanBeInvalidByReplayQueue[i];
         end
@@ -1325,6 +1329,7 @@ module DCache(
     always_comb begin
         for (int i = 0; i < MSHR_NUM; i++) begin
             port.makeMSHRCanBeInvalidByMemoryRegisterReadStage[i] = lsuMakeMSHRCanBeInvalidByMemoryRegisterReadStage[i];
+            port.makeMSHRCanBeInvalidByMemoryExecutionStage[i] = lsuMakeMSHRCanBeInvalidByMemoryExecutionStage[i];
             port.makeMSHRCanBeInvalidByMemoryTagAccessStage[i] = lsuMakeMSHRCanBeInvalidByMemoryTagAccessStage[i];
             port.makeMSHRCanBeInvalidByReplayQueue[i] = lsuMakeMSHRCanBeInvalidByReplayQueue[i];
         end
@@ -1374,6 +1379,9 @@ module DCacheMissHandler(
 
     MissStatusHandlingRegister nextMSHR[MSHR_NUM];
     MissStatusHandlingRegister mshr[MSHR_NUM];
+    
+    logic mshrvalid[MSHR_NUM] /*verilator public*/;
+    PhyAddrPath mshraddr[MSHR_NUM] /*verilator public*/;
 
     logic portIsAllocatedByStore[MSHR_NUM];
     DCacheLinePath mergedLine[MSHR_NUM];
@@ -1406,6 +1414,8 @@ module DCacheMissHandler(
 
     always_comb begin
         for (int i = 0; i < MSHR_NUM; i++) begin
+	    mshrvalid[i] = mshr[i].valid;
+	    mshraddr[i] = mshr[i].newAddr;
             // To notice mshr phases to ReplayQueue.
             port.mshrPhase[i] = mshr[i].phase;
 
@@ -1905,6 +1915,11 @@ module DCacheMissHandler(
             if (port.makeMSHRCanBeInvalidByMemoryRegisterReadStage[i]) begin
                 // MSHR can be invalid when
                 // its allocator load has been flushed at MemoryRegisterReadStage.
+                nextMSHR[i].canBeInvalid = TRUE;
+            end
+            else if (port.makeMSHRCanBeInvalidByMemoryExecutionStage[i]) begin
+                // MSHR can be invalid when
+                // its allocator load has been flushed at MemoryExecutionStage.
                 nextMSHR[i].canBeInvalid = TRUE;
             end
             else if (port.makeMSHRCanBeInvalidByMemoryTagAccessStage[i]) begin
