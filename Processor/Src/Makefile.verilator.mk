@@ -1,9 +1,9 @@
 # Specify test code and simulation cycles
-MAX_TEST_CYCLES = 500000000
+MAX_TEST_CYCLES = 50000000000
 SHOW_SERIAL_OUT = 1
 ENABLE_PC_GOAL = 1
 #TEST_CODE = Verification/TestCode/approximate_benchmarks/linear_regression/bin
-TEST_CODE = Verification/TestCode/approximate_benchmarks/jpeg/bin
+TEST_CODE = gcc/o1
 #TEST_CODE = Verification/TestCode/approximate_benchmarks/mpeg/bin
 #TEST_CODE = Verification/TestCode/C/Fibonacci
 #TEST_CODE = Verification/TestCode/Asm/ApLoad
@@ -100,9 +100,10 @@ kanata:
 	$(LIBRARY_WORK_RTL)/$(VERILATED_TOP_MODULE_NAME) \
 		MAX_TEST_CYCLES=$(MAX_TEST_CYCLES) \
 		TEST_CODE=$(TEST_CODE) ENABLE_PC_GOAL=$(ENABLE_PC_GOAL) SHOW_SERIAL_OUT=$(SHOW_SERIAL_OUT) \
-		REG_CSV_FILE=Register.csv \
 		RSD_LOG_FILE=RSD.log 
 	$(KANATA_CONVERTER) $(RSD_LOG_FILE_RTL) $(KANATA_LOG_FILE_RTL)
+		
+#REG_CSV_FILE=Register.csv \
 
 
 # -------------------------------
@@ -113,10 +114,11 @@ dump:
 	$(LIBRARY_WORK_RTL)/$(VERILATED_TOP_MODULE_NAME) \
 		MAX_TEST_CYCLES=$(MAX_TEST_CYCLES) \
 		TEST_CODE=$(TEST_CODE) ENABLE_PC_GOAL=$(ENABLE_PC_GOAL) SHOW_SERIAL_OUT=$(SHOW_SERIAL_OUT) \
-		REG_CSV_FILE=Register.csv \
 		RSD_LOG_FILE=RSD.log \
 		WAVE_LOG_FILE=simx.vcd
 	$(KANATA_CONVERTER) $(RSD_LOG_FILE_RTL) $(KANATA_LOG_FILE_RTL)
+
+#REG_CSV_FILE=Register.csv \
 
 $(LIBRARY_WORK_RTL):
 	mkdir $(PROJECT_WORK) -p

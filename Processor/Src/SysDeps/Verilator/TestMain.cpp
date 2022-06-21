@@ -13,7 +13,8 @@
 #include <regex>
 #include <stdexcept>
 
-
+constexpr int64_t sim_start = 835750000;
+constexpr int64_t sim_end   = 835800000;
 using namespace std;
 
 unsigned int main_time = 0;  // Current simulation time
@@ -90,7 +91,7 @@ int main(int argc, char** argv)
             auto name = results[1].str();
             auto value = results[2].str();
             if (name == "MAX_TEST_CYCLES") {
-                MAX_TEST_CYCLES = stoi(value);
+                MAX_TEST_CYCLES = stol(value);
             } else if (name == "ENABLE_PC_GOAL") {
                 ENABLE_PC_GOAL = stoi(value) ? true : false;
             } else if (name == "SHOW_SERIAL_OUT") {
@@ -152,6 +153,7 @@ int main(int argc, char** argv)
     // To access the module generated in generate,
     // use (Label given in generate section)__DOT__(module name)
     size_t mainMemWordSize = sizeof(top->Main_Zynq_Wrapper->main->memory->body->body__DOT__ram->array) / sizeof(uint32_t);
+    //uint32_t* mainMem = reinterpret_cast<uint32_t*>(&top->Main_Zynq_Wrapper->main->memory->body->body__DOT__ram->array);
     uint32_t* mainMem = (uint32_t*)(top->Main_Zynq_Wrapper->main->memory->body->body__DOT__ram->array);
 
     // Fill dummy data
@@ -202,8 +204,8 @@ int main(int argc, char** argv)
     loadHexFile(codeFileName, mainMem, 0, true);
 
 
-    int numCommittedARM_Op = 0;
-    int numCommittedMicroOp = 0;
+    int32_t numCommittedARM_Op = 0;
+    int32_t numCommittedMicroOp = 0;
     LED_Path lastCommittedPC = 0;
     DebugRegister debugRegister;
     memset(&debugRegister, 0x0, sizeof(DebugRegister));
@@ -240,11 +242,17 @@ int main(int argc, char** argv)
 
             // ダンプ
 #ifdef RSD_VERILATOR_TRACE
-            if (tfp)
+            if (tfp && sim_start <= cycle && cycle < sim_end)
                 tfp->dump(main_time);
 #endif
             // 実行が開始されていたらクロックをインクリメント
             if (top->clk_p && start) {
+		if (cycle % 50000 == 0) {
+		    printf("cycle: %09ld / ", cycle);
+		    printf("last commited pc: %05x / ", top->ledOut);
+		    auto mh = core->dCache->missHandler;
+		    printf("mshr[0] valid: %d / addr: %08x\n", *mh->mshrvalid, *mh->mshraddr);
+		}
                 kanataCycle++;
                 cycle++;
 
@@ -259,7 +267,7 @@ int main(int argc, char** argv)
                     top->serialWriteData);
 
                 // Dump RSD.log for Kanata
-                if (enableDumpKanata) {
+                if (enableDumpKanata && sim_start <= cycle && cycle < sim_end) {
                     kanataDumper.DumpCycle(debugRegister);
                 }
 
