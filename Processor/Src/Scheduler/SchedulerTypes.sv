@@ -41,7 +41,7 @@ localparam WAKEUP_WIDTH = INT_ISSUE_WIDTH + COMPLEX_ISSUE_WIDTH + LOAD_ISSUE_WID
 // - 例外発生時に、発行キューは例外命令より後方の命令が選択的にフラッシュされる。
 //   その際、フリーリストへのインデックスの返却は専用のポートを介して複数サイクルで行われる。
 //   ISSUE_QUEUE_RESET_CYCLE はそのサイクル数を表す。
-localparam ISSUE_QUEUE_RETURN_INDEX_WIDTH = 2;
+localparam ISSUE_QUEUE_RETURN_INDEX_WIDTH = CONF_ISSUE_QUEUE_RETURN_INDEX_WIDTH;
 localparam ISSUE_QUEUE_RETURN_INDEX_CYCLE
     = (ISSUE_QUEUE_ENTRY_NUM-1) / ISSUE_QUEUE_RETURN_INDEX_WIDTH + 1; // 割り算して切り上げ
 localparam ISSUE_QUEUE_RETURN_INDEX_CYCLE_BIT_SIZE

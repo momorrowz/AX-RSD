@@ -60,8 +60,8 @@ module SelectLogic(
     //   granted[0] = pick(req[1], req[3]);
     //
     // This makes its performance slightly worse, but reduces its complexity.
-    InterleavedPicker #(
-    //Picker #(
+    //InterleavedPicker #(
+    Picker #(
         .ENTRY_NUM(ISSUE_QUEUE_ENTRY_NUM),
         .GRANT_NUM(INT_ISSUE_WIDTH)
     )

@@ -1104,14 +1104,12 @@ module RegisterMultiPortRAM #(
     Value array[ENTRY_NUM];
 `endif 
 
-    generate 
-        for (genvar i = 0; i < WRITE_NUM; i++) begin
-            always_ff @(posedge clk) begin
-                if (we[i])
-                    array[ wa[i] ] <= wv[i];
-            end
+    always_ff @(posedge clk) begin
+        for (int i = 0; i < WRITE_NUM; i++) begin
+	    if (we[i])
+		array[ wa[i] ] <= wv[i];
         end
-    endgenerate
+    end
 
     always_comb begin
         for (int i = 0; i < READ_NUM; i++) begin
@@ -1253,7 +1251,18 @@ module DistributedMultiBankRAM_ForGE2Banks #(
 
     generate 
         for (genvar i = 0; i < BANK_NUM; i++) begin
-            if (ENTRY_BIT_SIZE < 8) begin
+            if (INDEX_BIT_SIZE <= BANK_NUM_BIT_WIDTH) begin
+                RegisterDualPortRAM#(2, ENTRY_BIT_SIZE)
+                    rBank(
+                        clk, 
+                        weBank[i], 
+                        waBank[i][INDEX_BIT_SIZE-1], 
+                        wvBank[i], 
+                        raBank[i][INDEX_BIT_SIZE-1], 
+                        rvBank[i]
+                    );
+            end
+            else if (ENTRY_BIT_SIZE < 8) begin
                 RegisterDualPortRAM#(ENTRY_NUM / BANK_NUM, ENTRY_BIT_SIZE)
                     rBank(
                         clk, 

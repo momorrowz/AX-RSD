@@ -21,6 +21,8 @@ module MemoryDependencyPredictor(
     MDT_Entry mdtRV[RENAME_WIDTH];
 
     logic prediction[RENAME_WIDTH];
+    logic isOrderViolation;
+	
 
     generate
         // NOTE: Need to implement write request queue when increase STORE_ISSUE_WIDTH
@@ -73,12 +75,14 @@ module MemoryDependencyPredictor(
 
         // Connect to IF.
         port.memDependencyPred = prediction;
-
+	
+	isOrderViolation = FALSE;
         // Process write request
         for (int i = 0; i < STORE_ISSUE_WIDTH; i++) begin
             // Make write request when store detect conflict with load
             mdtWE[i] = 
-                loadStoreUnit.memAccessOrderViolation[i];
+                (isOrderViolation) ? FALSE : loadStoreUnit.memAccessOrderViolation[i];
+	    isOrderViolation |= mdtWE[i];
 
             // Learn memory order violation
             mdtWA[i] = ToMDT_Index(loadStoreUnit.conflictLoadPC[i]);

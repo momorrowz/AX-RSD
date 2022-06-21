@@ -127,15 +127,15 @@ typedef logic [ DISPATCH_WIDTH_BIT_SIZE-1:0 ] DispatchLaneIndexPath;
 
 // Issue width
 localparam INT_ISSUE_WIDTH = CONF_INT_ISSUE_WIDTH;
-localparam INT_ISSUE_WIDTH_BIT_SIZE = 1; // log2(INT_ISSUE_WIDTH)
+localparam INT_ISSUE_WIDTH_BIT_SIZE = (INT_ISSUE_WIDTH == 1) ? 1 : $clog2( INT_ISSUE_WIDTH );
 typedef logic [ INT_ISSUE_WIDTH_BIT_SIZE-1:0 ] IntIssueLaneIndexPath;
 typedef logic unsigned [ $clog2(INT_ISSUE_WIDTH):0 ] IntIssueLaneCountPath;
 
-localparam MULDIV_ISSUE_WIDTH = 1;
-localparam MULDIV_STAGE_DEPTH = 3;
+localparam MULDIV_ISSUE_WIDTH = CONF_COMPLEX_ISSUE_WIDTH;
+localparam MULDIV_STAGE_DEPTH = CONF_COMPLEX_EXEC_STAGE_DEPTH;
 
 localparam COMPLEX_ISSUE_WIDTH = CONF_COMPLEX_ISSUE_WIDTH;
-localparam COMPLEX_ISSUE_WIDTH_BIT_SIZE = 1; // log2(COMPLEX_ISSUE_WIDTH)
+localparam COMPLEX_ISSUE_WIDTH_BIT_SIZE = (COMPLEX_ISSUE_WIDTH <= 1) ? 1 : $clog2(COMPLEX_ISSUE_WIDTH );
 typedef logic [ COMPLEX_ISSUE_WIDTH_BIT_SIZE-1:0 ] ComplexIssueLaneIndexPath;
 typedef logic unsigned [ $clog2(COMPLEX_ISSUE_WIDTH):0 ] ComplexIssueLaneCountPath;
 
@@ -145,7 +145,7 @@ localparam MEM_ISSUE_WIDTH = CONF_MEM_ISSUE_WIDTH;
 localparam STORE_ISSUE_LANE_BEGIN = CONF_STORE_ISSUE_LANE_BEGIN;   // Load and store share the same lanes
 
 
-localparam MEM_ISSUE_WIDTH_BIT_SIZE = 1; // log2(MEM_ISSUE_WIDTH)
+localparam MEM_ISSUE_WIDTH_BIT_SIZE = (MEM_ISSUE_WIDTH == 1) ? 1 : $clog2( MEM_ISSUE_WIDTH );
 typedef logic [ MEM_ISSUE_WIDTH_BIT_SIZE-1:0 ] MemIssueLaneIndexPath;
 typedef logic unsigned [ $clog2(MEM_ISSUE_WIDTH):0 ] MemIssueLaneCountPath;
 
@@ -162,7 +162,7 @@ typedef logic unsigned [ COMMIT_WIDTH_BIT_SIZE:0 ] CommitLaneCountPath;
 
 
 // Pipeline depth
-localparam COMPLEX_EXEC_STAGE_DEPTH = 3;
+localparam COMPLEX_EXEC_STAGE_DEPTH = CONF_COMPLEX_EXEC_STAGE_DEPTH;
 
 //
 // --- Op
