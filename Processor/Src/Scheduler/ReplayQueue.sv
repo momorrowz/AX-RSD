@@ -527,12 +527,12 @@ module ReplayQueue(
                             flushRangeTailPtr,
                             replayEntryReg.memData[i].activeListPtr
                             );
-	    flush[i] = SelectiveFlushDetector(
+            flush[i] = SelectiveFlushDetector(
                             recoveryFromRwStage || recoveryFromCmStage,
                             recovery.flushRangeHeadPtr,
                             recovery.flushRangeTailPtr,
                             replayEntryReg.memData[i].activeListPtr
-			    );
+                            );
             port.memReplayEntry[i] = replayEntryReg.memValid[i] && !flushMem[i];
             port.memReplayData[i] = replayEntryReg.memData[i];
         end

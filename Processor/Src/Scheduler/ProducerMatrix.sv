@@ -19,7 +19,7 @@ module ProducerMatrix (
     input IssueQueueIndexPath dispatchPtr[ DISPATCH_WIDTH ],
 
     input IssueQueueOneHotPath wakeupDstVector[ WAKEUP_WIDTH + STORE_ISSUE_WIDTH ],
-
+    input logic wakeup[ WAKEUP_WIDTH ],
     output logic opReady[ ISSUE_QUEUE_ENTRY_NUM ]
 );
     // ProducerMatrix can be updated without regarding the validness of consumer
@@ -48,11 +48,14 @@ module ProducerMatrix (
 
         // Wakeup
         wakeupVector = '0;
-        for (int w = 0; w < WAKEUP_WIDTH + STORE_ISSUE_WIDTH; w++) begin
+        for (int w = 0; w < WAKEUP_WIDTH; w++) begin
             // A producer column can be cleared without regarding to validness of wakeup.
-            //if (wakeup[w]) begin
-            //end
-            wakeupVector |= wakeupDstVector[w];
+            if (wakeup[w]) begin
+                wakeupVector |= wakeupDstVector[w];
+            end
+        end
+        for (int w = 0; w < STORE_ISSUE_WIDTH; w++) begin
+                wakeupVector |= wakeupDstVector[WAKEUP_WIDTH + w];
         end
 
         for (int i = 0; i < ISSUE_QUEUE_ENTRY_NUM; i++) begin

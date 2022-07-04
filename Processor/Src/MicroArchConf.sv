@@ -31,7 +31,7 @@ localparam CONF_COMMIT_WIDTH = 4;
 localparam CONF_PSCALAR_NUM = 64;
 
 // The number of issue-queue entries
-localparam CONF_ISSUE_QUEUE_ENTRY_NUM = 32;
+localparam CONF_ISSUE_QUEUE_ENTRY_NUM = 64;
 
 // Return width of freelist of issue-queue entries
 localparam CONF_ISSUE_QUEUE_RETURN_INDEX_WIDTH = 2;
@@ -85,8 +85,8 @@ localparam CONF_STORE_ISSUE_WIDTH = 1;      // must be 1
 
 // --- Load store unit
 // These parameters must be a power of two.
-localparam CONF_LOAD_QUEUE_ENTRY_NUM = 16;  // The size of a load queue
-localparam CONF_STORE_QUEUE_ENTRY_NUM = 16; // The size of a store queue
+localparam CONF_LOAD_QUEUE_ENTRY_NUM = 32;  // The size of a load queue
+localparam CONF_STORE_QUEUE_ENTRY_NUM = 32; // The size of a store queue
 
 // --- Predictors
 // Branch predictor
