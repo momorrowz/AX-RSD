@@ -10,7 +10,7 @@ localparam CONF_DEFAULT_AX_LEVEL = 10;
 
 // ---- Front-end
 // Fetch width (instructions). This parameter is configurable.
-localparam CONF_FETCH_WIDTH = 4;
+localparam CONF_FETCH_WIDTH = 2;
 // Memory entry width (word). // This parameter must be must be greater than or equal to CONF_FETCH_WIDTH.
 localparam CONF_MEM_WIDTH = 4;
 
@@ -23,7 +23,7 @@ localparam CONF_DISPATCH_WIDTH = CONF_FETCH_WIDTH;    // Dispatch width
 // ---- Commit
 // Commit width (instructions). This parameter is configurable.
 // must be equal or larger than RENAME_WIDTH (FETCH_WIDTH) for recovery
-localparam CONF_COMMIT_WIDTH = 4;
+localparam CONF_COMMIT_WIDTH = 2;
 
 
 // --- Back-end
@@ -53,7 +53,7 @@ localparam CONF_REPLAY_QUEUE_ENTRY_NUM = 20;
 `ifdef RSD_MARCH_INT_ISSUE_WIDTH
     localparam CONF_INT_ISSUE_WIDTH =`RSD_MARCH_INT_ISSUE_WIDTH;
 `else
-    localparam CONF_INT_ISSUE_WIDTH = 4;
+    localparam CONF_INT_ISSUE_WIDTH = 2;
 `endif
 
 // The issue width of complex pipelines.
@@ -71,8 +71,8 @@ localparam CONF_COMPLEX_EXEC_STAGE_DEPTH = 3;
 // The issue width of memory pipelines.
 // These parameters are configurable
 // cannot be changed manually.
-localparam CONF_LOAD_ISSUE_WIDTH = 2;       // must be 1
-localparam CONF_STORE_ISSUE_WIDTH = 2;      // must be 1
+localparam CONF_LOAD_ISSUE_WIDTH = 1;       // must be 1
+localparam CONF_STORE_ISSUE_WIDTH = 1;      // must be 1
 `ifdef RSD_MARCH_UNIFIED_LDST_MEM_PIPE
     localparam CONF_MEM_ISSUE_WIDTH = 1;
     localparam CONF_STORE_ISSUE_LANE_BEGIN = 0;   // Load and store share the same lane
