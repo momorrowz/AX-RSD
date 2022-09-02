@@ -109,7 +109,7 @@ module RecoveryManager(
         // Return to COMMIT_PHASE
         toCommitPhase =
             (regState.phase == PHASE_RECOVER_1) &&  // must be PHASE_RECOVER_1 because PHASE_RECOVER_0 procedures has been finished
-            !(port.renameLogicRecoveryRMT || port.issueQueueReturnIndex); // LSQ は1サイクルでリカバリが行われるので待つべきは RMT と IQ
+            !(port.renameLogicRecoveryRMT || port.issueQueueReturnIndex || port.replayQueueFlushedOpExist || port.wakeupPipelineRegFlushedOpExist); // LSQ は1サイクルでリカバリが行われるので待つべきは RMT と IQ
         nextState.refetchType = 
             port.exceptionDetectedInCommitStage ? 
                 port.refetchTypeFromCommitStage : 
@@ -218,6 +218,8 @@ module RecoveryManager(
             regState.phase == PHASE_RECOVER_0 && (regState.refetchType inside {REFETCH_TYPE_NEXT_PC, REFETCH_TYPE_STORE_NEXT_PC});
         perfCounter.branchPredMiss =
             regState.phase == PHASE_RECOVER_0 && (regState.refetchType == REFETCH_TYPE_BRANCH_TARGET);
+        perfCounter.inRecovery =
+            regState.phase == PHASE_RECOVER_0 || regState.phase == PHASE_RECOVER_1;
 `endif
     end
 

@@ -135,7 +135,6 @@ xilinx.com:user:RSD:1.0\
 xilinx.com:user:hdmi_vga:1.0\
 xilinx.com:ip:proc_sys_reset:5.0\
 xilinx.com:ip:processing_system7:5.5\
-xilinx.com:ip:xlconcat:2.1\
 "
 
    set list_ips_missing ""
@@ -235,7 +234,8 @@ proc create_root_design { parentCell } {
   set TMDS_clk_p [ create_bd_port -dir O TMDS_clk_p ]
   set TMDS_data_n [ create_bd_port -dir O -from 2 -to 0 TMDS_data_n ]
   set TMDS_data_p [ create_bd_port -dir O -from 2 -to 0 TMDS_data_p ]
-  set ledOut [ create_bd_port -dir O -from 1 -to 0 ledOut ]
+  set ledOut [ create_bd_port -dir O -from 7 -to 0 ledOut ]
+  set swIn [ create_bd_port -dir I -from 7 -to 0 swIn ]
 
   # Create instance: RSD_0, and set properties
   set RSD_0 [ create_bd_cell -type ip -vlnv xilinx.com:user:RSD:1.0 RSD_0 ]
@@ -1097,9 +1097,6 @@ proc create_root_design { parentCell } {
      return 1
    }
   
-  # Create instance: xlconcat_0, and set properties
-  set xlconcat_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_0 ]
-
   # Create interface connections
   connect_bd_intf_net -intf_net RSD_0_axi4MemoryIF_M_AXI [get_bd_intf_pins RSD_0/axi4MemoryIF_M_AXI] [get_bd_intf_pins axi_interconnect_1/S00_AXI]
   connect_bd_intf_net -intf_net S00_AXI_1 [get_bd_intf_pins axi_interconnect_2/S00_AXI] [get_bd_intf_pins display_0/M_AXI]
@@ -1116,8 +1113,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net ACLK_2 [get_bd_pins axi_interconnect_2/ACLK] [get_bd_pins axi_interconnect_2/M00_ACLK] [get_bd_pins axi_interconnect_2/S00_ACLK] [get_bd_pins display_0/ACLK] [get_bd_pins proc_sys_reset_1/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK1] [get_bd_pins processing_system7_0/S_AXI_HP1_ACLK] [get_bd_pins setting_display_0/clk]
   connect_bd_net -net ARESETN_1 [get_bd_pins RSD_0/axi4LitePlToPsControlRegisterIF_S_AXI_ARESETN] [get_bd_pins RSD_0/axi4LitePsToPlControlRegisterIF_S_AXI_ARESETN] [get_bd_pins RSD_0/axi4MemoryIF_M_AXI_ARESETN] [get_bd_pins RSD_0/negResetIn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_1/ARESETN] [get_bd_pins proc_sys_reset_0/interconnect_aresetn]
   connect_bd_net -net M01_ARESETN_1 [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_interconnect_1/M00_ARESETN] [get_bd_pins axi_interconnect_1/S00_ARESETN] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
-  connect_bd_net -net display_0_FIFO_OVER [get_bd_pins display_0/FIFO_OVER] [get_bd_pins xlconcat_0/In1]
-  connect_bd_net -net display_0_FIFO_UNDER [get_bd_pins display_0/FIFO_UNDER] [get_bd_pins xlconcat_0/In0]
+  connect_bd_net -net RSD_0_ledOut [get_bd_ports ledOut] [get_bd_pins RSD_0/ledOut]
   connect_bd_net -net display_0_PCK [get_bd_pins display_0/PCK] [get_bd_pins hdmi_vga_0/PCK]
   connect_bd_net -net display_0_VBLANK [get_bd_pins display_0/VBLANK] [get_bd_pins setting_display_0/VBLANK]
   connect_bd_net -net display_0_VGA_B [get_bd_pins display_0/VGA_B] [get_bd_pins hdmi_vga_0/IN_VGA_B]
@@ -1136,7 +1132,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net setting_display_0_CLRVBLNK [get_bd_pins display_0/CLRVBLNK] [get_bd_pins setting_display_0/CLRVBLNK]
   connect_bd_net -net setting_display_0_DISPADDR [get_bd_pins display_0/DISPADDR] [get_bd_pins setting_display_0/DISPADDR]
   connect_bd_net -net setting_display_0_DISPON [get_bd_pins display_0/DISPON] [get_bd_pins setting_display_0/DISPON]
-  connect_bd_net -net xlconcat_0_dout [get_bd_ports ledOut] [get_bd_pins xlconcat_0/dout]
+  connect_bd_net -net swIn_1 [get_bd_ports swIn] [get_bd_pins RSD_0/swIn]
 
   # Create address segments
   assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces RSD_0/axi4MemoryIF_M_AXI] [get_bd_addr_segs processing_system7_0/S_AXI_HP0/HP0_DDR_LOWOCM] -force

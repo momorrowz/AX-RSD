@@ -168,10 +168,11 @@ module CSR_Unit(
                 default:            wv = '0;    // dummy
             endcase 
         end
-	
-	//if (axLevelEn == 1'b1) begin
-	//    csrNext.axlevel = {{(DATA_WIDTH-AX_LEVEL_WIDTH){1'b0}},axLevelData};
-	//end
+
+        if (axLevelEn == 1'b1) begin
+            csrNext.axlevel = {{(DATA_WIDTH-AX_LEVEL_WIDTH){1'b0}}, axLevelData};
+        end
+
         csrNext.mip.MTIP = port.reqTimerInterrupt;      // Timer interrupt request
         csrNext.mip.MEIP = port.reqExternalInterrupt;   // External interrupt request
         port.externalInterruptCodeInCSR = externalInterruptCodeReg;

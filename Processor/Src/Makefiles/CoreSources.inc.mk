@@ -5,7 +5,7 @@
 # * RSD_MARCH_INT_ISSUE_WIDTH=N: Set issue width to N
 # * RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE: Integrate mul/div to a memory pipe
 RSD_SRC_CFG = \
-
+#	+define+CIRCULAR_SELECT_LOGIC \
 #	+define+RSD_MARCH_INT_ISSUE_WIDTH=2 \
 #	+define+RSD_MARCH_UNIFIED_LDST_MEM_PIPE \
 #	+define+RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE \

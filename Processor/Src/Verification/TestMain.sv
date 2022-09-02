@@ -300,7 +300,10 @@ module TestMain;
         $display("Num of store-load-forwarding misses: %d", debugRegister.perfCounter.numMemDepPredMiss);
         $display("Num of branch prediction misses: %d", debugRegister.perfCounter.numBranchPredMiss);
         $display("Num of branch prediction misses detected on decode: %d", debugRegister.perfCounter.numBranchPredMissDetectedOnDecode);
-
+        $display("Num of replay: %d", debugRegister.perfCounter.isStageStallUpper);
+        $display("Num of stall cycle in rename-stage: %d \n\t(by scheduler: %d, activeList: %d, loadStoreQueue: %d)\n", debugRegister.perfCounter.rnStageSendBubbleLower, debugRegister.perfCounter.stallByScheduler, debugRegister.perfCounter.stallByActiveList, debugRegister.perfCounter.stallByLoadStoreQueue);
+        $display("Num of recovery cycle: %d", debugRegister.perfCounter.stallByRecovery);
+        
         $display( "Num of committed RISC-V-ops: %d", numCommittedRISCV_Op );
         $display( "Num of committed micro-ops: %d", numCommittedMicroOp );
         if ( cycle != 0 ) begin

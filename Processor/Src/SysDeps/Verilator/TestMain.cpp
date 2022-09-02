@@ -13,8 +13,8 @@
 #include <regex>
 #include <stdexcept>
 
-constexpr int64_t sim_start = 835750000;
-constexpr int64_t sim_end   = 835800000;
+constexpr int64_t sim_start = 1722950000;
+constexpr int64_t sim_end   = 1723000000;
 using namespace std;
 
 unsigned int main_time = 0;  // Current simulation time
@@ -344,6 +344,9 @@ int main(int argc, char** argv)
     printf("Num of branch prediction misses detected on decode: %d\n", debugRegister.perfCounter.numBranchPredMissDetectedOnDecode);
     printf("Num of store-load-forwanind misses: %d\n", debugRegister.perfCounter.numStoreLoadForwardingFail);
     printf("Num of memory dependency prediction misses: %d\n", debugRegister.perfCounter.numMemDepPredMiss);
+    printf("Num of replay: %d\n", debugRegister.perfCounter.isStageStallUpper);
+    printf("Num of stall cycle in rename-stage: %d \n\t(by scheduler: %d, activeList: %d, loadStoreQueue: %d)\n", debugRegister.perfCounter.rnStageSendBubbleLower, debugRegister.perfCounter.stallByScheduler, debugRegister.perfCounter.stallByActiveList, debugRegister.perfCounter.stallByLoadStoreQueue);
+    printf("Num of recovery cycle: %d\n", debugRegister.perfCounter.stallByRecovery);
 
     printf("Num of committed RISC-V-ops: %d\n", numCommittedARM_Op);
     printf("Num of committed micro-ops: %d\n", numCommittedMicroOp);

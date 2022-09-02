@@ -31,6 +31,13 @@ typedef struct packed { //
     DataPath numBranchPredMissDetectedOnDecode;
     DataPath numStoreLoadForwardingFail;
     DataPath numMemDepPredMiss;
+
+    DataPath rnStageSendBubbleLower;
+    DataPath isStageStallUpper;
+    DataPath stallByScheduler;
+    DataPath stallByActiveList;
+    DataPath stallByLoadStoreQueue;
+    DataPath stallByRecovery;
 } PerfCounterPath;
 
 

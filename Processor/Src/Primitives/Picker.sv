@@ -90,7 +90,67 @@ output
     
 endmodule : InterleavedPicker
 
+module CircularPicker #( //Todo: optimize
+    parameter ENTRY_NUM = 4,
+    parameter GRANT_NUM = 2
+)(
+input
+    logic [$clog2(ENTRY_NUM)-1:0] shiftAmount,
+    logic [ENTRY_NUM-1:0] req,
+output
+    logic [ENTRY_NUM-1:0] grant,
+    logic [$clog2(ENTRY_NUM)-1:0] grantPtr[GRANT_NUM],
+    logic granted[GRANT_NUM]
+);
+    parameter INDEX_BIT_SIZE = $clog2(ENTRY_NUM);
 
+    logic [ENTRY_NUM-1:0] shiftedReqTmp;
+    logic [ENTRY_NUM-1:0] shiftedReq;
+    logic [ENTRY_NUM*2-1:0] reqTmp;
+
+    logic [$clog2(ENTRY_NUM)-1:0] Ptr[GRANT_NUM];
+    logic [$clog2(ENTRY_NUM)-1:0] sPtr[GRANT_NUM];
+    // Generate a right shifter.
+    // When the width of a shifter is greater than 16, a hand-implemented shifter
+    // is faster than a verilog shift operator.
+    generate
+        // Generate special version.
+        if(ENTRY_NUM == 16) begin
+            CircularRangePickerRightShifter16 rightShifter(reqTmp[30:0], shiftAmount, shiftedReq);
+        end
+        else begin
+            CircularRangePickerRightShifter#(ENTRY_NUM*2, INDEX_BIT_SIZE, ENTRY_NUM)
+                rightShifter(reqTmp, shiftAmount, shiftedReq);
+        end
+    endgenerate
+    always_comb begin
+        reqTmp = {req, req};
+        shiftedReqTmp = shiftedReq;
+        grant = '0;
+        for (int p = 0; p < GRANT_NUM; p++) begin
+
+            granted[p] = '0;
+            grantPtr[p] = '0;
+
+            for (int e = 0; e < ENTRY_NUM; e++) begin
+                if(shiftedReqTmp[e]) begin
+                    //grant[e] = '1;
+                    granted[p] = '1;
+                    //grantPtr[p] = e;
+                    shiftedReqTmp[e] = '0;
+                    Ptr[p] = e;
+                    break;
+                end
+            end
+            if(granted[p]) begin
+                sPtr[p] = Ptr[p] + shiftAmount;
+                grant[sPtr[p]] = '1;
+                grantPtr[p] = sPtr[p];
+            end
+        end
+    end
+
+endmodule : CircularPicker
 
 
 //

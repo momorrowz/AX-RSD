@@ -8,7 +8,8 @@ import DebugTypes::*;
 
 module Controller(
     ControllerIF.Controller port,
-    DebugIF.Controller debug
+    DebugIF.Controller debug,
+    PerformanceCounterIF perfCounter
 );
 
     PipelineControll npStage;
@@ -196,6 +197,12 @@ module Controller(
         debug.cmStagePipeCtrl = cmStage;
         debug.stallByDecodeStage = stallByDecodeStage;
 `endif
+
+`ifndef RSD_DISABLE_PERFORMANCE_COUNTER
+        perfCounter.rnStageSendBubbleLower = port.rnStageSendBubbleLower;
+        perfCounter.isStageStallUpper = port.isStageStallUpper;
+`endif
+
     end
 
 endmodule

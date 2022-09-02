@@ -24,6 +24,15 @@ set_property PACKAGE_PIN H18 [get_ports {swIn[5]}]
 set_property PACKAGE_PIN H17 [get_ports {swIn[6]}]
 set_property PACKAGE_PIN M15 [get_ports {swIn[7]}]
 
+#set_property PACKAGE_PIN W12 [get_ports {swIn[1]}]
+#set_property PACKAGE_PIN W11 [get_ports {swIn[2]}]
+#set_property PACKAGE_PIN V10 [get_ports {swIn[3]}]
+#set_property PACKAGE_PIN W8 [get_ports {swIn[4]}]
+#set_property PACKAGE_PIN V12 [get_ports {swIn[5]}]
+#set_property PACKAGE_PIN W10 [get_ports {swIn[0]}]
+#set_property PACKAGE_PIN V9 [get_ports {swIn[6]}]
+#set_property PACKAGE_PIN V8 [get_ports {swIn[7]}]
+
 # Note that the bank voltage for IO Bank 33 is fixed to 3.3V on ZedBoard.
 set_property IOSTANDARD LVCMOS33 [get_ports -of_objects [get_iobanks 33]]
 
@@ -65,6 +74,5 @@ set_property PACKAGE_PIN AB7 [get_ports {TMDS_data_p[2]}]
 set_property PACKAGE_PIN AB6 [get_ports {TMDS_data_n[2]}]
 
 # false path
-set_clock_groups -asynchronous -group [get_clocks clk_fpga_1] \
-    -group [get_clocks -include_generated_clocks clk_fpga_1 -filter {NAME !~ clk_fpga_1}]
+set_clock_groups -asynchronous -group [get_clocks clk_fpga_1] -group [get_clocks -include_generated_clocks clk_fpga_1 -filter {NAME !~ clk_fpga_1}]
 

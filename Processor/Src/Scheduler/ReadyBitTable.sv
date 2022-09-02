@@ -24,7 +24,7 @@ module ReadyBitTable #(
 )(
     // input
     input   logic clk, rst, rstStart, stall,
-    input   logic wakeup[ WAKEUP_WIDTH ],
+    input   logic wakeup[ WAKEUP_WIDTH + STORE_ISSUE_WIDTH],
     input   logic wakeupDstValid [ WAKEUP_WIDTH ],
     input   logic [REG_NUM_BIT_WIDTH-1:0] wakeupDstRegNum [ WAKEUP_WIDTH ],
     input   logic dispatch[ DISPATCH_WIDTH ],

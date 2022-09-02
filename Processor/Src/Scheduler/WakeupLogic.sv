@@ -10,7 +10,7 @@ import BasicTypes::*;
 import SchedulerTypes::*;
 
 // Use a matrix scheduler.
-//`define RSD_WAKEUP_MATRIX_SCHEDULER 1
+`define RSD_WAKEUP_MATRIX_SCHEDULER 1
 
 module WakeupLogic (
     WakeupSelectIF.WakeupLogic port

@@ -32,6 +32,12 @@ module PerformanceCounter (
         next.numMemDepPredMiss += port.memDepPredMiss ? 1 : 0;
         next.numBranchPredMiss += port.branchPredMiss ? 1 : 0;
         next.numBranchPredMissDetectedOnDecode += port.branchPredMissDetectedOnDecode ? 1 : 0;
+        next.rnStageSendBubbleLower += port.rnStageSendBubbleLower ? 1 : 0;
+        next.isStageStallUpper += port.isStageStallUpper ? 1 : 0;
+        next.stallByScheduler += port.stallByScheduler ? 1 : 0;
+        next.stallByActiveList += port.stallByActiveList ? 1 : 0;
+        next.stallByLoadStoreQueue += port.stallByLoadStoreQueue ? 1 : 0;
+        next.stallByRecovery += port.inRecovery ? 1 : 0;
 
         port.perfCounter = cur;  // Export current values
 `ifndef RSD_DISABLE_DEBUG_REGISTER

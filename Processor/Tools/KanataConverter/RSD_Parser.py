@@ -40,7 +40,7 @@ class RSD_Parser(object):
     # Bit width of OpSerial in SystemVerilog code.
     # An id stored in OpSerial signal is loaded as "iid" in this python script.
     # See the comments in CreateGID()
-    OP_SERIAL_WIDTH = 10
+    OP_SERIAL_WIDTH = 16
 
     # Max micro-ops per an instruction.
     MAX_MICRO_OPS_PER_INSN = 4

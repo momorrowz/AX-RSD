@@ -10,7 +10,7 @@ localparam TRUE  = 1'b1;
 localparam FALSE = 1'b0;
 
 // SID
-localparam OP_SERIAL_WIDTH = 10;
+localparam OP_SERIAL_WIDTH = 16;
 typedef logic [OP_SERIAL_WIDTH-1:0] OpSerial;
 
 // Byte
@@ -106,7 +106,7 @@ typedef struct packed { // PRegNumPath
 
 // Fetch width
 localparam FETCH_WIDTH = CONF_FETCH_WIDTH;
-localparam FETCH_WIDTH_BIT_SIZE = $clog2( FETCH_WIDTH ); // log2(FETCH_WIDTH)
+localparam FETCH_WIDTH_BIT_SIZE = (FETCH_WIDTH == 1) ? 1 : $clog2( FETCH_WIDTH ); // log2(FETCH_WIDTH)
 typedef logic [ FETCH_WIDTH_BIT_SIZE-1:0 ] FetchLaneIndexPath;
 
 // Decode width

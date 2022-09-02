@@ -54,6 +54,19 @@ module SelectLogic(
     logic recoverySelected [ ISSUE_WIDTH ];
     IssueQueueIndexPath recoverySelectedPtr [ ISSUE_WIDTH ];
 
+`ifdef CIRCULAR_SELECT_LOGIC
+    IssueQueueIndexPath intPrePtr;
+`ifndef RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE
+    IssueQueueIndexPath compPrePtr;
+`endif
+`ifdef RSD_MARCH_UNIFIED_LDST_MEM_PIPE
+    IssueQueueIndexPath memPrePtr;
+`else
+    IssueQueueIndexPath loadPrePtr;
+    IssueQueueIndexPath storePrePtr;
+`endif
+`endif
+
     // Requests are interleaved.
     // ex. ENTRY_NUM = 4, GRANT_NUM = 2 case:
     //   granted[0] = pick(req[0], req[2]);
@@ -61,11 +74,20 @@ module SelectLogic(
     //
     // This makes its performance slightly worse, but reduces its complexity.
     //InterleavedPicker #(
+`ifdef INT_INTERLEAVED_PICKER
+    InterleavedPicker #(
+`elsif CIRCULAR_SELECT_LOGIC
+    CircularPicker #(
+`else
     Picker #(
+`endif
         .ENTRY_NUM(ISSUE_QUEUE_ENTRY_NUM),
         .GRANT_NUM(INT_ISSUE_WIDTH)
     )
     intPicker(
+`ifdef CIRCULAR_SELECT_LOGIC
+        .shiftAmount(intPrePtr),
+`endif
         .req(intRequest),
         .grant(intGrant),
         .grantPtr(intSelectedPtr),
@@ -74,11 +96,18 @@ module SelectLogic(
 
 
 `ifndef RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE
+`ifdef CIRCULAR_SELECT_LOGIC
+    CircularPicker #(
+`else
     Picker #(
+`endif
         .ENTRY_NUM(ISSUE_QUEUE_ENTRY_NUM),
         .GRANT_NUM(COMPLEX_ISSUE_WIDTH)
     )
     compPicker(
+`ifdef CIRCULAR_SELECT_LOGIC
+        .shiftAmount(compPrePtr),
+`endif
         .req(compRequest),
         .grant(compGrant),
         .grantPtr(compSelectedPtr),
@@ -87,37 +116,73 @@ module SelectLogic(
 `endif
 
 `ifdef RSD_MARCH_UNIFIED_LDST_MEM_PIPE
+`ifdef CIRCULAR_SELECT_LOGIC
+    CircularPicker #(
+`else
     Picker #(
+`endif
         .ENTRY_NUM(ISSUE_QUEUE_ENTRY_NUM),
         .GRANT_NUM(MEM_ISSUE_WIDTH)
     )
     storePicker(
+`ifdef CIRCULAR_SELECT_LOGIC
+        .shiftAmount(memPrePtr),
+`endif
         .req(memRequest),
         .grant(memGrant),
         .grantPtr(memSelectedPtr),
         .granted(memSelected)
     );
 `else
+`ifdef CIRCULAR_SELECT_LOGIC
+    CircularPicker #(
+`else
     Picker #(
+`endif
         .ENTRY_NUM(ISSUE_QUEUE_ENTRY_NUM),
         .GRANT_NUM(LOAD_ISSUE_WIDTH)
     )
     loadPicker(
+`ifdef CIRCULAR_SELECT_LOGIC
+        .shiftAmount(loadPrePtr),
+`endif
         .req(loadRequest),
         .grant(loadGrant),
         .grantPtr(loadSelectedPtr),
         .granted(loadSelected)
     );
+`ifdef CIRCULAR_SELECT_LOGIC
+    CircularPicker #(
+`else
     Picker #(
+`endif
         .ENTRY_NUM(ISSUE_QUEUE_ENTRY_NUM),
         .GRANT_NUM(STORE_ISSUE_WIDTH)
     )
     storePicker(
+`ifdef CIRCULAR_SELECT_LOGIC
+        .shiftAmount(storePrePtr),
+`endif
         .req(storeRequest),
         .grant(storeGrant),
         .grantPtr(storeSelectedPtr),
         .granted(storeSelected)
     );
+`endif
+
+`ifdef CIRCULAR_SELECT_LOGIC
+    always_ff @ (posedge port.clk) begin
+        intPrePtr <= intSelected[INT_ISSUE_WIDTH-1] + 1;
+`ifndef RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE
+        compPrePtr <= compSelected[COMPLEX_ISSUE_WIDTH-1] + 1;
+`endif
+`ifdef RSD_MARCH_UNIFIED_LDST_MEM_PIPE
+        memPrePtr <= memSelected[MEM_ISSUE_WIDTH-1] + 1;
+`else
+        loadPrePtr <= loadSelected[LOAD_ISSUE_WIDTH-1] + 1;
+        storePrePtr <= storeSelected[STORE_ISSUE_WIDTH-1] + 1;
+`endif
+    end
 `endif
 
     always_comb begin

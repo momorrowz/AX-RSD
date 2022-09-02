@@ -49,9 +49,9 @@ module WakeupPipelineRegister(
     ActiveListIndexPath flushRangeHeadPtr;  //フラッシュされた命令の範囲のhead
     ActiveListIndexPath flushRangeTailPtr;  //フラッシュされた命令の範囲のtail
     logic flushInt[ INT_ISSUE_WIDTH ];
-    logic flushMem[ LOAD_ISSUE_WIDTH ];
+    logic flushMem[ MEM_ISSUE_WIDTH ];
     logic flushint[ INT_ISSUE_WIDTH ];
-    logic flushmem[ LOAD_ISSUE_WIDTH ];
+    logic flushmem[ MEM_ISSUE_WIDTH ];
     IssueQueueIndexPath intSelectedPtr[ INT_ISSUE_WIDTH ];
     IssueQueueIndexPath memSelectedPtr[ MEM_ISSUE_WIDTH ];
     IssueQueueOneHotPath flushIQ_Entry;
@@ -242,8 +242,8 @@ module WakeupPipelineRegister(
             port.wakeupVector[i+WAKEUP_WIDTH] = memPipeReg[i][0].depVector;
         end
 `else
-        // Store ports do not wake up consumers, thus LOAD_ISSUE_WIDTH is used.
-        for (int i = 0; i < LOAD_ISSUE_WIDTH; i++) begin
+        // Wake up an instruction that depends on the load and store
+        for (int i = 0; i < MEM_ISSUE_WIDTH; i++) begin
             flushMem[i] = SelectiveFlushDetector(
                             canBeFlushedRegCountMem != 0,
                             flushRangeHeadPtr,
@@ -259,12 +259,6 @@ module WakeupPipelineRegister(
             port.wakeup[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = memPipeReg[i][0].valid && !flushMem[i] && !flushmem[i];
             port.wakeupPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = memPipeReg[i][0].ptr;
             port.wakeupVector[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = memPipeReg[i][0].depVector;
-        end
-        // Wake up an instruction that depends on the store
-        for (int i = 0; i < MEM_ISSUE_WIDTH - LOAD_ISSUE_WIDTH; i++) begin
-            // Not need to assert flushMem because store dependent is not related on register
-            port.wakeupPtr[i+WAKEUP_WIDTH] = memPipeReg[i+LOAD_ISSUE_WIDTH][0].ptr;
-            port.wakeupVector[i+WAKEUP_WIDTH] = memPipeReg[i+LOAD_ISSUE_WIDTH][0].depVector;
         end
 `endif
     end

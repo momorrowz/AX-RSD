@@ -31,7 +31,7 @@ localparam CONF_COMMIT_WIDTH = 4;
 localparam CONF_PSCALAR_NUM = 64;
 
 // The number of issue-queue entries
-localparam CONF_ISSUE_QUEUE_ENTRY_NUM = 64;
+localparam CONF_ISSUE_QUEUE_ENTRY_NUM = 16;
 
 // Return width of freelist of issue-queue entries
 localparam CONF_ISSUE_QUEUE_RETURN_INDEX_WIDTH = 2;
@@ -53,12 +53,11 @@ localparam CONF_REPLAY_QUEUE_ENTRY_NUM = 20;
 `ifdef RSD_MARCH_INT_ISSUE_WIDTH
     localparam CONF_INT_ISSUE_WIDTH =`RSD_MARCH_INT_ISSUE_WIDTH;
 `else
-    localparam CONF_INT_ISSUE_WIDTH = 2;
+    localparam CONF_INT_ISSUE_WIDTH = 4;
 `endif
 
 // The issue width of complex pipelines.
 // CONF_COMPLEX_ISSUE_WIDTH is configurable.
-// must be zero or one and cannot be changed manually.
 `ifdef RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE
     localparam CONF_COMPLEX_ISSUE_WIDTH = 0;
 `else
@@ -70,10 +69,10 @@ localparam CONF_REPLAY_QUEUE_ENTRY_NUM = 20;
 localparam CONF_COMPLEX_EXEC_STAGE_DEPTH = 3;
 
 // The issue width of memory pipelines.
-// These parameters is configurable
+// These parameters are configurable
 // cannot be changed manually.
-localparam CONF_LOAD_ISSUE_WIDTH = 1;       // must be 1
-localparam CONF_STORE_ISSUE_WIDTH = 1;      // must be 1
+localparam CONF_LOAD_ISSUE_WIDTH = 2;       // must be 1
+localparam CONF_STORE_ISSUE_WIDTH = 2;      // must be 1
 `ifdef RSD_MARCH_UNIFIED_LDST_MEM_PIPE
     localparam CONF_MEM_ISSUE_WIDTH = 1;
     localparam CONF_STORE_ISSUE_LANE_BEGIN = 0;   // Load and store share the same lane
@@ -85,8 +84,8 @@ localparam CONF_STORE_ISSUE_WIDTH = 1;      // must be 1
 
 // --- Load store unit
 // These parameters must be a power of two.
-localparam CONF_LOAD_QUEUE_ENTRY_NUM = 32;  // The size of a load queue
-localparam CONF_STORE_QUEUE_ENTRY_NUM = 32; // The size of a store queue
+localparam CONF_LOAD_QUEUE_ENTRY_NUM = 16;  // The size of a load queue
+localparam CONF_STORE_QUEUE_ENTRY_NUM = 16; // The size of a store queue
 
 // --- Predictors
 // Branch predictor

@@ -331,6 +331,12 @@ struct PerfCounterPath {
     DataPath numMemDepPredMiss;
     DataPath numBranchPredMiss;
     DataPath numBranchPredMissDetectedOnDecode;
+    DataPath rnStageSendBubbleLower;
+    DataPath isStageStallUpper;
+    DataPath stallByScheduler;
+    DataPath stallByActiveList;
+    DataPath stallByLoadStoreQueue;
+    DataPath stallByRecovery;
 };
 
 struct DebugRegister{
@@ -622,7 +628,6 @@ static void GetDebugRegister(DebugRegister* d, VMain_Zynq_Wrapper *top)
     RSD_MAKE_STRUCT_ACCESSOR(DebugRegister, logic, storeCommitterPhase);
     RSD_MAKE_STRUCT_ACCESSOR(DebugRegister, StoreQueueCountPath, storeQueueCount);
     RSD_MAKE_STRUCT_ACCESSOR(DebugRegister, logic, busyInRecovery);
-    RSD_MAKE_STRUCT_ACCESSOR(DebugRegister, logic, storeQueueEmpty);
 
 
 #ifdef RSD_FUNCTIONAL_SIMULATION
@@ -633,6 +638,12 @@ static void GetDebugRegister(DebugRegister* d, VMain_Zynq_Wrapper *top)
     RSD_MAKE_STRUCT_ACCESSOR_LV2(DebugRegister, perfCounter, DataPath, numMemDepPredMiss)
     RSD_MAKE_STRUCT_ACCESSOR_LV2(DebugRegister, perfCounter, DataPath, numBranchPredMiss)
     RSD_MAKE_STRUCT_ACCESSOR_LV2(DebugRegister, perfCounter, DataPath, numBranchPredMissDetectedOnDecode)
+    RSD_MAKE_STRUCT_ACCESSOR_LV2(DebugRegister, perfCounter, DataPath, rnStageSendBubbleLower)
+    RSD_MAKE_STRUCT_ACCESSOR_LV2(DebugRegister, perfCounter, DataPath, isStageStallUpper)
+    RSD_MAKE_STRUCT_ACCESSOR_LV2(DebugRegister, perfCounter, DataPath, stallByScheduler)
+    RSD_MAKE_STRUCT_ACCESSOR_LV2(DebugRegister, perfCounter, DataPath, stallByActiveList)
+    RSD_MAKE_STRUCT_ACCESSOR_LV2(DebugRegister, perfCounter, DataPath, stallByLoadStoreQueue)
+    RSD_MAKE_STRUCT_ACCESSOR_LV2(DebugRegister, perfCounter, DataPath, stallByRecovery)
 #endif
 }
 

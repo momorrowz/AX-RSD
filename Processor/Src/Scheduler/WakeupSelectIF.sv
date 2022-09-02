@@ -20,7 +20,7 @@ interface WakeupSelectIF( input logic clk, rst, rstStart );
     SchedulerDstTag writeDstTag [ DISPATCH_WIDTH ];
 
     // WakeupPipelineRegister -> DestinationRAM
-    logic wakeup[ WAKEUP_WIDTH ];
+    logic wakeup[ WAKEUP_WIDTH + STORE_ISSUE_WIDTH];
     IssueQueueIndexPath wakeupPtr[ WAKEUP_WIDTH + STORE_ISSUE_WIDTH ];
     IssueQueueOneHotPath wakeupVector[ WAKEUP_WIDTH + STORE_ISSUE_WIDTH ];
 
@@ -118,6 +118,7 @@ interface WakeupSelectIF( input logic clk, rst, rstStart );
 
     modport SelectLogic(
     input
+        clk,
         opReady,
         intIssueReq,
 `ifndef RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE

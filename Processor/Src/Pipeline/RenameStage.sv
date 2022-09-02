@@ -116,7 +116,8 @@ module RenameStage(
     LoadStoreUnitIF.RenameStage loadStoreUnit,
     RecoveryManagerIF.RenameStage recovery,
     ControllerIF.RenameStage ctrl,
-    DebugIF.RenameStage debug
+    DebugIF.RenameStage debug,
+    PerformanceCounterIF perfCounter
 );
 
     // --- Pipeline registers
@@ -371,6 +372,13 @@ module RenameStage(
             debug.rnReg[i].opId = pipeReg[i].opId;
         end
 `endif
+
+`ifndef RSD_DISABLE_PERFORMANCE_COUNTER
+        perfCounter.stallByScheduler = !scheduler.allocatable && ( |valid );
+        perfCounter.stallByActiveList = !activeList.allocatable && ( |valid );
+        perfCounter.stallByLoadStoreQueue = !loadStoreUnit.allocatable && ( |valid );
+`endif
+
     end
 
 

@@ -30,6 +30,14 @@ interface PerformanceCounterIF( input logic clk, rst );
     // Branch prediction miss
     logic branchPredMiss;
     logic branchPredMissDetectedOnDecode;
+
+    // Stall
+    logic rnStageSendBubbleLower;
+    logic isStageStallUpper;
+    logic stallByScheduler;
+    logic stallByActiveList;
+    logic stallByLoadStoreQueue;
+    logic inRecovery;
     
     modport PerformanceCounter (
     input
@@ -42,6 +50,12 @@ interface PerformanceCounterIF( input logic clk, rst );
         memDepPredMiss,
         branchPredMiss,
         branchPredMissDetectedOnDecode,
+        rnStageSendBubbleLower,
+        isStageStallUpper,
+        stallByScheduler,
+        stallByActiveList,
+        stallByLoadStoreQueue,
+        inRecovery,
     output
         perfCounter
     );
@@ -56,6 +70,13 @@ interface PerformanceCounterIF( input logic clk, rst );
         branchPredMissDetectedOnDecode
     );
 
+    modport RenameStage(
+    output
+        stallByScheduler,
+        stallByActiveList,
+        stallByLoadStoreQueue
+    );
+
     modport MemoryTagAccessStage (
     output
         loadMiss
@@ -65,7 +86,8 @@ interface PerformanceCounterIF( input logic clk, rst );
     output
         storeLoadForwardingFail,
         memDepPredMiss,
-        branchPredMiss
+        branchPredMiss,
+        inRecovery
     );
 
     modport StoreCommitter (
@@ -77,6 +99,13 @@ interface PerformanceCounterIF( input logic clk, rst );
     input
         perfCounter
     );
+    
+    modport Controller (
+    input
+        rnStageSendBubbleLower,
+        isStageStallUpper
+    );
+
 `else
     // Dummy to suppress warning.
     PerfCounterPath perfCounter;
@@ -90,6 +119,7 @@ interface PerformanceCounterIF( input logic clk, rst );
     
     modport FetchStage(input clk);
     modport DecodeStage(input clk);
+    modport RenameStage(input clk);
     modport LoadStoreUnit(input clk);
     modport MemoryTagAccessStage(input clk);
     modport RecoveryManager(input clk);

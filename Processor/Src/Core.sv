@@ -139,7 +139,7 @@ output
     //
     // --- Modules
     //
-    Controller controller( ctrlIF, debugIF );
+    Controller controller( ctrlIF, debugIF, perfCounterIF );
     MemoryAccessController memoryAccessController(
         .port( cacheSystemIF.MemoryAccessController ),
         .memAccessAddr( memAccessAddr ),
@@ -169,7 +169,7 @@ output
     PreDecodeStage pdStage( pdStageIF, ifStageIF, ctrlIF, debugIF );
     DecodeStage idStage( idStageIF, pdStageIF, ctrlIF, debugIF, perfCounterIF );
 
-    RenameStage rnStage( rnStageIF, idStageIF, renameLogicIF, activeListIF, schedulerIF, loadStoreUnitIF, recoveryManagerIF, ctrlIF, debugIF );
+    RenameStage rnStage( rnStageIF, idStageIF, renameLogicIF, activeListIF, schedulerIF, loadStoreUnitIF, recoveryManagerIF, ctrlIF, debugIF, perfCounterIF );
         RenameLogic renameLogic( renameLogicIF, activeListIF, recoveryManagerIF );
         RenameLogicCommitter renameLogicCommitter( renameLogicIF, activeListIF, recoveryManagerIF );
         ActiveList activeList( activeListIF, recoveryManagerIF, ctrlIF, debugIF );
