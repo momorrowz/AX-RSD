@@ -38,8 +38,8 @@ else
 endif
 
 KERNEL_CONFIG = xilinx_zynq_defconfig
-ARM_CROSSCOMPILE = arm-linux-gnueabihf-
-#ARM_CROSSCOMPILE = $(HOME)/Downloads/gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf/bin/arm-none-linux-gnueabihf-
+#ARM_CROSSCOMPILE = arm-linux-gnueabihf-
+ARM_CROSSCOMPILE = $(HOME)/Downloads/gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf/bin/arm-none-linux-gnueabihf-
 
 ARM_LINUX_ROOT = $(RSD_ARM_LINUX)
 KERNEL_ROOT = $(RSD_ARM_LINUX)/linux-xlnx

@@ -120,13 +120,16 @@ module ReplayQueue(
     ReplayQueueIntervalPath intervalCount;
     ReplayQueueIntervalPath nextIntervalCount;
 
+    // consecutive replay counter
+    IssueLaneCountPath replayCount;
+
     // Flushed Op detection
     ReplayQueueCountPath canBeFlushedEntryCount;    //FlushedOpが存在している可能性があるエントリの個数
     ActiveListIndexPath flushRangeHeadPtr;  //フラッシュされた命令の範囲のhead
     ActiveListIndexPath flushRangeTailPtr;  //フラッシュされた命令の範囲のtail
+    logic flushAllInsns;
     logic flushInt[ INT_ISSUE_WIDTH ];
     logic flushMem[ MEM_ISSUE_WIDTH ];
-    logic flush[ MEM_ISSUE_WIDTH ];
 `ifndef RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE
     logic flushComplex[ COMPLEX_ISSUE_WIDTH ];
 `endif
@@ -147,7 +150,6 @@ module ReplayQueue(
     logic mshrValid[MSHR_NUM];
     MSHR_Phase mshrPhase[MSHR_NUM]; // MSHR phase.
     DCacheIndexSubsetPath mshrAddrSubset[MSHR_NUM];
-    logic mshrMakeMSHRCanBeInvalidByReplayQueue[MSHR_NUM];
 
 `ifndef RSD_SYNTHESIS
     `ifndef RSD_VIVADO_SIMULATION
@@ -414,6 +416,7 @@ module ReplayQueue(
                     (replayEntryOut.memData[i].memOpInfo.opType
                         inside { MEM_MOP_TYPE_LOAD }) && // the load is valid,
                     replayEntryOut.memData[i].memOpInfo.hasAllocatedMSHR && // has allocated MSHR entries,
+                    targetMSHRValid[i] && // the MSHR entry is valid
                     mshrNotReady[i] // the corresponding MSHR entry has not receive data yet.
                 ) begin
                     popEntry = FALSE;
@@ -466,6 +469,10 @@ module ReplayQueue(
 `endif
         end
 
+        if (replayCount >= ISSUE_WIDTH) begin
+            popEntry = FALSE;
+        end
+
         // To stall upper stages.
         if (count >= (REPLAY_QUEUE_ENTRY_NUM - ISSUE_QUEUE_MEM_LATENCY)) begin
             almostFull = TRUE;
@@ -503,6 +510,7 @@ module ReplayQueue(
                             canBeFlushedEntryCount != 0,
                             flushRangeHeadPtr,
                             flushRangeTailPtr,
+                            recovery.flushAllInsns,
                             replayEntryReg.intData[i].activeListPtr
                             );
             port.intReplayEntry[i] = replayEntryReg.intValid[i] && !flushInt[i];
@@ -514,6 +522,7 @@ module ReplayQueue(
                                 canBeFlushedEntryCount != 0,
                                 flushRangeHeadPtr,
                                 flushRangeTailPtr,
+                                recovery.flushAllInsns,
                                 replayEntryReg.complexData[i].activeListPtr
                                 );
             port.complexReplayEntry[i] = replayEntryReg.complexValid[i] && !flushComplex[i];
@@ -525,40 +534,18 @@ module ReplayQueue(
                             canBeFlushedEntryCount != 0,
                             flushRangeHeadPtr,
                             flushRangeTailPtr,
-                            replayEntryReg.memData[i].activeListPtr
-                            );
-            flush[i] = SelectiveFlushDetector(
-                            recoveryFromRwStage || recoveryFromCmStage,
-                            recovery.flushRangeHeadPtr,
-                            recovery.flushRangeTailPtr,
+                            recovery.flushAllInsns,
                             replayEntryReg.memData[i].activeListPtr
                             );
             port.memReplayEntry[i] = replayEntryReg.memValid[i] && !flushMem[i];
             port.memReplayData[i] = replayEntryReg.memData[i];
         end
 
-        // MSHR can be invalid when its allocator load is flushed at ReplayQueue.
-        for (int i = 0; i < MSHR_NUM; i++) begin
-            mshrMakeMSHRCanBeInvalidByReplayQueue[i] = FALSE;
-        end
-
-        for (int i = 0; i < MEM_ISSUE_WIDTH; i++) begin
-            if (replayEntryReg.memValid[i] && replayEntryReg.memData[i].memOpInfo.hasAllocatedMSHR && (flushMem[i] || flush[i])) begin
-                mshrMakeMSHRCanBeInvalidByReplayQueue[replayEntryReg.memData[i].memOpInfo.mshrID] = TRUE;
-            end
-        end
-
-        for (int i = 0; i < MSHR_NUM; i++) begin
-            mshr.makeMSHRCanBeInvalidByReplayQueue[i] = mshrMakeMSHRCanBeInvalidByReplayQueue[i];
-        end
-
-
         // Stall issue and schedule stages
         // when ReplayQueue issues or
         // its #entries exceeds the threshold.
         ctrl.isStageStallUpper = replayReg | almostFull;
         port.replay = replayReg;
-
     end
 
     always_ff @(posedge port.clk) begin
@@ -569,9 +556,20 @@ module ReplayQueue(
             canBeFlushedEntryCount <= count;
             flushRangeHeadPtr <= recovery.flushRangeHeadPtr;
             flushRangeTailPtr <= recovery.flushRangeTailPtr;
+            flushAllInsns <= recovery.flushAllInsns;
         end
         else if (canBeFlushedEntryCount > 0 && port.replay) begin
             canBeFlushedEntryCount <= canBeFlushedEntryCount - 1;
+        end
+
+        if (port.rst) begin
+            replayCount <= 0;
+        end
+        else if (replayReg) begin
+            replayCount <= replayCount + 1;
+        end
+        else begin
+            replayCount <= 0;
         end
     end
 

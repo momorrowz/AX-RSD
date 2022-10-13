@@ -39,7 +39,6 @@ module WakeupPipelineRegister(
     WakeupPipeReg nextComplexPipeReg[ COMPLEX_ISSUE_WIDTH ];
     logic [$clog2(ISSUE_QUEUE_COMPLEX_LATENCY):0] canBeFlushedRegCountComplex;    //FlushedOpが存在している可能性があるComplexパイプラインレジスタの段数
     logic flushComplex[ COMPLEX_ISSUE_WIDTH ];
-    logic flushcomplex[ COMPLEX_ISSUE_WIDTH ];
     IssueQueueIndexPath complexSelectedPtr[ COMPLEX_ISSUE_WIDTH ];
 `endif
 
@@ -48,10 +47,9 @@ module WakeupPipelineRegister(
     logic [$clog2(ISSUE_QUEUE_MEM_LATENCY):0] canBeFlushedRegCountMem;    //FlushedOpが存在している可能性があるMemパイプラインレジスタの段数
     ActiveListIndexPath flushRangeHeadPtr;  //フラッシュされた命令の範囲のhead
     ActiveListIndexPath flushRangeTailPtr;  //フラッシュされた命令の範囲のtail
+    logic flushAllInsns;
     logic flushInt[ INT_ISSUE_WIDTH ];
     logic flushMem[ MEM_ISSUE_WIDTH ];
-    logic flushint[ INT_ISSUE_WIDTH ];
-    logic flushmem[ MEM_ISSUE_WIDTH ];
     IssueQueueIndexPath intSelectedPtr[ INT_ISSUE_WIDTH ];
     IssueQueueIndexPath memSelectedPtr[ MEM_ISSUE_WIDTH ];
     IssueQueueOneHotPath flushIQ_Entry;
@@ -182,15 +180,10 @@ module WakeupPipelineRegister(
                             canBeFlushedRegCountInt != 0,
                             flushRangeHeadPtr,
                             flushRangeTailPtr,
+                            flushAllInsns,
                             intPipeReg[i][0].activeListPtr
                             );
-            flushint[i] = SelectiveFlushDetector(
-                            recovery.toRecoveryPhase,
-                            recovery.flushRangeHeadPtr,
-                            recovery.flushRangeTailPtr,
-                            intPipeReg[i][0].activeListPtr
-                            );
-            port.wakeup[i] = intPipeReg[i][0].valid && !flushInt[i] && !flushint[i];
+            port.wakeup[i] = intPipeReg[i][0].valid && !flushInt[i];
             port.wakeupPtr[i] = intPipeReg[i][0].ptr;
             port.wakeupVector[i] = intPipeReg[i][0].depVector;
         end
@@ -201,15 +194,10 @@ module WakeupPipelineRegister(
                             canBeFlushedRegCountComplex != 0,
                             flushRangeHeadPtr,
                             flushRangeTailPtr,
+                            flushAllInsns,
                             complexPipeReg[i][0].activeListPtr
                             );
-            flushcomplex[i] = SelectiveFlushDetector(
-                            recovery.toRecoveryPhase,
-                            recovery.flushRangeHeadPtr,
-                            recovery.flushRangeTailPtr,
-                            complexPipeReg[i][0].activeListPtr
-                            );
-            port.wakeup[(i+INT_ISSUE_WIDTH)] = complexPipeReg[i][0].valid && !flushComplex[i] && !flushcomplex[i];
+            port.wakeup[(i+INT_ISSUE_WIDTH)] = complexPipeReg[i][0].valid && !flushComplex[i];
             port.wakeupPtr[(i+INT_ISSUE_WIDTH)] = complexPipeReg[i][0].ptr;
             port.wakeupVector[(i+INT_ISSUE_WIDTH)] = complexPipeReg[i][0].depVector;
         end
@@ -222,15 +210,10 @@ module WakeupPipelineRegister(
                             canBeFlushedRegCountMem != 0,
                             flushRangeHeadPtr,
                             flushRangeTailPtr,
+                            flushAllInsns,
                             memPipeReg[i][0].activeListPtr
                           );
-            flushmem[i] = SelectiveFlushDetector(
-                            recovery.toRecoveryPhase,
-                            recovery.flushRangeHeadPtr,
-                            recovery.flushRangeTailPtr,
-                            memPipeReg[i][0].activeListPtr
-                          );
-            port.wakeup[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = memPipeReg[i][0].valid && !flushMem[i] && !flushmem[i];
+            port.wakeup[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = memPipeReg[i][0].valid && !flushMem[i];
             port.wakeupPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = memPipeReg[i][0].ptr;
             port.wakeupVector[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = memPipeReg[i][0].depVector;
         end
@@ -248,15 +231,10 @@ module WakeupPipelineRegister(
                             canBeFlushedRegCountMem != 0,
                             flushRangeHeadPtr,
                             flushRangeTailPtr,
+                            flushAllInsns,
                             memPipeReg[i][0].activeListPtr
                             );
-            flushmem[i] = SelectiveFlushDetector(
-                            recovery.toRecoveryPhase,
-                            recovery.flushRangeHeadPtr,
-                            recovery.flushRangeTailPtr,
-                            memPipeReg[i][0].activeListPtr
-                          );
-            port.wakeup[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = memPipeReg[i][0].valid && !flushMem[i] && !flushmem[i];
+            port.wakeup[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = memPipeReg[i][0].valid && !flushMem[i];
             port.wakeupPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = memPipeReg[i][0].ptr;
             port.wakeupVector[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = memPipeReg[i][0].depVector;
         end
@@ -304,6 +282,7 @@ module WakeupPipelineRegister(
             canBeFlushedRegCountMem <= ISSUE_QUEUE_MEM_LATENCY;
             flushRangeHeadPtr <= recovery.flushRangeHeadPtr;
             flushRangeTailPtr <= recovery.flushRangeTailPtr;
+            flushAllInsns <= recovery.flushAllInsns;
         end
         else begin
             if(canBeFlushedRegCountInt>0 && !port.stall) begin

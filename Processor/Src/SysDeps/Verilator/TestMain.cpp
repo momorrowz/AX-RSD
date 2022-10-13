@@ -8,13 +8,15 @@
 #include <verilated.h>  // Defines common routines
 #include <verilated_vcd_c.h>
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <fstream>
 #include <iostream>
 #include <regex>
 #include <stdexcept>
 
-constexpr int64_t sim_start = 1722950000;
-constexpr int64_t sim_end   = 1723000000;
+constexpr int64_t sim_start = 1631800000;
+constexpr int64_t sim_end =   1631850000;
 using namespace std;
 
 unsigned int main_time = 0;  // Current simulation time
@@ -154,7 +156,7 @@ int main(int argc, char** argv)
     // use (Label given in generate section)__DOT__(module name)
     size_t mainMemWordSize = sizeof(top->Main_Zynq_Wrapper->main->memory->body->body__DOT__ram->array) / sizeof(uint32_t);
     //uint32_t* mainMem = reinterpret_cast<uint32_t*>(&top->Main_Zynq_Wrapper->main->memory->body->body__DOT__ram->array);
-    uint32_t* mainMem = (uint32_t*)(top->Main_Zynq_Wrapper->main->memory->body->body__DOT__ram->array);
+    uint32_t* mainMem = reinterpret_cast<uint32_t*>(&top->Main_Zynq_Wrapper->main->memory->body->body__DOT__ram->array);
 
     // Fill dummy data
     for (int i = 0; i < mainMemWordSize; i++) {
@@ -219,7 +221,7 @@ int main(int argc, char** argv)
     int64_t kanataCycle = cycle - RSD_KANATA_CYCLE_DISPLACEMENT;
 
     bool start = false;  // タイミングを TestMain.sv にあわせるため
-
+    FILE* ofile = fopen("out.log", "w");
     try {
 
         top->negResetIn = 0;  // Set some inputs
@@ -248,10 +250,13 @@ int main(int argc, char** argv)
             // 実行が開始されていたらクロックをインクリメント
             if (top->clk_p && start) {
 		if (cycle % 50000 == 0) {
+            FILE* ofile = fopen("out.log", "a");
 		    printf("cycle: %09ld / ", cycle);
+		    fprintf(ofile, "cycle: %09ld / ", cycle);
 		    printf("last commited pc: %05x / ", top->ledOut);
-		    auto mh = core->dCache->missHandler;
-		    printf("mshr[0] valid: %d / addr: %08x\n", *mh->mshrvalid, *mh->mshraddr);
+		    fprintf(ofile, "last commited pc: %05x / \n", top->ledOut);
+            fclose(ofile);
+            printf("\n");
 		}
                 kanataCycle++;
                 cycle++;

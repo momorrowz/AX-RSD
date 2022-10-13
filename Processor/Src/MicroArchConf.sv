@@ -10,7 +10,7 @@ localparam CONF_DEFAULT_AX_LEVEL = 10;
 
 // ---- Front-end
 // Fetch width (instructions). This parameter is configurable.
-localparam CONF_FETCH_WIDTH = 2;
+localparam CONF_FETCH_WIDTH = 4;
 // Memory entry width (word). // This parameter must be must be greater than or equal to CONF_FETCH_WIDTH.
 localparam CONF_MEM_WIDTH = 4;
 
@@ -23,7 +23,7 @@ localparam CONF_DISPATCH_WIDTH = CONF_FETCH_WIDTH;    // Dispatch width
 // ---- Commit
 // Commit width (instructions). This parameter is configurable.
 // must be equal or larger than RENAME_WIDTH (FETCH_WIDTH) for recovery
-localparam CONF_COMMIT_WIDTH = 2;
+localparam CONF_COMMIT_WIDTH = 4;
 
 
 // --- Back-end

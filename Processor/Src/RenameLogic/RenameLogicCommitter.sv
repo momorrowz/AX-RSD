@@ -105,6 +105,8 @@ module RenameLogicCommitter(
 
         // The head and tail entries of an active list.
         alReadData = activeList.readData;
+        releaseNum = '0;
+        flushNum = '0;
 
         // Update control signals for the active list and the free lists in
         //  a rename logic.

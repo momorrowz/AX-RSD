@@ -116,8 +116,10 @@ module RMT( RenameLogicIF.RMT port );
                         phySrcRegB[i].regNum = port.rmtWriteReg_PhyRegNum[j].regNum;
                         srcIssueQueuePtrRegB[i] = port.watWriteIssueQueuePtr[j];
                     end
-                    if ( port.logDstReg[i] == port.logDstReg[j] )
+                    if ( port.logDstReg[i] == port.logDstReg[j] ) begin
                         phyPrevDstReg[i].regNum = port.rmtWriteReg_PhyRegNum[j].regNum;
+                        port.prevDependIssueQueuePtr[i] = port.watWriteIssueQueuePtr[j];
+                    end
                 end
             end
         end
