@@ -93,6 +93,10 @@ localparam CONF_BTB_ENTRY_NUM = 1024;
 localparam CONF_AXBTB_ENTRY_NUM = 1024;
 localparam CONF_PHT_ENTRY_NUM = 8192;
 localparam CONF_BRANCH_GLOBAL_HISTORY_BIT_WIDTH = 10;   // Global history length for g-share 
+localparam CONF_BRANCH_PREDICTOR_USE_GSHARE = 1;  // if 0, bimodal predictor is used
+
+// The number of return-address-stack entries
+localparam CONF_RAS_ENTRY_NUM = 4;
 
 // Memory dependency predictor
 localparam CONF_MDT_ENTRY_NUM = 1024;   // The number of prediction table entries.

@@ -139,6 +139,7 @@ module DispatchStage(
 
             // ActiveListIndexPath
             complexEntry[i].activeListPtr = pipeReg[i].activeListPtr;
+            complexEntry[i].brHistory = pipeReg[i].brPred.globalHistory;
 
             // PC
             complexEntry[i].pc = pipeReg[i].pc;
@@ -207,6 +208,7 @@ module DispatchStage(
 
             // PC
             memEntry[i].pc = pipeReg[i].pc;
+            memEntry[i].brHistory = pipeReg[i].brPred.globalHistory;
 
             //
             // Scheduler Entry

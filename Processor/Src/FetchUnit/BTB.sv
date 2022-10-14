@@ -12,7 +12,7 @@ import FetchUnitTypes::*;
 
 module BTB(
     NextPCStageIF.BTB port,
-    FetchStageIF.BTB next
+    FetchStageIF.BTB fetch
 );
 
     // BTB access
@@ -37,8 +37,9 @@ module BTB(
 
     BTBQueueEntry btbQueue[BTB_QUEUE_SIZE];
     BTBQueuePointerPath headPtr, tailPtr;
+    BTBQueueEntry btbQueueWV;
 
-    logic updateBtb;
+    logic IsPhtBankConflict;
 
     generate
         BlockMultiBankRAM #(
@@ -92,13 +93,8 @@ module BTB(
 
     always_ff @(posedge port.clk) begin
         // Push btb Queue
-        if (port.rst) begin
-            btbQueue[resetIndex % BTB_QUEUE_SIZE].btbWA <= '0;
-            btbQueue[resetIndex % BTB_QUEUE_SIZE].btbWV <= '0;
-        end
-        else if (pushBtbQueue) begin
-            btbQueue[headPtr].btbWA <= btbWA[INT_ISSUE_WIDTH-1];
-            btbQueue[headPtr].btbWV <= btbWV[INT_ISSUE_WIDTH-1];
+        if (pushBtbQueue) begin
+            btbQueue[tailPtr] <= btbQueueWV;
         end 
     end
 
@@ -120,41 +116,67 @@ module BTB(
             readIsCondBr[i] = btbRV[i].isCondBr;
         end
 
+        // Write request from IntEx Stage
         for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
-            btbWE[i] = FALSE;
+            btbWE[i] = port.brResult[i].valid && port.brResult[i].execTaken && !port.brResult[i].isAX;
+            btbWA[i] = ToBTB_Index(port.brResult[i].brAddr);
+            btbWV[i].tag = ToBTB_Tag(port.brResult[i].brAddr);
+            btbWV[i].data = ToBTB_Addr(port.brResult[i].nextAddr);
+            btbWV[i].valid = TRUE;
+            btbWV[i].isCondBr = port.brResult[i].isCondBr;
         end
-        updateBtb = FALSE;
-        pushBtbQueue = FALSE;
 
-        // Write to BTB.
-        for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
-            // Make BTB entry when branch is Taken.
-            if(!port.brResult[i].isAX) begin
-                if (updateBtb) begin
-                    pushBtbQueue = port.brResult[i].valid && port.brResult[i].execTaken;
+        pushBtbQueue = FALSE;
+        // check whether bank conflict occurs
+        for (int i = 1; i < INT_ISSUE_WIDTH; i++) begin
+            if (btbWE[i]) begin
+                for (int j = 0; j < i; j++) begin
+                    if (!btbWE[j]) begin // check only valid write
+                        continue;
+                    end
+
+                    if (IsBankConflict(btbWA[i], btbWA[j])) begin
+                        // Detect bank conflict
+                        // push this write access to queue
+                        btbWE[i] = FALSE;
+                        pushBtbQueue = TRUE;
+                        btbQueueWV.wv = btbWV[i];
+                        btbQueueWV.wa = btbWA[i];
+                        break;
+                    end
                 end
-                else begin
-                    btbWE[i] = port.brResult[i].valid && port.brResult[i].execTaken;
-                    updateBtb |= btbWE[i];
-                end
-    
-                btbWA[i] = ToBTB_Index(port.brResult[i].brAddr);
-                btbWV[i].tag = ToBTB_Tag(port.brResult[i].brAddr);
-                btbWV[i].data = ToBTB_Addr(port.brResult[i].nextAddr);
-                btbWV[i].valid = TRUE;
-                btbWV[i].isCondBr = port.brResult[i].isCondBr;
             end
         end
 
-        // Pop btb Queue
-        if (!empty && !updateBtb) begin
-            popBtbQueue = TRUE;
-            btbWE[0] = TRUE;
-            btbWA[0] = btbQueue[tailPtr].btbWA;
-            btbWV[0] = btbQueue[tailPtr].btbWV;
-        end 
-        else begin
-            popBtbQueue = FALSE;
+        // Write request from BTB Queue
+        popBtbQueue = FALSE;
+        if (!empty) begin
+            for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin //: outer
+                // Find idle write port 
+                if (btbWE[i]) begin
+                    continue;
+                end
+                IsPhtBankConflict = FALSE;
+                // Check whether bank conflict occurs
+                for (int j = 0; j < INT_ISSUE_WIDTH; j++) begin
+                    if (i == j || !btbWE[j]) begin
+                        continue;
+                    end
+
+                    if (IsBankConflict(btbQueue[headPtr].wa, btbWA[j])) begin
+                        // Detect bank conflict
+                        // skip popping BTB queue
+                        //disable outer;
+                        IsPhtBankConflict = TRUE;
+                    end
+                end
+                if(IsPhtBankConflict) break;
+                // Write request from BTB queue
+                popBtbQueue = TRUE;
+                btbWE[i] = TRUE;
+                btbWA[i] = btbQueue[headPtr].wa;
+                btbWV[i] = btbQueue[headPtr].wv;
+            end
         end
 
         
@@ -178,9 +200,9 @@ module BTB(
             popBtbQueue = FALSE;
         end
 
-        next.readIsCondBr = readIsCondBr;
-        next.btbOut = btbOut;
-        next.btbHit = btbHit;
+        fetch.readIsCondBr = readIsCondBr;
+        fetch.btbOut = btbOut;
+        fetch.btbHit = btbHit;
         
     end
 

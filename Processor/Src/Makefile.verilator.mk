@@ -3,9 +3,9 @@ MAX_TEST_CYCLES = 50000000000
 SHOW_SERIAL_OUT = 1
 ENABLE_PC_GOAL = 1
 #TEST_CODE = Verification/TestCode/approximate_benchmarks/linear_regression/bin
-TEST_CODE = gcc/demo
+#TEST_CODE = gcc/demo
 #TEST_CODE = Verification/TestCode/approximate_benchmarks/mpeg/bin
-#TEST_CODE = Verification/TestCode/C/Fibonacci
+TEST_CODE = Verification/TestCode/Coremark/Coremark
 #TEST_CODE = Verification/TestCode/Asm/ApLoad
 
 ifndef RSD_VERILATOR_BIN

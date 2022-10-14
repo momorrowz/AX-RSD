@@ -149,6 +149,7 @@ module MemoryTagAccessStage(
             ldRecordData[i].opDst         = ldPipeReg[i].memQueueData.opDst;
             ldRecordData[i].pc            = ldPipeReg[i].memQueueData.pc;
             ldRecordData[i].memOpInfo     = ldPipeReg[i].memQueueData.memOpInfo;
+            ldRecordData[i].brHistory     = ldPipeReg[i].memQueueData.brHistory;
             ldRecordData[i].storeQueueRecoveryPtr = ldIqData[i].storeQueueRecoveryPtr;
             ldRecordData[i].loadQueueRecoveryPtr  = ldIqData[i].loadQueueRecoveryPtr;
 
@@ -263,7 +264,7 @@ module MemoryTagAccessStage(
             ldNextStage[i].loadQueueRecoveryPtr  = ldIqData[i].loadQueueRecoveryPtr;
             ldNextStage[i].storeQueueRecoveryPtr = ldIqData[i].storeQueueRecoveryPtr;
             ldNextStage[i].pc = ldIqData[i].pc;
-
+            ldNextStage[i].brHistory  = ldIqData[i].brHistory;
 
             // ExecState
             // 命令の実行結果によって、再フェッチが必要かどうかなどを判定する
@@ -423,6 +424,7 @@ module MemoryTagAccessStage(
             stRecordData[i].storeQueueRecoveryPtr = stIqData[i].storeQueueRecoveryPtr;
             stRecordData[i].loadQueueRecoveryPtr  = stIqData[i].loadQueueRecoveryPtr;
             stRecordData[i].memOpInfo = stPipeReg[i].memQueueData.memOpInfo;
+            stRecordData[i].brHistory = stPipeReg[i].memQueueData.brHistory;
             stRecordData[i].memOpInfo.hasAllocatedMSHR = FALSE;
             stRecordData[i].memOpInfo.mshrID = '0;
 
@@ -451,6 +453,7 @@ module MemoryTagAccessStage(
             stNextStage[i].loadQueueRecoveryPtr = stIqData[i].loadQueueRecoveryPtr;
             stNextStage[i].storeQueueRecoveryPtr = stIqData[i].storeQueueRecoveryPtr;
             stNextStage[i].pc  = stIqData[i].pc;
+            stNextStage[i].brHistory  = stIqData[i].brHistory;
 
             // ExecState
             // 命令の実行結果によって、再フェッチが必要かどうかなどを判定する

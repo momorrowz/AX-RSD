@@ -11,6 +11,7 @@ import PipelineTypes::*;
 import RenameLogicTypes::*;
 import SchedulerTypes::*;
 import LoadStoreUnitTypes::*;
+import FetchUnitTypes::*;
 
 interface RecoveryManagerIF( input logic clk, rst );
 
@@ -97,6 +98,15 @@ interface RecoveryManagerIF( input logic clk, rst );
     // Why recovery is caused
     ExecutionState recoveryCauseFromCommitStage;
 
+    // Executed branch results for updating a branch predictor.
+    // This signal is written back from a write back stage.
+    BranchResult brResult[ INT_ISSUE_WIDTH ];
+    BranchGlobalHistoryPath recoveredBrHistoryFromRename;
+
+    BranchGlobalHistoryPath recoveredBrHistoryFromCommitStage;
+    BranchGlobalHistoryPath recoveredBrHistoryFromRwStage;
+    BranchGlobalHistoryPath recoveredBrHistoryFromRwCommit;
+
     modport RecoveryManager(
     input
         clk,
@@ -115,10 +125,13 @@ interface RecoveryManagerIF( input logic clk, rst );
         notIssued,
         flushIQ_Entry,
         recoveryCauseFromCommitStage,
+        recoveredBrHistoryFromCommitStage,
+        recoveredBrHistoryFromRwStage,
     output
         phase,
         toRecoveryPhase,
         recoveredPC_FromRwCommit,
+        recoveredBrHistoryFromRwCommit,
         toCommitPhase,
         flushRangeHeadPtr,
         flushRangeTailPtr,
@@ -131,7 +144,8 @@ interface RecoveryManagerIF( input logic clk, rst );
     modport RenameStage(
     output
         recoverFromRename,
-        recoveredPC_FromRename
+        recoveredPC_FromRename,
+        recoveredBrHistoryFromRename
     );
 
     modport CommitStage(
@@ -151,8 +165,10 @@ interface RecoveryManagerIF( input logic clk, rst );
         toCommitPhase,
         toRecoveryPhase,
         recoveredPC_FromRwCommit,
+        recoveredBrHistoryFromRwCommit,
         recoverFromRename,
-        recoveredPC_FromRename
+        recoveredPC_FromRename,
+        recoveredBrHistoryFromRename
     );
 
     modport RenameLogic(
@@ -390,6 +406,8 @@ interface RecoveryManagerIF( input logic clk, rst );
         recoveredPC_FromCommitStage,
         recoveredPC_FromRwStage,
         faultingDataAddr,
+        recoveredBrHistoryFromCommitStage,
+        recoveredBrHistoryFromRwStage,
         flushAllInsns
     );
 

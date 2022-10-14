@@ -21,7 +21,7 @@ endfunction
 
 module NextPCStage(
     NextPCStageIF.ThisStage port,
-    FetchStageIF.NextPCStage next,
+    FetchStageIF.NextPCStage fetch,
     RecoveryManagerIF.NextPCStage recovery,
     ControllerIF.NextPCStage ctrl,
     DebugIF.NextPCStage debug
@@ -91,6 +91,8 @@ module NextPCStage(
     logic stall, clear;
     logic regStall, beginStall;
     logic writePC_FromOuter;
+    logic recoverBrHistory;
+    BranchGlobalHistoryPath recoveredBrHistory;
     always_ff @(posedge port.clk) begin
         if (port.rst) begin
             regStall <= FALSE;
@@ -120,6 +122,12 @@ module NextPCStage(
         end
         else begin
             writePC_FromOuter = FALSE;
+            for (int i = 0; i < FETCH_WIDTH; i++) begin
+                if (!regStall && fetch.fetchStageIsValid[i] && 
+                        (fetch.btbHit[i] || fetch.axbtbHit[i])) begin
+                    writePC_FromOuter = TRUE;
+                end
+            end
         end
         
         // Update PC if not stalled.
@@ -136,16 +144,22 @@ module NextPCStage(
     // Branch Prediction
     //
     always_comb begin
+        recoverBrHistory = FALSE;
+        recoveredBrHistory = '0;
 
         // Decide the address to input to the branch predictor
         if (recovery.toRecoveryPhase) begin
             // Branch misprediction or an exception etc. is detected
             // Refetch instruction specified by Rw, Cm stage
             predNextPC = recovery.recoveredPC_FromRwCommit;
+            recoverBrHistory = TRUE;
+            recoveredBrHistory = recovery.recoveredBrHistoryFromRwCommit;
         end
         else if (recovery.recoverFromRename) begin
             // Detect branch misprediction in decode stage
             predNextPC = recovery.recoveredPC_FromRename;
+            recoverBrHistory = TRUE;
+            recoveredBrHistory = recovery.recoveredBrHistoryFromRename;
         end
         else begin
             // Use current PC
@@ -164,14 +178,15 @@ module NextPCStage(
                     break;
                 end
                 */
-                if (!regStall && next.fetchStageIsValid[i]) begin
-                    if( next.btbHit[i] && next.brPredTaken[i]) begin
-                        // Use PC from BTB
-                        predNextPC = next.btbOut[i];
-                        break;
-                    end else if (next.axbtbHit[i] && next.brDecidTaken[i]) begin
+                if (!regStall && fetch.fetchStageIsValid[i]) begin
+                    if (fetch.brDecidTaken[i]) begin
                         // Use PC from AXBTB
-                        predNextPC = next.axbtbOut[i];
+                        predNextPC = fetch.axbtbOut[i];
+                        break;
+                    end
+                    else if( fetch.brPredTaken[i]) begin
+                        // Use PC from BTB
+                        predNextPC = fetch.btbOut[i];
                         break;
                     end
                 end
@@ -179,6 +194,8 @@ module NextPCStage(
         end
         // To Branch predictor
         port.predNextPC = predNextPC;
+        port.recoverBrHistory = recoverBrHistory;
+        port.recoveredBrHistory = recoveredBrHistory;
     end
 
 
@@ -239,9 +256,9 @@ module NextPCStage(
     AddrPath fetchAddr;
     always_comb begin
         // Decide input address of I-cache
-        if (next.fetchStageIsValid[0] && stall) begin
+        if (fetch.fetchStageIsValid[0] && stall) begin
             // Use the PC of the IF stage
-            fetchAddr = ToAddrFromPC(next.fetchStagePC[0]);
+            fetchAddr = ToAddrFromPC(fetch.fetchStagePC[0]);
         end
         else begin
             // Use the PC of this stage

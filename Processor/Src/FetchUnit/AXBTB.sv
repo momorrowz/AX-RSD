@@ -12,14 +12,14 @@ import FetchUnitTypes::*;
 
 module AXBTB(
     NextPCStageIF.AXBTB port,
-    FetchStageIF.AXBTB next
+    FetchStageIF.AXBTB fetch
 );
 
     // BTB access
     logic btbWE[INT_ISSUE_WIDTH];
-    AXBTB_IndexPath btbWA[INT_ISSUE_WIDTH];
+    BTB_IndexPath btbWA[INT_ISSUE_WIDTH];
     BTB_Entry btbWV[INT_ISSUE_WIDTH];
-    AXBTB_IndexPath btbRA[FETCH_WIDTH];
+    BTB_IndexPath btbRA[FETCH_WIDTH];
     BTB_Entry btbRV[FETCH_WIDTH];
     
     // Output
@@ -37,12 +37,13 @@ module AXBTB(
 
     BTBQueueEntry btbQueue[BTB_QUEUE_SIZE];
     BTBQueuePointerPath headPtr, tailPtr;
+    BTBQueueEntry btbQueueWV;
 
-    logic updateBtb;
+    logic IsPhtBankConflict;
 
     generate
         BlockMultiBankRAM #(
-            .ENTRY_NUM( AXBTB_ENTRY_NUM ),
+            .ENTRY_NUM( BTB_ENTRY_NUM ),
             .ENTRY_BIT_SIZE( $bits( BTB_Entry ) ),
             .READ_NUM( FETCH_WIDTH ),
             .WRITE_NUM( INT_ISSUE_WIDTH )
@@ -73,7 +74,7 @@ module AXBTB(
     
     
     // Counter for reset sequence.
-    AXBTB_IndexPath resetIndex;
+    BTB_IndexPath resetIndex;
     always_ff @(posedge port.clk) begin
         if(port.rstStart) begin
             resetIndex <= 0;
@@ -92,13 +93,8 @@ module AXBTB(
 
     always_ff @(posedge port.clk) begin
         // Push btb Queue
-        if (port.rst) begin
-            btbQueue[resetIndex % BTB_QUEUE_SIZE].btbWA <= '0;
-            btbQueue[resetIndex % BTB_QUEUE_SIZE].btbWV <= '0;
-        end
-        else if (pushBtbQueue) begin
-            btbQueue[headPtr].btbWA <= btbWA[INT_ISSUE_WIDTH-1];
-            btbQueue[headPtr].btbWV <= btbWV[INT_ISSUE_WIDTH-1];
+        if (pushBtbQueue) begin
+            btbQueue[tailPtr] <= btbQueueWV;
         end 
     end
 
@@ -120,41 +116,67 @@ module AXBTB(
             readIsCondBr[i] = btbRV[i].isCondBr;
         end
 
+        // Write request from IntEx Stage
         for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
-            btbWE[i] = FALSE;
+            btbWE[i] = port.brResult[i].valid && port.brResult[i].execTaken && port.brResult[i].isAX;
+            btbWA[i] = ToAXBTB_Index(port.brResult[i].brAddr);
+            btbWV[i].tag = ToAXBTB_Tag(port.brResult[i].brAddr);
+            btbWV[i].data = ToBTB_Addr(port.brResult[i].nextAddr);
+            btbWV[i].valid = TRUE;
+            btbWV[i].isCondBr = port.brResult[i].isCondBr;
         end
-        updateBtb = FALSE;
-        pushBtbQueue = FALSE;
 
-        // Write to BTB.
-        for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
-            // Make BTB entry when branch is Taken.
-            if (port.brResult[i].isAX) begin
-                if (updateBtb) begin
-                    pushBtbQueue = port.brResult[i].valid && port.brResult[i].execTaken;
+        pushBtbQueue = FALSE;
+        // check whether bank conflict occurs
+        for (int i = 1; i < INT_ISSUE_WIDTH; i++) begin
+            if (btbWE[i]) begin
+                for (int j = 0; j < i; j++) begin
+                    if (!btbWE[j]) begin // check only valid write
+                        continue;
+                    end
+
+                    if (IsBankConflict(btbWA[i], btbWA[j])) begin
+                        // Detect bank conflict
+                        // push this write access to queue
+                        btbWE[i] = FALSE;
+                        pushBtbQueue = TRUE;
+                        btbQueueWV.wv = btbWV[i];
+                        btbQueueWV.wa = btbWA[i];
+                        break;
+                    end
                 end
-                else begin
-                    btbWE[i] = port.brResult[i].valid && port.brResult[i].execTaken;
-                    updateBtb |= btbWE[i];
-                end
-    
-                btbWA[i] = ToAXBTB_Index(port.brResult[i].brAddr);
-                btbWV[i].tag = ToAXBTB_Tag(port.brResult[i].brAddr);
-                btbWV[i].data = ToBTB_Addr(port.brResult[i].apAddr);
-                btbWV[i].valid = TRUE;
-                btbWV[i].isCondBr = port.brResult[i].isCondBr;
             end
         end
 
-        // Pop btb Queue
-        if (!empty && !updateBtb) begin
-            popBtbQueue = TRUE;
-            btbWE[0] = TRUE;
-            btbWA[0] = btbQueue[tailPtr].btbWA;
-            btbWV[0] = btbQueue[tailPtr].btbWV;
-        end 
-        else begin
-            popBtbQueue = FALSE;
+        // Write request from BTB Queue
+        popBtbQueue = FALSE;
+        if (!empty) begin
+            for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin //: outer
+                // Find idle write port 
+                if (btbWE[i]) begin
+                    continue;
+                end
+                IsPhtBankConflict = FALSE;
+                // Check whether bank conflict occurs
+                for (int j = 0; j < INT_ISSUE_WIDTH; j++) begin
+                    if (i == j || !btbWE[j]) begin
+                        continue;
+                    end
+
+                    if (IsBankConflict(btbQueue[headPtr].wa, btbWA[j])) begin
+                        // Detect bank conflict
+                        // skip popping BTB queue
+                        //disable outer;
+                        IsPhtBankConflict = TRUE;
+                    end
+                end
+                if(IsPhtBankConflict) break;
+                // Write request from BTB queue
+                popBtbQueue = TRUE;
+                btbWE[i] = TRUE;
+                btbWA[i] = btbQueue[headPtr].wa;
+                btbWV[i] = btbQueue[headPtr].wv;
+            end
         end
 
         
@@ -178,9 +200,9 @@ module AXBTB(
             popBtbQueue = FALSE;
         end
 
-        next.axreadIsCondBr = readIsCondBr;
-        next.axbtbOut = btbOut;
-        next.axbtbHit = btbHit;
+        fetch.axreadIsCondBr = readIsCondBr;
+        fetch.axbtbOut = btbOut;
+        fetch.axbtbHit = btbHit;
         
     end
 

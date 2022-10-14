@@ -7,7 +7,7 @@ module BranchDecider #(
 )
 (
     NextPCStageIF.BranchDecider port,
-    FetchStageIF.BranchDecider next,
+    FetchStageIF.BranchDecider fetch,
     input logic [AX_LEVEL_WIDTH-1:0] csr_val //近似度合
 );
 
@@ -29,15 +29,15 @@ LFSR #(
 always_comb begin
     is_taken = ((32'(csr_val) << (LFSR_WIDTH - AX_LEVEL_WIDTH)) > randomval);
     for(int i = 0; i < FETCH_WIDTH; ++i) begin
-        next.brDecidTaken[i] = (is_taken && next.axbtbHit[i]);
+        fetch.brDecidTaken[i] = (is_taken && fetch.axbtbHit[i]);
     end
     update = 0;
-    //AXBTBがヒットして,それより前の命令が分岐でなければLFSRを更新
+    //AXBTBがヒットして,それより前の命令が分岐と予測しなければLFSRを更新
     for(int i = 0; i < FETCH_WIDTH; ++i) begin
-        if(next.axbtbHit[i]) begin
+        if(fetch.axbtbHit[i]) begin
             update = 1;
             for(int j = 0; j < i; ++j) begin
-                if(next.btbHit[j] && next.brPredTaken[j]) begin
+                if(fetch.btbHit[j] && fetch.brPredTaken[j]) begin
                     update = 0;
                     break;
                 end
