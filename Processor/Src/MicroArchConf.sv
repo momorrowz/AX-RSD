@@ -12,7 +12,7 @@ localparam CONF_DEFAULT_AX_LEVEL = 10;
 // Fetch width (instructions). This parameter is configurable.
 localparam CONF_FETCH_WIDTH = 4;
 // Memory entry width (word). // This parameter must be must be greater than or equal to CONF_FETCH_WIDTH.
-localparam CONF_MEM_WIDTH = 4;
+localparam CONF_MEM_WIDTH = 8;
 
 // These parameters cannot be changed and currently must be equal to FETCH_WIDTH.
 localparam CONF_DECODE_WIDTH = CONF_FETCH_WIDTH;      // Decode width
@@ -53,42 +53,47 @@ localparam CONF_REPLAY_QUEUE_ENTRY_NUM = 20;
 `ifdef RSD_MARCH_INT_ISSUE_WIDTH
     localparam CONF_INT_ISSUE_WIDTH =`RSD_MARCH_INT_ISSUE_WIDTH;
 `else
-    localparam CONF_INT_ISSUE_WIDTH = 2;
+    localparam CONF_INT_ISSUE_WIDTH = 4;
 `endif
-
-// The issue width of complex pipelines.
-// CONF_COMPLEX_ISSUE_WIDTH is configurable.
-`ifdef RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE
-    localparam CONF_COMPLEX_ISSUE_WIDTH = 0;
-`else
-    localparam CONF_COMPLEX_ISSUE_WIDTH = 1;
-`endif
-
-// The depth of complex execution pipeline stages.
-// These parameters is configurable
-localparam CONF_COMPLEX_EXEC_STAGE_DEPTH = 3;
 
 // The issue width of memory pipelines.
 // These parameters are configurable
-// cannot be changed manually.
-localparam CONF_LOAD_ISSUE_WIDTH = 1;       // must be 1
-localparam CONF_STORE_ISSUE_WIDTH = 1;      // must be 1
 `ifdef RSD_MARCH_UNIFIED_LDST_MEM_PIPE
     localparam CONF_MEM_ISSUE_WIDTH = 1;
+    localparam CONF_LOAD_ISSUE_WIDTH = CONF_MEM_ISSUE_WIDTH;
+    localparam CONF_STORE_ISSUE_WIDTH = CONF_MEM_ISSUE_WIDTH;
     localparam CONF_STORE_ISSUE_LANE_BEGIN = 0;   // Load and store share the same lane
 `else
+    localparam CONF_LOAD_ISSUE_WIDTH = 1;
+    localparam CONF_STORE_ISSUE_WIDTH = 1;
     localparam CONF_MEM_ISSUE_WIDTH = CONF_LOAD_ISSUE_WIDTH + CONF_STORE_ISSUE_WIDTH;
     localparam CONF_STORE_ISSUE_LANE_BEGIN = CONF_LOAD_ISSUE_WIDTH;    // Store uses a dedicated lane
 `endif
-
 
 // --- Load store unit
 // These parameters must be a power of two.
 localparam CONF_LOAD_QUEUE_ENTRY_NUM = 16;  // The size of a load queue
 localparam CONF_STORE_QUEUE_ENTRY_NUM = 16; // The size of a store queue
 
+// The issue width of complex pipelines.
+// CONF_COMPLEX_ISSUE_WIDTH is configurable.
+`ifdef RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE
+    localparam CONF_COMPLEX_ISSUE_WIDTH = 0;  // must be zero
+    localparam CONF_MULDIV_ISSUE_WIDTH = CONF_LOAD_ISSUE_WIDTH;
+`else
+    localparam CONF_COMPLEX_ISSUE_WIDTH = 1;
+    localparam CONF_MULDIV_ISSUE_WIDTH = CONF_COMPLEX_ISSUE_WIDTH;
+`endif
+
+// The depth of complex execution pipeline stages.
+// These parameters is configurable
+localparam CONF_COMPLEX_EXEC_STAGE_DEPTH = 3;
+
 // --- Predictors
 // Branch predictor
+//localparam CONF_BTB_ENTRY_NUM = 8192;
+//localparam CONF_AXBTB_ENTRY_NUM = 8192;
+//localparam CONF_PHT_ENTRY_NUM = 65536;
 localparam CONF_BTB_ENTRY_NUM = 1024;
 localparam CONF_AXBTB_ENTRY_NUM = 1024;
 localparam CONF_PHT_ENTRY_NUM = 8192;

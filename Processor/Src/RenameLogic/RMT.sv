@@ -37,7 +37,11 @@ module RMT( RenameLogicIF.RMT port );
     LRegNumPath rmtRA[ 3 * RENAME_WIDTH ];
     RMT_Entry rmtRV[ 3 * RENAME_WIDTH ];
 
+`ifdef SYNTHESIS_OPT_ASIC
+    RegisterMultiPortRAM #(
+`else
     DistributedMultiPortRAM #(
+`endif
         .ENTRY_NUM( LREG_NUM ),
         .ENTRY_BIT_SIZE( $bits(RMT_Entry) ),
         .READ_NUM( 3 * RENAME_WIDTH ),

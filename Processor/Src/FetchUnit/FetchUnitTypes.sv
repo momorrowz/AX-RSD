@@ -169,7 +169,6 @@ typedef struct packed // struct BranchResult
     PHT_EntryPath phtPrevValue;             // PHT's counter value
     logic isAX;         // Whether this branch is approximate or not.
     logic decidTaken;   // approximate branch is taken or not.
-    PC_Path apAddr;     // address writeback for AXBTB.
 } BranchResult;
 
 typedef struct packed // struct BranchPred

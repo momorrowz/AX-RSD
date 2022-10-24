@@ -24,8 +24,12 @@ module RetirementRMT(RenameLogicIF.RetirementRMT port);
     
     LRegNumPath readLogRegNum[ RENAME_WIDTH ];
     logic [ RMT_ENTRY_BIT_SIZE-1:0 ] readPhyRegNum[ RENAME_WIDTH ];
-    
+ 
+ `ifdef SYNTHESIS_OPT_ASIC
+    RegisterMultiPortRAM #(
+`else
     DistributedMultiPortRAM #( 
+`endif
         .ENTRY_NUM( RMT_ENTRY_NUM ),
         .ENTRY_BIT_SIZE( RMT_ENTRY_BIT_SIZE ),
         .READ_NUM( RENAME_WIDTH ),

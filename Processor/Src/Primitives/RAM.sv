@@ -1106,8 +1106,8 @@ module RegisterMultiPortRAM #(
 
     always_ff @(posedge clk) begin
         for (int i = 0; i < WRITE_NUM; i++) begin
-	    if (we[i])
-		array[ wa[i] ] <= wv[i];
+            if (we[i])
+                array[ wa[i] ] <= wv[i];
         end
     end
 

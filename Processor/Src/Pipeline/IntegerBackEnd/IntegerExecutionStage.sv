@@ -240,10 +240,6 @@ module IntegerExecutionStage(
             brResult[i].valid = isBranch[i] && pipeReg[i].valid && regValid[i];
             brResult[i].globalHistory = bPred[i].globalHistory;
             brResult[i].phtPrevValue = bPred[i].phtPrevValue;
-            // writeback for AXBTB
-            if( bPred[i].isAX ) begin
-                brResult[i].apAddr = ToPC_FromAddr(pc[i] +  ExtendApproxBranchDisplacement(brSubInfo[i].brDisp));
-            end
                     
             // 予測ミス判定
             predMiss[i] =

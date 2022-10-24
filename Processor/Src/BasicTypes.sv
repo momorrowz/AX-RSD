@@ -131,7 +131,7 @@ localparam INT_ISSUE_WIDTH_BIT_SIZE = (INT_ISSUE_WIDTH == 1) ? 1 : $clog2( INT_I
 typedef logic [ INT_ISSUE_WIDTH_BIT_SIZE-1:0 ] IntIssueLaneIndexPath;
 typedef logic unsigned [ $clog2(INT_ISSUE_WIDTH):0 ] IntIssueLaneCountPath;
 
-localparam MULDIV_ISSUE_WIDTH = CONF_COMPLEX_ISSUE_WIDTH;
+localparam MULDIV_ISSUE_WIDTH = CONF_MULDIV_ISSUE_WIDTH;
 localparam MULDIV_STAGE_DEPTH = CONF_COMPLEX_EXEC_STAGE_DEPTH;
 
 localparam COMPLEX_ISSUE_WIDTH = CONF_COMPLEX_ISSUE_WIDTH;

@@ -214,7 +214,11 @@ module StoreQueue(
 
     LSQ_BlockDataPath sqWriteStoreData[STORE_ISSUE_WIDTH];
 
+`ifdef SYNTHESIS_OPT_ASIC
+    RegisterMultiPortRAM #(
+`else
     DistributedMultiPortRAM #(
+`endif
         .ENTRY_NUM( STORE_QUEUE_ENTRY_NUM ),
         .ENTRY_BIT_SIZE( $bits(StoreQueueDataEntry) ),
         .READ_NUM(LOAD_ISSUE_WIDTH + 1),    // +1 for commit.

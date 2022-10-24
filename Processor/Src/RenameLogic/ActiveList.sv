@@ -121,7 +121,11 @@ module ActiveList(
     ActiveListEntry readData[COMMIT_WIDTH];
 
     //DistributedMultiPortRAM #(
+`ifdef SYNTHESIS_OPT_ASIC
+    RegisterMultiPortRAM #(
+`else
     DistributedMultiBankRAM #(
+`endif
         .ENTRY_NUM( ACTIVE_LIST_ENTRY_NUM ),
         .ENTRY_BIT_SIZE( $bits( ActiveListEntry ) ),
         .READ_NUM( COMMIT_WIDTH  ),
@@ -317,8 +321,11 @@ module ActiveList(
     logic esRV[COMMIT_WIDTH];
     
     ExecutionState headExecState[COMMIT_WIDTH];
-
+`ifdef SYNTHESIS_OPT_ASIC
+    RegisterMultiPortRAM #(
+`else
     DistributedMultiPortRAM #(
+`endif
         .ENTRY_NUM(ACTIVE_LIST_ENTRY_NUM),
         .ENTRY_BIT_SIZE($bits(logic)),
         .READ_NUM(COMMIT_WIDTH),
@@ -397,7 +404,11 @@ module ActiveList(
 
 
     // Record ExecState of all instructions in ActiveList
+`ifdef SYNTHESIS_OPT_ASIC
+    RegisterMultiPortRAM #(
+`else
     DistributedMultiPortRAM #(
+`endif
         .ENTRY_NUM(ACTIVE_LIST_ENTRY_NUM),
         .ENTRY_BIT_SIZE($bits(ExecutionState)),
         .READ_NUM(COMMIT_WIDTH),

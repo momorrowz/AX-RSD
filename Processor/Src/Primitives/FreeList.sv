@@ -127,7 +127,11 @@ output
     IndexPath rstIndex;
 
     //NarrowDistributedMultiPortRAM #( 
+`ifdef SYNTHESIS_OPT_ASIC
+    RegisterMultiPortRAM #(
+`else
     DistributedMultiBankRAM #( 
+`endif
         .ENTRY_NUM( SIZE ), 
         .ENTRY_BIT_SIZE( ENTRY_BIT_SIZE ),
         .READ_NUM( POP_WIDTH ),

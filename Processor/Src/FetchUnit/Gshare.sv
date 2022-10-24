@@ -101,7 +101,7 @@ module Gshare(
             resetIndex <= 0;
         end
         else begin
-            resetIndex <= resetIndex + 1;
+            resetIndex <= resetIndex + INT_ISSUE_WIDTH;
         end
     end
 
@@ -262,12 +262,12 @@ module Gshare(
         end
 
 
-        // In reset sequence, the write port 0 is used for initializing, and 
-        // the other write ports are disabled.
+        // In reset sequence, All write ports is used for fast initializing.
+        // :the write port 0 is used for initializing, and the other write ports are disabled
         if (port.rst) begin
             for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
-                phtWE[i] = (i == 0) ? TRUE : FALSE;
-                phtWA[i] = resetIndex;
+                phtWE[i] = TRUE;
+                phtWA[i] = resetIndex + i;
                 phtWV[i] = PHT_ENTRY_MAX / 2 + 1;
             end
 

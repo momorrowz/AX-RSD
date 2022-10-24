@@ -118,7 +118,9 @@ interface WakeupSelectIF( input logic clk, rst, rstStart );
 
     modport SelectLogic(
     input
+`ifdef CIRCULAR_SELECT_LOGIC
         clk,
+`endif
         opReady,
         intIssueReq,
 `ifndef RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE

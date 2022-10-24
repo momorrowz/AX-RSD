@@ -31,14 +31,14 @@ always_comb begin
     for(int i = 0; i < FETCH_WIDTH; ++i) begin
         fetch.brDecidTaken[i] = (is_taken && fetch.axbtbHit[i]);
     end
-    update = 0;
+    update = FALSE;
     //AXBTBがヒットして,それより前の命令が分岐と予測しなければLFSRを更新
     for(int i = 0; i < FETCH_WIDTH; ++i) begin
         if(fetch.axbtbHit[i]) begin
-            update = 1;
+            update = TRUE;
             for(int j = 0; j < i; ++j) begin
-                if(fetch.btbHit[j] && fetch.brPredTaken[j]) begin
-                    update = 0;
+                if(fetch.brPredTaken[j]) begin
+                    update = FALSE;
                     break;
                 end
             end
@@ -46,10 +46,5 @@ always_comb begin
         end
     end
 end
-/*
-initial begin
-    seed = SEED;
-end
-*/
 
 endmodule : BranchDecider
