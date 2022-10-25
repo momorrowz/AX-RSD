@@ -1,7 +1,5 @@
 module setting_display #(
-    parameter ADDR = 30'h10a64580
-    //parameter ADDR = 30'h10426240
-    //parameter ADDR = 30'h104015B8
+    parameter ADDR = 30'h13800000
 )(
     input wire clk,
     input wire rst,

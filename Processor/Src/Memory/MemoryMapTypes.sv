@@ -118,23 +118,21 @@ localparam PHY_ADDR_SECTION_0_BASE = PHY_RAW_ADDR_WIDTH'('h00_0000);
 
 //
 // Section 1 (RAM?)
-// logical [0x8000_0000 - 0x837f_ffff] -> physical [0x0080_0000 - 0x03ff_ffff]
+// logical [0x8000_0000 - 0x82ff_ffff] -> physical [0x0080_0000 - 0x037f_ffff]
 //
 localparam LOG_ADDR_SECTION_1_BEGIN = ADDR_WIDTH'('h8000_0000);
-localparam LOG_ADDR_SECTION_1_END   = ADDR_WIDTH'('h8380_0000);
+localparam LOG_ADDR_SECTION_1_END   = ADDR_WIDTH'('h8300_0000);
 localparam LOG_ADDR_SECTION_1_ADDR_BIT_WIDTH = 26;
 localparam PHY_ADDR_SECTION_1_BASE = PHY_RAW_ADDR_WIDTH'('h80_0000);
 
 //
-// Uncachable section (RAM?)
-// logical [0x8400_0000 - 0x8400_ffff] -> uncachable [0x400_0000 -> 0x400_ffff]
+// VRAM section
+// logical [0x2000_0000 - 0x207f_ffff] -> physical [0x0380_0000 -> 0x03ff_ffff]
 //
-localparam LOG_ADDR_UNCACHABLE_BEGIN = ADDR_WIDTH'('h8400_0000);
-localparam LOG_ADDR_UNCACHABLE_END   = ADDR_WIDTH'('h8401_0000);
-localparam LOG_ADDR_UNCACHABLE_ADDR_BIT_WIDTH = 16;
-
-// Ignore 0x1000 so that the lower address bits can be added as it is
-localparam PHY_ADDR_UNCACHABLE_BASE = PHY_RAW_ADDR_WIDTH'('h400_0000);
+localparam LOG_ADDR_VRAM_BEGIN = ADDR_WIDTH'('h2000_0000);
+localparam LOG_ADDR_VRAM_END   = ADDR_WIDTH'('h2080_0000);
+localparam LOG_ADDR_VRAM_ADDR_BIT_WIDTH = 23;
+localparam PHY_ADDR_VRAM_BASE = PHY_RAW_ADDR_WIDTH'('h380_0000);
 
 //
 // --- Serial IO
@@ -187,7 +185,7 @@ function automatic MemoryMapType GetMemoryMapType(AddrPath addr);
     else if (LOG_ADDR_TIMER_BEGIN <= addr && addr < LOG_ADDR_TIMER_END) begin
         return MMT_IO;
     end
-    else if (LOG_ADDR_UNCACHABLE_BEGIN <= addr && addr < LOG_ADDR_UNCACHABLE_END) begin
+    else if (LOG_ADDR_VRAM_BEGIN <= addr && addr < LOG_ADDR_VRAM_END) begin
         return MMT_MEMORY;
     end
     else if (LOG_ADDR_SECTION_0_BEGIN <= addr && addr < LOG_ADDR_SECTION_0_END) begin
@@ -221,12 +219,12 @@ function automatic PhyAddrPath ToPhyAddrFromLogical(AddrPath logAddr);
         phyAddr.addr = PHY_ADDR_TIMER_BASE + 
             logAddr[PHY_ADDR_TIMER_ZONE_BIT_WIDTH-1:0];
     end
-    else if (LOG_ADDR_UNCACHABLE_BEGIN <= logAddr && logAddr < LOG_ADDR_UNCACHABLE_END) begin
-        // Uncachable region (RAM?)
-        phyAddr.isUncachable = TRUE;
+    else if (LOG_ADDR_VRAM_BEGIN <= logAddr && logAddr < LOG_ADDR_VRAM_END) begin
+        // VRAM region
+        phyAddr.isUncachable = FALSE;
         phyAddr.isIO = FALSE;
-        phyAddr.addr = PHY_ADDR_UNCACHABLE_BASE + 
-            logAddr[LOG_ADDR_UNCACHABLE_ADDR_BIT_WIDTH-1:0];
+        phyAddr.addr = PHY_ADDR_VRAM_BASE + 
+            logAddr[LOG_ADDR_VRAM_ADDR_BIT_WIDTH-1:0];
     end
     else if (LOG_ADDR_SECTION_0_BEGIN <= logAddr && logAddr < LOG_ADDR_SECTION_0_END) begin
         // Section 0 (ROM?)

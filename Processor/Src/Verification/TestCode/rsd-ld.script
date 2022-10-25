@@ -7,7 +7,8 @@ ENTRY(_start);
 
 MEMORY {
     ROM(rxai) :     ORIGIN = 0x00001000, LENGTH = 8m
-    RAM(wa) :       ORIGIN = 0x80000000, LENGTH = 56m
+    VRAM(wa) :      ORIGIN = 0x20000000, LENGTH = 8m
+    RAM(wa) :       ORIGIN = 0x80000000, LENGTH = 48m
 }
 
 SECTIONS
@@ -24,11 +25,6 @@ SECTIONS
       *(.sdata.*)
       __data_end = .;
     } > RAM  AT> ROM 
-    .vram : {
-      __vram_start = .;
-      *(.vram)
-      __vram_end = .;
-    } > RAM  AT> ROM
     . = ALIGN(4);
     .bss : { 
       __bss_start = .;
@@ -38,6 +34,13 @@ SECTIONS
       *(.sbss.*)
       __bss_end = . ;
     } > RAM AT> ROM
+    . = ALIGN(4);
+    .vram : {
+      __vram_start = .;
+      *(.vram)
+      *(.vram.*)
+      __vram_end = .;
+    } > VRAM
     
     .comment : { *(.comment) } > ROM
 }
