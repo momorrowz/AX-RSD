@@ -21,6 +21,13 @@ interface FetchStageIF( input logic clk, rst, rstStart );
     PC_Path btbOut[FETCH_WIDTH];
     logic btbHit[FETCH_WIDTH];
     logic readIsCondBr[FETCH_WIDTH];
+    logic readIsRASPushBr[FETCH_WIDTH];
+    logic readIsRASPopBr[FETCH_WIDTH];
+
+    // RAS
+    PC_Path rasOut[FETCH_WIDTH];
+    RAS_CheckpointData rasCheckpoint[FETCH_WIDTH];  
+
 
     //AXBTB
     PC_Path axbtbOut[FETCH_WIDTH];
@@ -56,6 +63,7 @@ interface FetchStageIF( input logic clk, rst, rstStart );
         brPredTaken,
         brGlobalHistory,
         phtPrevValue,
+        rasCheckpoint,
         axbtbOut,
         brDecidTaken,
     output
@@ -73,6 +81,8 @@ interface FetchStageIF( input logic clk, rst, rstStart );
         fetchStagePC,
         btbOut,
         btbHit,
+        readIsRASPopBr,
+        rasOut,
         brPredTaken,
         axbtbOut,
         axbtbHit,
@@ -97,7 +107,23 @@ interface FetchStageIF( input logic clk, rst, rstStart );
     output
         btbOut,
         btbHit,
-        readIsCondBr
+        readIsCondBr,
+        readIsRASPushBr,
+        readIsRASPopBr
+    );
+
+    modport RAS(
+    input
+        fetchStageIsValid,
+        fetchStagePC,
+        btbHit,
+        readIsRASPushBr,
+        readIsRASPopBr,
+        brPredTaken,
+    output
+        rasOut,
+        rasCheckpoint
+
     );
 
     modport AXBTB(

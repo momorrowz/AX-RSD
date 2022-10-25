@@ -211,6 +211,8 @@ module IntegerExecutionStage(
 
             // Whether this branch is conditional one or not.
             brResult[i].isCondBr = !isJump[i];
+            brResult[i].isRASPushBr = brSubInfo[i].isRASPushBr;
+            brResult[i].isRASPopBr = brSubInfo[i].isRASPopBr;
             
             // The address of a branch.
             brResult[i].brAddr = ToPC_FromAddr(pc[i]);
@@ -240,6 +242,7 @@ module IntegerExecutionStage(
             brResult[i].valid = isBranch[i] && pipeReg[i].valid && regValid[i];
             brResult[i].globalHistory = bPred[i].globalHistory;
             brResult[i].phtPrevValue = bPred[i].phtPrevValue;
+            brResult[i].rasCheckpoint = bPred[i].rasCheckpoint;
                     
             // 予測ミス判定
             predMiss[i] =

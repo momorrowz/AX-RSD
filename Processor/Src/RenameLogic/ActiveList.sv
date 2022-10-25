@@ -181,6 +181,7 @@ module ActiveList(
         logic valid;
         ExecutionState state;
         BranchGlobalHistoryPath brHistory;
+        RAS_CheckpointData rasCheckpoint;
     } RecoveryRegPath;
 
     ActiveListCountPath oldestAge;
@@ -269,7 +270,9 @@ module ActiveList(
         recovery.recoveredPC_FromCommitStage = ToAddrFromPC(recoveryReg.pc);
         recovery.recoveredPC_FromRwStage = ToAddrFromPC(nextRecoveryReg.pc);
         recovery.recoveredBrHistoryFromCommitStage = recoveryReg.brHistory;
+        recovery.recoveredRasCheckpointFromCommitStage = recoveryReg.rasCheckpoint;
         recovery.recoveredBrHistoryFromRwStage = nextRecoveryReg.brHistory;
+        recovery.recoveredRasCheckpointFromRwStage = nextRecoveryReg.rasCheckpoint;
 
         // Fault handling
         recovery.faultingDataAddr = recoveryReg.faultingDataAddr;

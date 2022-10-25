@@ -47,6 +47,8 @@ typedef struct packed // struct BTB_Entry
     logic [BTB_TAG_WIDTH-1:0] tag;
     BTB_AddrPath data;
     logic isCondBr;
+    logic isRASPushBr;
+    logic isRASPopBr;
 } BTB_Entry;
 
 typedef struct packed // struct PhtQueueEntry
@@ -98,6 +100,19 @@ function automatic PC_Path ToRawAddrFromBTB_Addr(BTB_AddrPath addr, PC_Path pc);
         2'b0
     };
 endfunction
+
+///
+/// RAS
+//
+
+localparam RAS_ENTRY_NUM = CONF_RAS_ENTRY_NUM;
+localparam RAS_ENTRY_NUM_BIT_WIDTH = $clog2(RAS_ENTRY_NUM);
+typedef logic [RAS_ENTRY_NUM_BIT_WIDTH-1:0] RAS_IndexPath;
+typedef struct packed // struct RAS_CheckpointData
+{
+    RAS_IndexPath stackTopPtr;
+    RAS_IndexPath queueTailPtr;
+} RAS_CheckpointData;
 
 
 //
@@ -162,11 +177,14 @@ typedef struct packed // struct BranchResult
     logic execTaken;    // The execution result of a branch's direction.
     logic predTaken;    // The prediction result of a branch's direction.
     logic isCondBr;     // Whether this branch is conditional one or not.
+    logic isRASPushBr;  // Whether this branch is call or not. (TODO: coroutine call)
+    logic isRASPopBr;   // Whether this branch is return one or not. (TODO: coroutine call)
     logic mispred;      // Whether the prediction result of this branch is incorrect.
     logic valid;        // Whether this result is valid or not.
 
     BranchGlobalHistoryPath globalHistory;  // The global history of branches.
     PHT_EntryPath phtPrevValue;             // PHT's counter value
+    RAS_CheckpointData rasCheckpoint;       // RAS's top&tail pointer
     logic isAX;         // Whether this branch is approximate or not.
     logic decidTaken;   // approximate branch is taken or not.
 } BranchResult;
@@ -178,6 +196,7 @@ typedef struct packed // struct BranchPred
     
     BranchGlobalHistoryPath globalHistory;  // The global history of branches.
     PHT_EntryPath phtPrevValue;             // PHT's counter value
+    RAS_CheckpointData rasCheckpoint;       // RAS's top&tail pointer
     logic isAX;                             // approixmate branch or not(predicted in IF & decided in ID).
     logic decidTaken;   // approximate branch is taken or not.
 } BranchPred;

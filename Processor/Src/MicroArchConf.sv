@@ -23,7 +23,7 @@ localparam CONF_DISPATCH_WIDTH = CONF_FETCH_WIDTH;    // Dispatch width
 // ---- Commit
 // Commit width (instructions). This parameter is configurable.
 // must be equal or larger than RENAME_WIDTH (FETCH_WIDTH) for recovery
-localparam CONF_COMMIT_WIDTH = 4;
+localparam CONF_COMMIT_WIDTH = 8;
 
 
 // --- Back-end
@@ -34,7 +34,7 @@ localparam CONF_PSCALAR_NUM = 64;
 localparam CONF_ISSUE_QUEUE_ENTRY_NUM = 16;
 
 // Return width of freelist of issue-queue entries
-localparam CONF_ISSUE_QUEUE_RETURN_INDEX_WIDTH = 2;
+localparam CONF_ISSUE_QUEUE_RETURN_INDEX_WIDTH = 8;
 
 // The number of active-list (ROB: reorder buffer) entries
 localparam CONF_ACTIVE_LIST_ENTRY_NUM = 64;
@@ -94,14 +94,14 @@ localparam CONF_COMPLEX_EXEC_STAGE_DEPTH = 3;
 //localparam CONF_BTB_ENTRY_NUM = 8192;
 //localparam CONF_AXBTB_ENTRY_NUM = 8192;
 //localparam CONF_PHT_ENTRY_NUM = 65536;
-localparam CONF_BTB_ENTRY_NUM = 1024;
-localparam CONF_AXBTB_ENTRY_NUM = 1024;
-localparam CONF_PHT_ENTRY_NUM = 8192;
+localparam CONF_BTB_ENTRY_NUM = 4096;
+localparam CONF_AXBTB_ENTRY_NUM = 4096;
+localparam CONF_PHT_ENTRY_NUM = 32768;
 localparam CONF_BRANCH_GLOBAL_HISTORY_BIT_WIDTH = 10;   // Global history length for g-share 
 localparam CONF_BRANCH_PREDICTOR_USE_GSHARE = 1;  // if 0, bimodal predictor is used
 
 // The number of return-address-stack entries
-localparam CONF_RAS_ENTRY_NUM = 4;
+localparam CONF_RAS_ENTRY_NUM = 16;
 
 // Memory dependency predictor
 localparam CONF_MDT_ENTRY_NUM = 1024;   // The number of prediction table entries.

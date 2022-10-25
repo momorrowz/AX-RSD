@@ -160,6 +160,7 @@ output
     NextPCStage npStage( npStageIF, ifStageIF, recoveryManagerIF, ctrlIF, debugIF );
         PC pc( npStageIF );
         BTB btb( npStageIF, ifStageIF );
+        RAS ras( npStageIF, ifStageIF, ctrlIF );
         BranchPredictor brPred( npStageIF, ifStageIF, ctrlIF );
         AXBTB axbtb(npStageIF, ifStageIF);
         BranchDecider brDecid( npStageIF, ifStageIF, axLevel );

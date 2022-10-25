@@ -122,6 +122,7 @@ MODULES = \
 	FetchUnit/BTB.sv \
 	FetchUnit/BranchPredictor.sv \
 	FetchUnit/Gshare.sv \
+	FetchUnit/RAS.sv \
 	FetchUnit/Bimodal.sv \
 	FetchUnit/AXBTB.sv \
 	FetchUnit/LFSR.sv \

@@ -10,6 +10,7 @@
 #        This is only for pre-translate simulation.
 
 LEVEL1_TESTS = \
+	test-RV32I-RAS \
 	test-RV32I-ControlTransfer \
 	test-RV32I-ControlTransferZynq \
 	test-RV32I-IntRegImm \
@@ -132,6 +133,8 @@ test-1: $(LEVEL1_TESTS)
 test-2: $(LEVEL2_TESTS)
 	@echo "==== Test Successful (test-2) ===="
 
+test-RV32I-RAS:
+	$(RUN_TEST_OMIT_MSG) Verification/TestCode/Asm/RAS
 test-RV32I-ControlTransfer:
 	$(RUN_TEST_OMIT_MSG) Verification/TestCode/Asm/ControlTransfer
 test-RV32I-IntRegImm:

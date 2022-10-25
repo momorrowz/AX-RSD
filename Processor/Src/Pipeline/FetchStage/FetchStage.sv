@@ -117,17 +117,22 @@ module FetchStage(
 
         // The result of branch prediction
         for (int i = 0; i < FETCH_WIDTH; i++) begin
+            // Don't use btbOut[i]; we are using RAS as well as BTB.
             brPred[i].predAddr = port.brPredTaken[i] ? 
-                port.btbOut[i] : (port.brDecidTaken[i] ? port.axbtbOut[i] : pipeReg[i].pc + INSN_BYTE_WIDTH );
+                prev.predNextPC : (port.brDecidTaken[i] ? port.axbtbOut[i] : pipeReg[i].pc + INSN_BYTE_WIDTH );
             brPred[i].predTaken = port.brPredTaken[i] | port.brDecidTaken[i]; // used in IE Stage
             brPred[i].globalHistory = port.brGlobalHistory[i];
             brPred[i].phtPrevValue = port.phtPrevValue[i];
+            brPred[i].rasCheckpoint = port.rasCheckpoint[i];
             brPred[i].decidTaken = port.brDecidTaken[i];
         end
 
         // Check whether instructions are flushed by branch prediction
         for (int i = 0; i < FETCH_WIDTH; i++) begin
             isFlushed[i] = FALSE;
+        end
+
+        for (int i = 0; i < FETCH_WIDTH; i++) begin
             if (!regStall && pipeReg[i].valid && (port.brPredTaken[i] || port.brDecidTaken[i])) begin
                 for (int j = i + 1; j < FETCH_WIDTH; j++) begin
                     isFlushed[j] = pipeReg[j].valid;

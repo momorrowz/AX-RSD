@@ -1,7 +1,7 @@
 #--  Synopsys, Inc.
 #--  Version P-2019.09-SP1
-#--  Project file /home/tomorrow/workspace/AX-RSD/Processor/Project/Synplify/ver2017-03.prj
-#--  Written on Mon Oct 18 11:35:49 2021
+#--  Project file /home/tomorrow/projects/approx/AX-RSD/Processor/Project/Synplify/ver2017-03.prj
+#--  Written on Mon Oct 24 23:09:55 2022
 
 
 #project files
@@ -156,6 +156,7 @@ add_file -verilog -vlog_std sysv "../../Src/ExecUnit/DividerUnit.sv"
 add_file -verilog -vlog_std sysv "../../Src/FetchUnit/BranchDecider.sv"
 add_file -verilog -vlog_std sysv "../../Src/FetchUnit/AXBTB.sv"
 add_file -verilog -vlog_std sysv "../../Src/FetchUnit/LFSR.sv"
+add_file -verilog -vlog_std sysv "../../Src/FetchUnit/RAS.sv"
 
 
 

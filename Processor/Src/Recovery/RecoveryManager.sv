@@ -54,7 +54,9 @@ module RecoveryManager(
         logic recoveryFromRwStage;  // 例外がどこのステージで検出されたか
         RefetchType refetchType;    // リフェッチのタイプ
         BranchGlobalHistoryPath recoveredBrHistoryFromRwStage;
+        RAS_CheckpointData recoveredRasCheckpointFromRwStage;
         BranchGlobalHistoryPath recoveredBrHistoryFromCommitStage;
+        RAS_CheckpointData recoveredRasCheckpointFromCommitStage;
 
     } RecoveryManagerStatePath;
     RecoveryManagerStatePath regState;
@@ -126,7 +128,9 @@ module RecoveryManager(
         nextState.recoveredPC_FromRwStage = port.recoveredPC_FromRwStage;
         nextState.recoveredPC_FromCommitStage = port.recoveredPC_FromCommitStage;
         nextState.recoveredBrHistoryFromRwStage = port.recoveredBrHistoryFromRwStage;
+        nextState.recoveredRasCheckpointFromRwStage = port.recoveredRasCheckpointFromRwStage;
         nextState.recoveredBrHistoryFromCommitStage = port.recoveredBrHistoryFromCommitStage;
+        nextState.recoveredRasCheckpointFromCommitStage = port.recoveredRasCheckpointFromCommitStage;
 
         // CSR への要求はすべて PHASE_RECOVER_0 に行う
         refetchFromCSR = regState.refetchType inside {
@@ -184,6 +188,8 @@ module RecoveryManager(
         port.toCommitPhase = toCommitPhase;
         port.recoveredBrHistoryFromRwCommit = regState.exceptionDetectedInCommitStage ?
             regState.recoveredBrHistoryFromCommitStage : regState.recoveredBrHistoryFromRwStage;
+        port.recoveredRasCheckpointFromRwCommit = regState.exceptionDetectedInCommitStage ?
+            regState.recoveredRasCheckpointFromCommitStage : regState.recoveredRasCheckpointFromRwStage;
 
         // To each logic to be recovered.
         port.toRecoveryPhase = regState.phase == PHASE_RECOVER_0;

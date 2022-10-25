@@ -31,46 +31,9 @@ output
     logic flushTriggered,
     BranchPred brPredOut[DECODE_WIDTH],
     PC_Path recoveredPC,
-    BranchGlobalHistoryPath recoveredBrHistory
+    BranchGlobalHistoryPath recoveredBrHistory,
+    RAS_CheckpointData recoveredRasCheckpoint
 );
-    // Return address stack.
-    parameter RAS_ENTRY_NUM = CONF_RAS_ENTRY_NUM;
-    typedef logic [$clog2(RAS_ENTRY_NUM)-1 : 0] RAS_IndexPath;
-    PC_Path ras[RAS_ENTRY_NUM];
-    PC_Path nextRAS;
-    logic pushRAS;
-    logic popRAS;
-    RAS_IndexPath rasPtr;
-    RAS_IndexPath nextRAS_Ptr;
-
-    always_ff@(posedge clk) begin
-        if (rst) begin
-            for (int i = 0; i < RAS_ENTRY_NUM; i++) begin
-                ras[i] <= '0;
-            end
-            rasPtr <= '0;
-        end
-        else if (!stall && decodeComplete) begin
-            // 全 micro op のデコード完了時にだけ RAS を更新するようにしないと，
-            // 次のステージに送り込んだ micro op のターゲットと，ここから
-            // 出しているターゲットアドレスがずれて（ras の ptr が更新されるから）
-            // 正しく動かなくなる
-            if (pushRAS) begin
-                ras[nextRAS_Ptr] <= nextRAS;
-            end
-            rasPtr <= nextRAS_Ptr;
-        end
-        // if (pushRAS) begin
-        //     $display("Call(%d) flush @%x old:%p new:%p", nextRAS_Ptr, pc[addrCheckLane], brPredIn[addrCheckLane].predAddr, decodedPC[addrCheckLane]);
-        // end 
-        // else if (popRAS) begin
-        //     $display("Ret(%d)  @%x old:%p new:%p", rasPtr, pc[addrCheckLane], brPredIn[addrCheckLane].predAddr, decodedPC[addrCheckLane]);
-        // end
-        // if (flushTriggered) begin
-        //     $display("flushTriggered @%x old:%p new:%p", pc[addrCheckLane], brPredIn[addrCheckLane].predAddr, decodedPC[addrCheckLane]);
-        // end
-    end
-
     
     PC_Path decodedPC[DECODE_WIDTH];
     PC_Path nextPC[DECODE_WIDTH];
@@ -97,12 +60,9 @@ output
         flushTriggered = FALSE;
         recoveredPC = '0;
         recoveredBrHistory = '0;
+        recoveredRasCheckpoint.stackTopPtr = '0;
+        recoveredRasCheckpoint.queueTailPtr = '0;
 
-        pushRAS = FALSE;
-        popRAS = FALSE;
-        nextRAS = 0;
-        nextRAS_Ptr = rasPtr;
-        
         for (int i = 0; i < DECODE_WIDTH; i++) begin
             insnValidOut[i] = insnValidIn[i];
             insnFlushed[i] = FALSE;
@@ -151,9 +111,6 @@ output
                 brTargetType[i] == BTT_PC_RELATIVE && 
                 (isfU[i].opCode == RISCV_JAL || brPredIn[i].predTaken)   
             ) begin
-                // Update the RAS.
-                pushRAS = insnInfo[i].isCall;
-
                 addrCheckLane = i;
                 addrCheck = TRUE;
                 break;
@@ -161,21 +118,9 @@ output
             else if ( // JALR
                 brTargetType[i] == BTT_INDIRECT_JUMP
             ) begin
-                // Update theRAS.
-                pushRAS = insnInfo[i].isCall;
-                popRAS = insnInfo[i].isReturn;
-
-                if (popRAS) begin
-                    // Resolve branch pred using the PC read from RAS
-                    addrCheckLane = i;
-                    addrCheck = TRUE;
-                    break;
-                end
-                else if (pushRAS) begin
-                    // Push next PC to RAS．Do not resolve branch pred
-                    addrCheckLane = i;
-                    break;
-                end
+                // Do not resolve branch pred
+                addrCheckLane = i;
+                break;
             end
             else if (brTargetType[i] == BTT_SERIALIZED) begin
                 // The succeeding instructions are flushed.
@@ -205,12 +150,8 @@ output
                     decodedPC[i] = pc[i] + ExtendBranchDisplacement( GetBranchDisplacement(isfU[i]));
                 end
             end
-            else if (brTargetType[i] == BTT_INDIRECT_JUMP) begin
-                // Read branch target PC from RAS
-                decodedPC[i] = ras[rasPtr];
-            end
             else begin
-                // non-branch instruction
+                // non-branch instruction or indirect branch instruction
                 decodedPC[i] = nextPC[i];
             end
         end
@@ -229,20 +170,7 @@ output
         end
         recoveredPC = decodedPC[addrCheckLane];
         recoveredBrHistory = brPredIn[addrCheckLane].globalHistory;
-
-        // Update the RAS.
-        nextRAS = nextPC[addrCheckLane];
-        if (pushRAS) begin
-            // $display("Call(%d) flush @%x old:%p new:%p", nextRAS_Ptr, pc[addrCheckLane], brPredIn[addrCheckLane].predAddr, decodedPC[addrCheckLane]);
-            nextRAS_Ptr = rasPtr + 1;
-        end 
-        else if (popRAS) begin
-            // $display("Ret(%d)  @%x old:%p new:%p", rasPtr, pc[addrCheckLane], brPredIn[addrCheckLane].predAddr, decodedPC[addrCheckLane]);
-            nextRAS_Ptr = rasPtr - 1;
-        end
-        else begin
-            nextRAS_Ptr = rasPtr;
-        end
+        recoveredRasCheckpoint = brPredIn[addrCheckLane].rasCheckpoint;
 
         if (flushTriggered) begin
             for (int i = 0; i < DECODE_WIDTH; i++) begin
