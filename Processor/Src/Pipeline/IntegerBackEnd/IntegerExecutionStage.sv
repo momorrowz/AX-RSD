@@ -241,6 +241,7 @@ module IntegerExecutionStage(
             brResult[i].predTaken = bPred[i].predTaken;
             brResult[i].valid = isBranch[i] && pipeReg[i].valid && regValid[i];
             brResult[i].globalHistory = bPred[i].globalHistory;
+            brResult[i].phtIndex = bPred[i].phtIndex;
             brResult[i].phtPrevValue = bPred[i].phtPrevValue;
             brResult[i].rasCheckpoint = bPred[i].rasCheckpoint;
                     
