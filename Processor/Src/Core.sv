@@ -65,28 +65,9 @@ output
     PerformanceCounter perfCounter(perfCounterIF, debugIF);
 `endif
 
-
+    // CSRUnit -> Ax modules
     logic [ AX_LEVEL_WIDTH-1:0 ] axLevel;
-/*
-    //
-    // --- AX LEVEL
-    //
-`ifdef RSD_SYNTHESIS_ZEDBOARD
-    always_comb begin
-        if (axLevelEn) begin
-            axLevel = axLevelData;
-        end
-        else begin
-            axLevel = CONF_DEFAULT_AX_LEVEL;
-        end
-    end
-`else
-    always_comb begin
-        axLevel = CONF_DEFAULT_AX_LEVEL;
-    end
-`endif
-*/
-
+    
     //
     // --- Interfaces
     //

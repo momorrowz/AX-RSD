@@ -17,9 +17,9 @@ module AXBTB(
 
     // BTB access
     logic btbWE[INT_ISSUE_WIDTH];
-    BTB_IndexPath btbWA[INT_ISSUE_WIDTH];
+    AXBTB_IndexPath btbWA[INT_ISSUE_WIDTH];
     BTB_Entry btbWV[INT_ISSUE_WIDTH];
-    BTB_IndexPath btbRA[FETCH_WIDTH];
+    AXBTB_IndexPath btbRA[FETCH_WIDTH];
     BTB_Entry btbRV[FETCH_WIDTH];
     
     // Output
@@ -43,7 +43,7 @@ module AXBTB(
 
     generate
         BlockMultiBankRAM #(
-            .ENTRY_NUM( BTB_ENTRY_NUM ),
+            .ENTRY_NUM( AXBTB_ENTRY_NUM ),
             .ENTRY_BIT_SIZE( $bits( BTB_Entry ) ),
             .READ_NUM( FETCH_WIDTH ),
             .WRITE_NUM( INT_ISSUE_WIDTH )

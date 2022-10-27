@@ -161,10 +161,10 @@ endfunction
 // BranchDecider
 //
 
-localparam LFSR_WIDTH = 32;
-localparam AX_LEVEL_WIDTH = 5;
-localparam LFSRSEED = 32'h1010;
+localparam AX_LEVEL_WIDTH = CONF_AX_LEVEL_WIDTH;
 typedef logic [LFSR_WIDTH-1:0] LFSRDataPath;
+localparam LFSR_WIDTH = CONF_LFSR_WIDTH;
+localparam LFSRSEED = CONF_LFSR_SEED;
 
 //
 // Result/prediction

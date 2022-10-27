@@ -5,8 +5,12 @@
 package MicroArchConf;
 
 // ---- Approx
-// default apptoximation level
-localparam CONF_DEFAULT_AX_LEVEL = 10;
+localparam CONF_AX_LEVEL_WIDTH = 5;
+// LFSR width. This parameter must be larger than CONF_AX_LEVEL_WIDTH 
+localparam CONF_LFSR_WIDTH = 32;
+//localparam CONF_LFSR_SEED = 32'h55555555;
+localparam CONF_LFSR_SEED = 32'h1010;
+
 
 // ---- Front-end
 // Fetch width (instructions). This parameter is configurable.
@@ -91,11 +95,8 @@ localparam CONF_COMPLEX_EXEC_STAGE_DEPTH = 3;
 
 // --- Predictors
 // Branch predictor
-//localparam CONF_BTB_ENTRY_NUM = 8192;
-//localparam CONF_AXBTB_ENTRY_NUM = 8192;
-//localparam CONF_PHT_ENTRY_NUM = 65536;
 localparam CONF_BTB_ENTRY_NUM = 4096;
-localparam CONF_AXBTB_ENTRY_NUM = 4096;
+localparam CONF_AXBTB_ENTRY_NUM = 16;
 localparam CONF_PHT_ENTRY_NUM = 32768;
 localparam CONF_BRANCH_GLOBAL_HISTORY_BIT_WIDTH = 10;   // Global history length for g-share 
 localparam CONF_BRANCH_PREDICTOR_USE_GSHARE = 1;  // if 0, bimodal predictor is used
