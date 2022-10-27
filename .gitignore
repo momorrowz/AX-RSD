@@ -30,6 +30,7 @@
 # Synplify
 /Processor/Project/Synplify/Zedboard
 /Processor/Project/Synplify/Zedboard_post_synthesis
+/Processor/Project/Synplify/Zedboard_CoreSide
 /Processor/Project/Synplify/Microsemi
 Processor/Project/Synplify/*.prd
 
