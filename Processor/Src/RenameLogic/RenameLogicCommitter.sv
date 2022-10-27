@@ -110,6 +110,9 @@ module RenameLogicCommitter(
 
         // Update control signals for the active list and the free lists in
         //  a rename logic.
+        // Commit mode.
+        activeList.popTailNum = 0;
+        activeList.popHeadNum = 0;
         if(phase == PHASE_COMMIT) begin
             // Commit mode.
             activeList.popTailNum = 0;
@@ -118,9 +121,6 @@ module RenameLogicCommitter(
             // to the free lists in the rename logic.
             if ( port.commit ) begin
                 activeList.popHeadNum = port.commitNum;
-            end
-            else begin
-                activeList.popHeadNum = 0;
             end
 
             for ( int i = 0; i < COMMIT_WIDTH; i++ ) begin

@@ -41,7 +41,7 @@ module BTB(
     BTBQueuePointerPath headPtr, tailPtr;
     BTBQueueEntry btbQueueWV;
 
-    logic IsPhtBankConflict;
+    logic IsPhtBankConflict[INT_ISSUE_WIDTH];
 
     generate
         BlockMultiBankRAM #(
@@ -134,6 +134,8 @@ module BTB(
 
         pushBtbQueue = FALSE;
         // check whether bank conflict occurs
+        btbQueueWV.wv = '0;
+        btbQueueWV.wa = '0;
         for (int i = 1; i < INT_ISSUE_WIDTH; i++) begin
             if (btbWE[i]) begin
                 for (int j = 0; j < i; j++) begin
@@ -156,13 +158,15 @@ module BTB(
 
         // Write request from BTB Queue
         popBtbQueue = FALSE;
+        for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
+            IsPhtBankConflict[i] = FALSE;
+        end
         if (!empty) begin
             for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin //: outer
                 // Find idle write port 
                 if (btbWE[i]) begin
                     continue;
                 end
-                IsPhtBankConflict = FALSE;
                 // Check whether bank conflict occurs
                 for (int j = 0; j < INT_ISSUE_WIDTH; j++) begin
                     if (i == j || !btbWE[j]) begin
@@ -173,10 +177,10 @@ module BTB(
                         // Detect bank conflict
                         // skip popping BTB queue
                         //disable outer;
-                        IsPhtBankConflict = TRUE;
+                        IsPhtBankConflict[i] = TRUE;
                     end
                 end
-                if(IsPhtBankConflict) break;
+                if(IsPhtBankConflict[i]) break;
                 // Write request from BTB queue
                 popBtbQueue = TRUE;
                 btbWE[i] = TRUE;

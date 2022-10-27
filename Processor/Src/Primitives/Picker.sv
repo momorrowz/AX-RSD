@@ -108,8 +108,7 @@ output
     logic [ENTRY_NUM-1:0] shiftedReq;
     logic [ENTRY_NUM*2-1:0] reqTmp;
 
-    logic [$clog2(ENTRY_NUM)-1:0] Ptr[GRANT_NUM];
-    logic [$clog2(ENTRY_NUM)-1:0] sPtr[GRANT_NUM];
+    logic [$clog2(ENTRY_NUM)-1:0] shiftedPtr[GRANT_NUM];
     // Generate a right shifter.
     // When the width of a shifter is greater than 16, a hand-implemented shifter
     // is faster than a verilog shift operator.
@@ -131,21 +130,17 @@ output
 
             granted[p] = '0;
             grantPtr[p] = '0;
+            shiftedPtr[p] = '0;
 
             for (int e = 0; e < ENTRY_NUM; e++) begin
                 if(shiftedReqTmp[e]) begin
-                    //grant[e] = '1;
+                    shiftedPtr[p] = e + shiftAmount;
+                    grant[shiftedPtr[p]] = '1;
                     granted[p] = '1;
-                    //grantPtr[p] = e;
+                    grantPtr[p] = shiftedPtr[p];
                     shiftedReqTmp[e] = '0;
-                    Ptr[p] = e;
                     break;
                 end
-            end
-            if(granted[p]) begin
-                sPtr[p] = Ptr[p] + shiftAmount;
-                grant[sPtr[p]] = '1;
-                grantPtr[p] = sPtr[p];
             end
         end
     end
