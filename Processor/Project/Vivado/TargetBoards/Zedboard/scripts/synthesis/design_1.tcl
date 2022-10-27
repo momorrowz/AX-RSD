@@ -236,6 +236,7 @@ proc create_root_design { parentCell } {
   set TMDS_data_p [ create_bd_port -dir O -from 2 -to 0 TMDS_data_p ]
   set ledOut [ create_bd_port -dir O -from 7 -to 0 ledOut ]
   set swIn [ create_bd_port -dir I -from 7 -to 0 swIn ]
+  set pswIn [ create_bd_port -dir I -from 4 -to 0 pswIn ]
 
   # Create instance: RSD_0, and set properties
   set RSD_0 [ create_bd_cell -type ip -vlnv xilinx.com:user:RSD:1.0 RSD_0 ]
@@ -1133,6 +1134,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net setting_display_0_DISPADDR [get_bd_pins display_0/DISPADDR] [get_bd_pins setting_display_0/DISPADDR]
   connect_bd_net -net setting_display_0_DISPON [get_bd_pins display_0/DISPON] [get_bd_pins setting_display_0/DISPON]
   connect_bd_net -net swIn_1 [get_bd_ports swIn] [get_bd_pins RSD_0/swIn]
+  connect_bd_net -net pswIn_1 [get_bd_ports pswIn] [get_bd_pins RSD_0/pswIn]
 
   # Create address segments
   assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces RSD_0/axi4MemoryIF_M_AXI] [get_bd_addr_segs processing_system7_0/S_AXI_HP0/HP0_DDR_LOWOCM] -force

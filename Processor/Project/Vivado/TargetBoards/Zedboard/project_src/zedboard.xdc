@@ -9,11 +9,11 @@ set_property PACKAGE_PIN W22 [get_ports {ledOut[5]}]
 set_property PACKAGE_PIN U19 [get_ports {ledOut[6]}]
 set_property PACKAGE_PIN U14 [get_ports {ledOut[7]}]
 
-# set_property PACKAGE_PIN P16 [get_ports {negResetIn}];  # "BTNC"
-# set_property PACKAGE_PIN R16 [get_ports {BTND}];  # "BTND"
-# set_property PACKAGE_PIN N15 [get_ports {BTNL}];  # "BTNL"
-# set_property PACKAGE_PIN R18 [get_ports {BTNR}];  # "BTNR"
-# set_property PACKAGE_PIN T18 [get_ports {ibit}];  # "BTNU"
+set_property PACKAGE_PIN P16 [get_ports {pswIn[0]}];  # "BTNC"
+set_property PACKAGE_PIN R16 [get_ports {pswIn[1]}];  # "BTND"
+set_property PACKAGE_PIN N15 [get_ports {pswIn[2]}];  # "BTNL"
+set_property PACKAGE_PIN R18 [get_ports {pswIn[3]}];  # "BTNR"
+set_property PACKAGE_PIN T18 [get_ports {pswIn[4]}];  # "BTNU"
 
 set_property PACKAGE_PIN F22 [get_ports {swIn[0]}]
 set_property PACKAGE_PIN G22 [get_ports {swIn[1]}]
