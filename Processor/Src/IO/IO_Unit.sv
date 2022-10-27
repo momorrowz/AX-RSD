@@ -75,9 +75,12 @@ module IO_Unit(
         else if (phyRawReadAddr == PHY_ADDR_TIMER_CMP_LOW) begin
             port.ioReadDataOut = tmReg.mtimecmp.split.low;
         end
-        else begin
-            //if (port.ioReadAddrIn == PHY_ADDR_TIMER_CMP_HI) begin
+        else if (phyRawReadAddr == PHY_ADDR_TIMER_CMP_HI) begin
             port.ioReadDataOut = tmReg.mtimecmp.split.hi;
+        end
+        // Read a gazeIn
+        else if (phyRawReadAddr == PHY_ADDR_GAZE_ADDRESS) begin
+            port.ioReadDataOut = port.gazeIn;
         end
     end
 
@@ -85,14 +88,9 @@ module IO_Unit(
     always_comb begin
         // Serial IO
         port.serialWE = FALSE;
-        port.vramEnableOut = FALSE;
         port.serialWriteDataOut = port.ioWriteDataIn[SERIAL_OUTPUT_WIDTH-1 : 0];
-        port.vramAddressOut = port.ioWriteDataIn[VRAM_ADDRESS_OUTPUT_WIDTH-1 : 0];
         if (port.ioWE && phyRawWriteAddr == PHY_ADDR_SERIAL_OUTPUT) begin
             port.serialWE = TRUE;
         end
-        if (port.ioWE && phyRawWriteAddr == PHY_ADDR_VRAM_ADDRESS) begin
-            port.vramEnableOut = TRUE;
-        end 
     end
 endmodule

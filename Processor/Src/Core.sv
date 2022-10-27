@@ -33,6 +33,7 @@ input
     ExternalInterruptCodePath externalInterruptCode,
     logic [ AX_LEVEL_WIDTH-1:0 ] axLevelData,
     logic axLevelEn,
+    GazeDataPath gazeIn,
 output
     DebugRegister debugRegister,
     PC_Path lastCommittedPC,
@@ -41,9 +42,7 @@ output
     logic memAccessRE,
     logic memAccessWE,
     logic serialWE,
-    SerialDataPath serialWriteData,
-    VramAddressDataPath vramAddress,
-    logic vramEnable
+    SerialDataPath serialWriteData
 );
     //
     // --- For Debug
@@ -113,7 +112,7 @@ output
     LoadStoreUnitIF loadStoreUnitIF( clk, rst, rstStart );
     RecoveryManagerIF recoveryManagerIF( clk, rst );
     CSR_UnitIF csrUnitIF(clk, rst, rstStart, reqExternalInterrupt, externalInterruptCode, axLevel);
-    IO_UnitIF ioUnitIF(clk, rst, rstStart, serialWE, serialWriteData, vramAddress, vramEnable);
+    IO_UnitIF ioUnitIF(clk, rst, rstStart, gazeIn, serialWE, serialWriteData);
     MulDivUnitIF mulDivUnitIF(clk, rst);
     CacheFlushManagerIF cacheFlushManagerIF(clk, rst);
 

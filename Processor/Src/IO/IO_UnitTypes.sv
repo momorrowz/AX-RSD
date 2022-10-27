@@ -46,6 +46,10 @@ typedef logic [ LED_WIDTH-1:0 ] LED_Path;
 localparam SW_WIDTH = 8;
 typedef logic [ SW_WIDTH-1:0 ] SW_Path;
 
+// Push Switch IO
+localparam PSW_WIDTH = 5;
+typedef logic [ PSW_WIDTH-1:0 ] PSW_Path;
+
 // Serial IO
 `ifdef RSD_SYNTHESIS_FPGA
     localparam SERIAL_OUTPUT_WIDTH = 8;
@@ -54,10 +58,9 @@ typedef logic [ SW_WIDTH-1:0 ] SW_Path;
 `endif
 typedef logic [ SERIAL_OUTPUT_WIDTH-1:0 ] SerialDataPath;
 
-// VRAM IO
-localparam VRAM_ADDRESS_OUTPUT_WIDTH = 32;
-typedef logic [VRAM_ADDRESS_OUTPUT_WIDTH-1:0] VramAddressDataPath;
-
+// Gaze IO
+localparam GAZE_WIDTH = 8;
+typedef logic [ GAZE_WIDTH-1:0 ] GazeDataPath;
 
 endpackage
 

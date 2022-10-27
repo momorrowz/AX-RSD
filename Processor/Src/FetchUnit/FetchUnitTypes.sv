@@ -162,9 +162,9 @@ endfunction
 //
 
 localparam AX_LEVEL_WIDTH = CONF_AX_LEVEL_WIDTH;
-typedef logic [LFSR_WIDTH-1:0] LFSRDataPath;
 localparam LFSR_WIDTH = CONF_LFSR_WIDTH;
 localparam LFSRSEED = CONF_LFSR_SEED;
+typedef logic [LFSR_WIDTH-1:0] LFSRDataPath;
 
 //
 // Result/prediction

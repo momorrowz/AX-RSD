@@ -15,11 +15,10 @@ import MemoryMapTypes::*;
 interface IO_UnitIF(
     input 
         logic clk, rst, rstStart,
+        GazeDataPath gazeIn,
     output
         logic serialWE,
-        SerialDataPath serialWriteDataOut,
-        VramAddressDataPath vramAddressOut,
-        logic vramEnableOut
+        SerialDataPath serialWriteDataOut
 );
     // Write request from a store qeueue 
     logic ioWE;
@@ -37,12 +36,11 @@ interface IO_UnitIF(
         ioWriteDataIn,
         ioWriteAddrIn,
         ioReadAddrIn,
+        gazeIn,
     output
         ioReadDataOut,
         serialWE,
-        serialWriteDataOut,
-        vramAddressOut,
-        vramEnableOut
+        serialWriteDataOut
     );
 
     modport MemoryAccessStage(

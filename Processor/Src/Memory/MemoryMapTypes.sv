@@ -136,17 +136,17 @@ localparam PHY_ADDR_VRAM_BASE = PHY_RAW_ADDR_WIDTH'('h380_0000);
 
 //
 // --- Serial IO
-// logical [0x4000_2000] -> io [0x2000]
+// logical [0x4000_2000] -> io [0x400_0000]
 //
 localparam LOG_ADDR_SERIAL_OUTPUT = ADDR_WIDTH'('h4000_2000);
-localparam PHY_ADDR_SERIAL_OUTPUT = PHY_RAW_ADDR_WIDTH'('h0_2000);
+localparam PHY_ADDR_SERIAL_OUTPUT = PHY_RAW_ADDR_WIDTH'('h400_0000);
 
 //
-// --- VRAM IO
-// VRAM_ADDRESS: logical [0x4000_2004] -> io [0x2004]
+// --- Gaze IO
+// GAZE_ADDRESS: logical [0x4000_2004] -> io [0x400_0004]
 //
-localparam LOG_ADDR_VRAM_ADDRESS = ADDR_WIDTH'('h4000_2004);
-localparam PHY_ADDR_VRAM_ADDRESS = PHY_RAW_ADDR_WIDTH'('h0_2004);
+localparam LOG_ADDR_GAZE_ADDRESS = ADDR_WIDTH'('h4000_2004);
+localparam PHY_ADDR_GAZE_ADDRESS = PHY_RAW_ADDR_WIDTH'('h400_0004);
 
 //
 // --- Timer IO
@@ -179,7 +179,7 @@ function automatic MemoryMapType GetMemoryMapType(AddrPath addr);
     if (addr == LOG_ADDR_SERIAL_OUTPUT) begin
         return MMT_IO;
     end
-    else if (addr == LOG_ADDR_VRAM_ADDRESS) begin
+    else if (addr == LOG_ADDR_GAZE_ADDRESS) begin
         return MMT_IO;
     end
     else if (LOG_ADDR_TIMER_BEGIN <= addr && addr < LOG_ADDR_TIMER_END) begin
@@ -208,10 +208,10 @@ function automatic PhyAddrPath ToPhyAddrFromLogical(AddrPath logAddr);
         phyAddr.isIO = TRUE;
         phyAddr.addr = PHY_ADDR_SERIAL_OUTPUT;
     end
-    else if (logAddr == LOG_ADDR_VRAM_ADDRESS) begin
+    else if (logAddr == LOG_ADDR_GAZE_ADDRESS) begin
         phyAddr.isUncachable = TRUE;
         phyAddr.isIO = TRUE;
-        phyAddr.addr = PHY_ADDR_VRAM_ADDRESS;
+        phyAddr.addr = PHY_ADDR_GAZE_ADDRESS;
     end
     else if (LOG_ADDR_TIMER_BEGIN <= logAddr && logAddr < LOG_ADDR_TIMER_END) begin
         phyAddr.isUncachable = TRUE;

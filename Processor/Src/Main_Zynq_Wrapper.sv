@@ -32,10 +32,9 @@ input
     logic clk,
     logic negResetIn, // 負論理
     SW_Path swIn, // Switch Input
+    PSW_Path pswIn, // Push Switch Input
 output
     LED_Path ledOut, // LED Output
-    VramAddressDataPath vramAddress, //VRAM Address Output
-    logic vramEnable, // VRAM Address Enable
 `else
 // RSD_POST_SYNTHESIS
 // RSD_FUNCTIONAL_SIMULATION
@@ -62,9 +61,7 @@ output
     SerialDataPath serialWriteData,
     logic posResetOut, // 正論理
     LED_Path ledOut, // LED Output
-    logic txd,
-    VramAddressDataPath vramAddress, //VRAM Address Output
-    logic vramEnable // VRAM Address Enable
+    logic txd
 `endif
 );
 
@@ -100,9 +97,8 @@ output
         clk,
         negResetIn,
         swIn,
+        pswIn,
         ledOut,
-        vramAddress,
-        vramEnable,
 `else
         clk_p,
         clk_n,
@@ -126,9 +122,7 @@ output
         serialWriteData,
         posResetOut,
         ledOut,
-        txd,
-        vramAddress,
-        vramEnable
+        txd
 `endif
     );
 
