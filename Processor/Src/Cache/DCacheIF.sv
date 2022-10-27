@@ -6,6 +6,7 @@
 // 2-read/write set-associative data cache
 //
 
+import MicroArchConf::*;
 import BasicTypes::*;
 import OpFormatTypes::*;
 import CacheSystemTypes::*;
@@ -98,7 +99,7 @@ input
     // Miss handler
     logic initMSHR[MSHR_NUM];
     PhyAddrPath initMSHR_Addr[MSHR_NUM];
-    ActiveListIndexPath initMSHR_ActiveListPtr[MSHR_NUM];
+    logic [$clog2(CONF_ACTIVE_LIST_ENTRY_NUM)-1:0] initMSHR_ActiveListPtr[MSHR_NUM];
 
     logic mshrValid[MSHR_NUM];
     PhyAddrPath mshrAddr[MSHR_NUM];

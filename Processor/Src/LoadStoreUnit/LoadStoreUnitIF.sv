@@ -6,7 +6,7 @@
 // The interface of a load/store unit.
 //
 
-
+import MicroArchConf::*;
 import BasicTypes::*;
 import MemoryMapTypes::*;
 import CacheSystemTypes::*;
@@ -93,7 +93,7 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
     PhyAddrPath dcReadAddr[LOAD_ISSUE_WIDTH];
     DCacheLinePath dcReadData[LOAD_ISSUE_WIDTH];
     logic dcReadUncachable[LOAD_ISSUE_WIDTH];
-    ActiveListIndexPath dcReadActiveListPtr[LOAD_ISSUE_WIDTH];
+    logic [$clog2(CONF_ACTIVE_LIST_ENTRY_NUM)-1:0] dcReadActiveListPtr[LOAD_ISSUE_WIDTH];
 
     // Forward されたのでメインメモリアクセスや MSHR 確保をキャンセルする 
     // MSHR を確保してしまうと，フォワードしたロードの方はヒット扱いでリタイアするので

@@ -26,10 +26,12 @@
 import BasicTypes::*;
 import OpFormatTypes::*;
 import CacheSystemTypes::*;
+import SchedulerTypes::*;
 import OpFormatTypes::*;
 import MemoryMapTypes::*;
 import LoadStoreUnitTypes::*;
 import FetchUnitTypes::*;
+import PipelineTypes::*;
 
 // Merge stored data and fetched line.
 function automatic void MergeStoreDataToLine(
@@ -891,7 +893,7 @@ module DCache(
     LoadStoreUnitIF.DCache lsu,
     CacheSystemIF.DCache cacheSystem,
     ControllerIF.DCache ctrl,
-    RecoveryManagerIF.DCache recovery,
+    RecoveryManagerIF.DCacheMissHandler recovery,
     input logic [AX_LEVEL_WIDTH-1:0] csr_val
 );
 
