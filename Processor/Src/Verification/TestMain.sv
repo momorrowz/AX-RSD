@@ -136,8 +136,6 @@ module TestMain;
     logic rxd, txd;
     logic serialWE;
     SerialDataPath serialWriteData;
-    VramAddressDataPath vramAddress;
-    logic vramEnable;
 
     Main_Zynq_Wrapper main(
         .clk_p( clk ),
