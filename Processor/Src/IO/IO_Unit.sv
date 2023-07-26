@@ -82,6 +82,10 @@ module IO_Unit(
         else if (phyRawReadAddr == PHY_ADDR_GAZE_ADDRESS) begin
             port.ioReadDataOut = port.gazeIn;
         end
+        else begin
+            port.ioReadDataOut = '0;
+        end
+
     end
 
 

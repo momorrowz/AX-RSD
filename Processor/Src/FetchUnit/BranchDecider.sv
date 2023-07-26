@@ -2,10 +2,7 @@ import BasicTypes::*;
 import MemoryMapTypes::*;
 import FetchUnitTypes::*;
 
-module BranchDecider #(
-    parameter SEED = LFSRSEED
-)
-(
+module BranchDecider (
     NextPCStageIF.BranchDecider port,
     FetchStageIF.BranchDecider fetch,
     input logic [AX_LEVEL_WIDTH-1:0] csr_val //近似度合
@@ -21,7 +18,7 @@ LFSR #(
 ) l0 (
     .clk(port.clk),
     .rst(port.rst),
-    .seed(SEED),
+    .seed(LFSR_SEED),
     .randomval(randomval),
     .update(update)
 );

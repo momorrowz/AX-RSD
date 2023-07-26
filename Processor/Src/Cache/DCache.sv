@@ -1027,15 +1027,11 @@ module DCache(
     ) l0 (
         .clk(port.clk),
         .rst(port.rst),
-        .seed(LFSRSEED),
+        .seed(LFSR_SEED),
         .randomval(randomval),
         .update(updateLFSR)
     );
-    /*
-    initial begin
-        lfsrseed = LFSRSEED;
-    end
-    */
+    
     always_comb begin
         is_taken = ((32'(csr_val) << (LFSR_WIDTH - AX_LEVEL_WIDTH)) > randomval);
     end
@@ -1163,7 +1159,7 @@ module DCache(
     // In the tag access stage/second commit stage.
     //
     always_comb begin
-
+        updateLFSR = TRUE;
         // Read requests from a memory execution stage.
         for (int i = 0; i < DCACHE_LSU_READ_PORT_NUM; i++) begin
             fromAVT[i] = FALSE;

@@ -15,8 +15,8 @@
 #include <regex>
 #include <stdexcept>
 
-constexpr int64_t sim_start = 1631800000;
-constexpr int64_t sim_end =   1631850000;
+constexpr int64_t sim_start = 0;
+constexpr int64_t sim_end =   50000;
 using namespace std;
 
 unsigned int main_time = 0;  // Current simulation time
@@ -155,7 +155,6 @@ int main(int argc, char** argv)
     // To access the module generated in generate,
     // use (Label given in generate section)__DOT__(module name)
     size_t mainMemWordSize = sizeof(top->Main_Zynq_Wrapper->main->memory->body->body__DOT__ram->array) / sizeof(uint32_t);
-    //uint32_t* mainMem = reinterpret_cast<uint32_t*>(&top->Main_Zynq_Wrapper->main->memory->body->body__DOT__ram->array);
     uint32_t* mainMem = reinterpret_cast<uint32_t*>(&top->Main_Zynq_Wrapper->main->memory->body->body__DOT__ram->array);
 
     // Fill dummy data

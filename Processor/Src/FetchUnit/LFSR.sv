@@ -13,7 +13,7 @@ module LFSR
 logic [WIDTH - 1:0] r;
 logic cap;
 
-always @(posedge clk) begin
+always_ff @(posedge clk) begin
     if(rst) begin
         r <= seed; 
     end else if(update) begin

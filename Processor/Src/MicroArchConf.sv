@@ -6,9 +6,8 @@ package MicroArchConf;
 
 // ---- Approx
 localparam CONF_AX_LEVEL_WIDTH = 5;
-// LFSR width. This parameter must be larger than CONF_AX_LEVEL_WIDTH 
+// LFSR width. This parameter must be larger than 2 ^ CONF_AX_LEVEL_WIDTH 
 localparam CONF_LFSR_WIDTH = 32;
-//localparam CONF_LFSR_SEED = 32'h55555555;
 localparam CONF_LFSR_SEED = 32'h1010;
 
 
@@ -27,7 +26,7 @@ localparam CONF_DISPATCH_WIDTH = CONF_FETCH_WIDTH;    // Dispatch width
 // ---- Commit
 // Commit width (instructions). This parameter is configurable.
 // must be equal or larger than RENAME_WIDTH (FETCH_WIDTH) for recovery
-localparam CONF_COMMIT_WIDTH = 8;
+localparam CONF_COMMIT_WIDTH = 4;
 
 
 // --- Back-end
@@ -115,7 +114,7 @@ localparam CONF_MDT_ENTRY_NUM = 1024;   // The number of prediction table entrie
 localparam CONF_DCACHE_WAY_NUM = 2;
 
 // The number of index bits
-localparam CONF_DCACHE_INDEX_BIT_WIDTH = 9 - $clog2(CONF_DCACHE_WAY_NUM);   
+localparam CONF_DCACHE_INDEX_BIT_WIDTH = 8 - $clog2(CONF_DCACHE_WAY_NUM);   
 
 // Line size. This parameter must be a power of two.
 localparam CONF_DCACHE_LINE_BYTE_NUM = CONF_MEM_WIDTH * 4;     
@@ -130,7 +129,7 @@ localparam CONF_DCACHE_MSHR_NUM = 2;
 localparam CONF_ICACHE_WAY_NUM = 2;
 
 // The number of index bits
-localparam CONF_ICACHE_INDEX_BIT_WIDTH = 9 - $clog2(CONF_ICACHE_WAY_NUM);
+localparam CONF_ICACHE_INDEX_BIT_WIDTH = 10 - $clog2(CONF_ICACHE_WAY_NUM);
 
 // Line size. This parameter must be a power of two.
 localparam CONF_ICACHE_LINE_BYTE_NUM = CONF_MEM_WIDTH * 4;    // Line size

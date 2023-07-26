@@ -140,8 +140,7 @@ module Gshare(
 
         for (int i = 0; i < FETCH_WIDTH; i++) begin
             brPredTaken[i] = FALSE;
-            //// Output global history to pipeline for recovery.
-            //brGlobalHistory[i] = regBrGlobalHistory;
+            brGlobalHistory[i] = regBrGlobalHistory;
             updateHistory[i] = FALSE;
         end
 
