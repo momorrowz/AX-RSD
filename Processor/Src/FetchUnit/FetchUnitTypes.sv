@@ -51,6 +51,13 @@ typedef struct packed // struct BTB_Entry
     logic isRASPopBr;
 } BTB_Entry;
 
+typedef struct packed // struct AXBTB_Entry
+{
+    logic valid;
+    logic [BTB_TAG_WIDTH-1:0] tag;
+    BTB_AddrPath data;
+} AXBTB_Entry;
+
 typedef struct packed // struct PhtQueueEntry
 {
     AddrPath wa;            // Write Address

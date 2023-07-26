@@ -32,7 +32,6 @@ interface FetchStageIF( input logic clk, rst, rstStart );
     //AXBTB
     PC_Path axbtbOut[FETCH_WIDTH];
     logic axbtbHit[FETCH_WIDTH];
-    logic axreadIsCondBr[FETCH_WIDTH];
     
     // BranchPredictor
     logic updateBrHistory[FETCH_WIDTH];
@@ -131,8 +130,7 @@ interface FetchStageIF( input logic clk, rst, rstStart );
     modport AXBTB(
     output
         axbtbOut,
-        axbtbHit,
-        axreadIsCondBr
+        axbtbHit
     );
 
     modport BranchPredictor(
@@ -150,10 +148,7 @@ interface FetchStageIF( input logic clk, rst, rstStart );
 
     modport BranchDecider(
     input
-        axbtbOut,
         axbtbHit,
-        btbHit,
-        axreadIsCondBr,
         brPredTaken,
     output
         brDecidTaken

@@ -112,13 +112,6 @@ module IntegerRegisterWriteStage(
             else begin
                 alWriteData[i].brHistory = brResult[i].globalHistory;
             end
-            alWriteData[i].brResult = brResult[i];
-
-            // modify wb data for approximate branch.
-            // TODO: execTakenを1にするんじゃなくてAXBTBを変えたほうがよさそ
-            if (pipeReg[i].brResult.isAX) begin
-                brResult[i].execTaken = 1;
-            end
 
             // ExecState
             if ( update[i] ) begin
