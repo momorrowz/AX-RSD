@@ -131,8 +131,9 @@ module IntegerExecutionStage(
 
     // Branch
     logic isBranch [ INT_ISSUE_WIDTH ];
-    logic isJump [ INT_ISSUE_WIDTH ];
-    logic isAX [ INT_ISSUE_WIDTH ];
+    logic isJump   [ INT_ISSUE_WIDTH ];
+    logic isApBr   [ INT_ISSUE_WIDTH ];
+    logic isApBLT  [ INT_ISSUE_WIDTH ];
     logic brTaken  [ INT_ISSUE_WIDTH ];
     BranchResult brResult [ INT_ISSUE_WIDTH ];
     logic predMiss [ INT_ISSUE_WIDTH ];
@@ -205,14 +206,15 @@ module IntegerExecutionStage(
             isJump[i] = 
                 (iqData[i].opType == INT_MOP_TYPE_BR && iqData[i].cond == COND_AL)
                     || iqData[i].opType == INT_MOP_TYPE_RIJ;
-            isAX[i] = bPred[i].isAX;
+            isApBr[i]  = bPred[i].isApBr;
+            isApBLT[i] = bPred[i].isApBLT;
 
             // 分岐orレジスタ間接分岐で，条件が有効ならTaken
-            // approximate branchのときは分岐決定器がtakenのときもtaken
+            // ap.branchは分岐決定器がtakenのときもtaken
             brTaken[i] = (pipeReg[i].valid && isBranch[i] && isCondEnabled[i] ) || bPred[i].decidTaken;
 
             // Whether this branch is conditional one or not.
-            brResult[i].isCondBr = !isJump[i] && !isAX[i];
+            brResult[i].isCondBr = !isJump[i] && !isApBr[i];
             brResult[i].isRASPushBr = brSubInfo[i].isRASPushBr;
             brResult[i].isRASPopBr = brSubInfo[i].isRASPopBr;
             
@@ -220,8 +222,8 @@ module IntegerExecutionStage(
             brResult[i].brAddr = ToPC_FromAddr(pc[i]);
 
             // ターゲットアドレスの計算
-            if( bPred[i].isAX ) begin
-                brResult[i].nextAddr = ToPC_FromAddr(pc[i] +  ExtendApproxBranchDisplacement(brSubInfo[i].brDisp));
+            if (bPred[i].isApBr) begin
+                brResult[i].nextAddr = ToPC_FromAddr(pc[i] + ExtendApproxBranchDisplacement(brSubInfo[i].brDisp));
             end
             else if( brTaken[i] ) begin
                 brResult[i].nextAddr =
@@ -250,11 +252,11 @@ module IntegerExecutionStage(
                      (bPred[i].predTaken != brTaken[i]) ||
                      (brTaken[i] == TRUE &&
                       bPred[i].predAddr != brResult[i].nextAddr)
-                ) && !isAX[i];
+                ) && !(isApBr[i] || isApBLT[i]);
 
             brResult[i].mispred = predMiss[i];
-            // Approximate branch?
-            brResult[i].isAX = isAX[i];
+            // ap.branch?
+            brResult[i].isApBr = isApBr[i];
         end
     end
 

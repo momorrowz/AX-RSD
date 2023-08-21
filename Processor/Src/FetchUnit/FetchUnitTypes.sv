@@ -193,8 +193,8 @@ typedef struct packed // struct BranchResult
     PHT_IndexPath phtIndex;                 // PHT index used for update
     PHT_EntryPath phtPrevValue;             // PHT's counter value
     RAS_CheckpointData rasCheckpoint;       // RAS's top&tail pointer
-    logic isAX;         // Whether this branch is approximate or not.
-    logic decidTaken;   // approximate branch is taken or not.
+    logic isApBr;          // Whether this branch is ap.branch.
+    logic decidTaken;      // Whether ap.branch is taken or not.
 } BranchResult;
 
 typedef struct packed // struct BranchPred
@@ -206,8 +206,9 @@ typedef struct packed // struct BranchPred
     PHT_IndexPath phtIndex;                 // PHT index used for the prediction
     PHT_EntryPath phtPrevValue;             // PHT's counter value
     RAS_CheckpointData rasCheckpoint;       // RAS's top&tail pointer
-    logic isAX;                             // approixmate branch or not(predicted in IF & decided in ID).
-    logic decidTaken;   // approximate branch is taken or not.
+    logic isApBr;                           // Whether this branch is ap.branch.
+    logic isApBLT;                          // Whether this branch is ap.blt.
+    logic decidTaken;                       // Whether ap.branch is taken or not.
 } BranchPred;
 
 endpackage : FetchUnitTypes

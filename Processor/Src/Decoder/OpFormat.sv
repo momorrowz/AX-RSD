@@ -21,7 +21,7 @@ typedef enum logic [2:0]    // enum CondCode
     COND_LTU = 3'b110, // LTU 符号なし'<'
     COND_GEU = 3'b111, // GEU 符号なし'>'
     COND_AL  = 3'b010, // AL 常時（無条件）
-    COND_AP  = 3'b011  // AP 常時不成立. approximate branch用
+    COND_AP  = 3'b011  // AP 常時不成立
 } CondCode;
 
 //
@@ -163,7 +163,7 @@ typedef enum logic [2:0]    // enum ApproxFunct3
 {
     APPROX_FUNCT3_LOAD    = 3'b000, // ap.load
     APPROX_FUNCT3_BRANCH  = 3'b011, // ap.branch
-    APPROX_FUNCT3_LABEL   = 3'b111  // ap.label
+    APPROX_FUNCT3_BLT     = 3'b100  // ap.blt
 } ApproxFunct3;
 
 

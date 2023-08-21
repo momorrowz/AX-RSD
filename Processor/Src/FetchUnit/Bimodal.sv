@@ -123,7 +123,7 @@ module Bimodal(
 
         // Write request from IntEx Stage
         for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
-            phtWE[i] = port.brResult[i].valid && !port.brResult[i].isAX;
+            phtWE[i] = port.brResult[i].valid && !port.brResult[i].isApBr;
             phtWA[i] = ToPHT_Index_Local(port.brResult[i].brAddr);
 
             // Counter's value.

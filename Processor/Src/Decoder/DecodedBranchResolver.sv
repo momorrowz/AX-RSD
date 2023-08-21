@@ -38,6 +38,7 @@ output
     PC_Path decodedPC[DECODE_WIDTH];
     PC_Path nextPC[DECODE_WIDTH];
     RISCV_ISF_U isfU[DECODE_WIDTH];
+    RISCV_ISF_B isfB[DECODE_WIDTH];
 
     logic addrCheck;
     logic addrIncorrect;
@@ -69,6 +70,7 @@ output
             insnFlushTriggering[i] = FALSE;
             brPredOut[i] = brPredIn[i];
             isfU[i] = isf[i];
+            isfB[i] = isf[i];
         end
 
         addrCheck = FALSE;
@@ -140,10 +142,10 @@ output
                     decodedPC[i] = pc[i] + ExtendBranchDisplacement( GetJAL_Target(isfU[i]));
                 end
                 else if (isfU[i].opCode == RISCV_APPROX) begin
-                    if (brPredIn[i].decidTaken) begin
+                    if (isfB[i].funct3 == APPROX_FUNCT3_BRANCH ) begin //ap.branch
                         decodedPC[i] = pc[i] + ExtendApproxBranchDisplacement( GetApproxBranchDisplacement(isfU[i]));
-                    end else begin
-                        decodedPC[i] = nextPC[i];
+                    end else begin // ap.blt
+                        decodedPC[i] = pc[i] + ExtendBranchDisplacement( GetBranchDisplacement(isfU[i]));
                     end
                 end
                 else begin
@@ -184,7 +186,8 @@ output
 
         // for approximate branch
         for (int i = 0; i < DECODE_WIDTH; i++) begin
-            brPredOut[i].isAX = (brTargetType[i] == BTT_PC_RELATIVE && isfU[i].opCode == RISCV_APPROX);
+            brPredOut[i].isApBr  = (brTargetType[i] == BTT_PC_RELATIVE && isfU[i].opCode == RISCV_APPROX && isfB[i].funct3 == APPROX_FUNCT3_BRANCH);
+            brPredOut[i].isApBLT = (brTargetType[i] == BTT_PC_RELATIVE && isfU[i].opCode == RISCV_APPROX && isfB[i].funct3 == APPROX_FUNCT3_BLT);
         end
     end // always_comb
 

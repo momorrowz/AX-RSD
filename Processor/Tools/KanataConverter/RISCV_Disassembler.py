@@ -173,11 +173,18 @@ class RISCV_Disassembler( object ):
             RISCV_Disassembler.InstructionCommon.__init__( self, code )
 
         def __str__( self ):
-            if self.funct3 == '011' and self.RV32I:
+            if self.funct3 == '000' and self.RV32I:
+                opType = 'ap.load '
+                asmStr = opType + self.rd + ', ' + self.I_Imm + '(' + self.rs1 + ')'
+            elif self.funct3 == '011' and self.RV32I:
                 opType = 'ap.branch '
+                asmStr = opType + self.A_Imm
+            elif self.funct3 == '100' and self.RV32I:
+                opType = 'ap.blt '
+                asmStr = opType + self.rs1 + ', ' + self.rs2 + ', ' + self.B_Imm
             else:
                 opType = 'Unknown'
-            asmStr = opType + self.A_Imm
+                asmStr = opType + ' approximate insns'
             return asmStr
     class InstructionLoad( InstructionCommon ):
         """ Load instruction """

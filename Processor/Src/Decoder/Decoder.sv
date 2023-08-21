@@ -1235,6 +1235,10 @@ function automatic void RISCV_EmitApproxBranch(
     opInfo.operand.brOp.brDisp = GetApproxBranchDisplacement( isfR );
     opInfo.operand.brOp.padding = '0;
 
+    // RAS operations
+    opInfo.operand.brOp.isRASPushBr = FALSE;
+    opInfo.operand.brOp.isRASPopBr = FALSE;
+
     // 未定義命令
     opInfo.unsupported = FALSE;
     opInfo.undefined = FALSE;
@@ -1307,6 +1311,61 @@ function automatic void RISCV_EmitApproxLoad(
     opInfo.isApLoad = TRUE;
 endfunction
 
+function automatic void RISCV_EmitApproxBLT(
+    output OpInfo opInfo,
+    input RISCV_ISF_Common isf
+);
+
+    RISCV_ISF_R isfR;
+
+    isfR = isf;
+
+    // 論理レジスタ番号
+`ifdef RSD_ENABLE_VECTOR_PATH
+    opInfo.operand.brOp.dstRegNum.isVector  = FALSE;
+    opInfo.operand.brOp.srcRegNumA.isVector = FALSE;
+    opInfo.operand.brOp.srcRegNumB.isVector = FALSE;
+`endif
+    opInfo.operand.brOp.dstRegNum.regNum  = 0;
+    opInfo.operand.brOp.srcRegNumA.regNum = isfR.rs1;
+    opInfo.operand.brOp.srcRegNumB.regNum = isfR.rs2;
+
+    // レジスタ書き込みを行うかどうか
+    // 比較系の命令はレジスタに書き込みを行わない
+    // ゼロレジスタへの書き込みは書き込みフラグをFALSEとする
+    opInfo.writeReg  = FALSE;
+
+    // 論理レジスタを読むかどうか
+    opInfo.opTypeA = OOT_REG;
+    opInfo.opTypeB = OOT_REG;
+
+    // 命令の種類
+    opInfo.mopType = MOP_TYPE_INT;
+    opInfo.mopSubType.intType = INT_MOP_TYPE_BR;
+
+    // 条件コード
+    opInfo.cond = COND_LT;
+
+    // 分岐ターゲット
+    opInfo.operand.brOp.brDisp = GetBranchDisplacement( isfR );
+    opInfo.operand.brOp.padding = '0;
+
+    // RAS operations
+    opInfo.operand.brOp.isRASPushBr = FALSE;
+    opInfo.operand.brOp.isRASPopBr = FALSE;
+
+    // 未定義命令
+    opInfo.unsupported = FALSE;
+    opInfo.undefined = FALSE;
+
+    // Serialized
+    opInfo.serialized = FALSE;
+
+    // Control
+    opInfo.valid = TRUE;    // Valid outputs
+
+endfunction
+
 function automatic void RISCV_EmitApproxLabel(
     output OpInfo opInfo,
     input RISCV_ISF_Common isf
@@ -1331,6 +1390,10 @@ function automatic void RISCV_DecodeApprox(
         RISCV_EmitApproxLoad(.opInfo(opInfo), .isf(isf));
         writePC = FALSE;
         isRelBranch = FALSE;
+    end else if (ApproxFunct3'(isf.funct3) == APPROX_FUNCT3_BLT) begin
+        RISCV_EmitApproxBLT(.opInfo(opInfo), .isf(isf));
+        writePC = TRUE;
+        isRelBranch = TRUE;
     end else begin
         RISCV_EmitApproxLabel(.opInfo(opInfo), .isf(isf));
         writePC = FALSE;

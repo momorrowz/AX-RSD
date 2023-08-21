@@ -122,7 +122,7 @@ module BTB(
 
         // Write request from IntEx Stage
         for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
-            btbWE[i] = port.brResult[i].valid && port.brResult[i].execTaken && !port.brResult[i].isAX;
+            btbWE[i] = port.brResult[i].valid && port.brResult[i].execTaken && !port.brResult[i].isApBr;
             btbWA[i] = ToBTB_Index(port.brResult[i].brAddr);
             btbWV[i].tag = ToBTB_Tag(port.brResult[i].brAddr);
             btbWV[i].data = ToBTB_Addr(port.brResult[i].nextAddr);
