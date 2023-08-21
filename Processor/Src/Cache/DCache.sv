@@ -1019,7 +1019,7 @@ module DCache(
     );
 
     // for ap.load
-    logic [LFSR_WIDTH-1:0] randomval, lfsrseed;
+    logic [LFSR_WIDTH-1:0] randomval;
     logic is_taken, updateLFSR;
     logic [DCACHE_LSU_READ_PORT_NUM-1:0] isApLoad, fromAVT;
     LFSR #(
@@ -1159,7 +1159,7 @@ module DCache(
     // In the tag access stage/second commit stage.
     //
     always_comb begin
-        updateLFSR = TRUE;
+        updateLFSR = FALSE;
         // Read requests from a memory execution stage.
         for (int i = 0; i < DCACHE_LSU_READ_PORT_NUM; i++) begin
             fromAVT[i] = FALSE;
@@ -1170,7 +1170,7 @@ module DCache(
                 lsuCacheGrtReg[i] && 
                 !lsu.dcReadCancelFromMT_Stage[i];
             if(missReq[i] && isApLoad[i]) begin
-                updateLFSR=TRUE;
+                updateLFSR = TRUE;
                 if(is_taken) begin
                     fromAVT[i] = TRUE;
                 end

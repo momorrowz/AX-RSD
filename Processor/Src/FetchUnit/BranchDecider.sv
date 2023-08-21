@@ -9,7 +9,7 @@ module BranchDecider (
 );
 
 
-logic [LFSR_WIDTH-1:0] randomval, seed;
+logic [LFSR_WIDTH-1:0] randomval;
 logic is_taken;
 logic update, hit;
 
