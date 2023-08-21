@@ -20,7 +20,7 @@ interface WakeupSelectIF( input logic clk, rst, rstStart );
     SchedulerDstTag writeDstTag [ DISPATCH_WIDTH ];
 
     // WakeupPipelineRegister -> DestinationRAM
-    logic wakeup[ WAKEUP_WIDTH + STORE_ISSUE_WIDTH];
+    logic wakeup[ WAKEUP_WIDTH];
     IssueQueueIndexPath wakeupPtr[ WAKEUP_WIDTH + STORE_ISSUE_WIDTH ];
     IssueQueueOneHotPath wakeupVector[ WAKEUP_WIDTH + STORE_ISSUE_WIDTH ];
 
@@ -56,6 +56,9 @@ interface WakeupSelectIF( input logic clk, rst, rstStart );
 `endif
     logic loadIssueReq[ISSUE_QUEUE_ENTRY_NUM];
     logic storeIssueReq[ISSUE_QUEUE_ENTRY_NUM];
+`ifdef RSD_MARCH_FP_PIPE
+    logic fpIssueReq[ISSUE_QUEUE_ENTRY_NUM];
+`endif
 
 
     // A scheduler module is entrance of a wakeup/select logic.
@@ -76,6 +79,9 @@ interface WakeupSelectIF( input logic clk, rst, rstStart );
 `endif
         loadIssueReq,
         storeIssueReq,
+`ifdef RSD_MARCH_FP_PIPE
+        fpIssueReq,
+`endif
         notIssued,
         dispatchStore,
         dispatchLoad,
@@ -128,6 +134,9 @@ interface WakeupSelectIF( input logic clk, rst, rstStart );
 `endif
         loadIssueReq,
         storeIssueReq,
+`ifdef RSD_MARCH_FP_PIPE
+        fpIssueReq,
+`endif
     output
         selected,
         selectedPtr,

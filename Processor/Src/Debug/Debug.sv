@@ -10,6 +10,7 @@ import BasicTypes::*;
 import MemoryMapTypes::*;
 import RenameLogicTypes::*;
 import SchedulerTypes::*;
+import ActiveListIndexTypes::*;
 import LoadStoreUnitTypes::*;
 import PipelineTypes::*;
 import DebugTypes::*;
@@ -63,6 +64,14 @@ module Debug (
             next.mtReg[i] = port.mtReg[i];
             next.memRwReg[i] = port.memRwReg[i];
         end
+`ifdef RSD_MARCH_FP_PIPE
+        for ( int i = 0; i < FP_ISSUE_WIDTH; i++ ) begin
+            next.fpIsReg[i] = port.fpIsReg[i];
+            next.fpRrReg[i] = port.fpRrReg[i];
+            next.fpExReg[i] = port.fpExReg[i];
+            next.fpRwReg[i] = port.fpRwReg[i];
+        end
+`endif
         for ( int i = 0; i < COMMIT_WIDTH; i++ ) begin
             next.cmReg[i] = port.cmReg[i];
         end
@@ -97,7 +106,10 @@ module Debug (
         next.busyInRecovery = port.busyInRecovery;
         next.storeQueueEmpty = port.storeQueueEmpty;
 
+`ifdef RSD_FUNCTIONAL_SIMULATION
+        // Performance monitoring counters are exported to DebugRegister only on simulation.
         next.perfCounter = port.perfCounter;
+`endif
     end
 
     DebugRegister debugRegister;

@@ -58,7 +58,7 @@ modelsim.ini
 /Processor/Project/Vivado/TargetBoards/Zedboard/NA/
 /Processor/Project/Vivado/TargetBoards/Zedboard/.Xil/
 
-Processor/Project/Vivado/TargetBoards/Zedboard/rsd_ip/Vivado/component\.xml
+/Processor/Project/Vivado/TargetBoards/Zedboard/rsd_ip/Vivado/component\.xml
 
 vivado*jou
 vivado*zip
@@ -75,8 +75,7 @@ synlog.tcl
 /Processor/Src/*.vcd
 /Processor/Src/*.gz
 /Processor/Src/wlft*
-/Processor/Src/stdout*
-/Processor/Src/log/
+/Processor/Src/stdout.log*
 
 # python
 *.pyc

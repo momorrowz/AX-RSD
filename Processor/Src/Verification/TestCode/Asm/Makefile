@@ -9,7 +9,7 @@ include ../Makefile.inc
 #
 
 SRC_DIRS = \
-	ControlTransfer \
+    ControlTransfer \
 	IntRegImm \
 	IntRegReg \
 	LoadAndStore \
@@ -35,6 +35,7 @@ SRC_DIRS = \
 	UncachableLoadAndStore \
 	CacheFlush \
 	Sandbox \
+    FP \
 
 # 中間ファイルのリスト
 ASM_SRCS  = $(SRC_DIRS:%=%/code.s)

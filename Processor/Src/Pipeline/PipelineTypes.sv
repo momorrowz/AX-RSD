@@ -15,8 +15,10 @@ import BypassTypes::*;
 import RenameLogicTypes::*;
 import LoadStoreUnitTypes::*;
 import SchedulerTypes::*;
+import ActiveListIndexTypes::*;
 import FetchUnitTypes::*;
 import MemoryMapTypes::*;
+import CacheSystemTypes::*;
 
 // Controll of a pipeline
 // See comments in Controller
@@ -132,12 +134,18 @@ typedef struct packed // DispatchStageRegPath
     // Renamed physical register numbers.
     PRegNumPath phySrcRegNumA;
     PRegNumPath phySrcRegNumB;
+`ifdef RSD_MARCH_FP_PIPE
+    PRegNumPath phySrcRegNumC;
+`endif
     PRegNumPath phyDstRegNum;
     PRegNumPath phyPrevDstRegNum;  // For releasing a register.
 
     // Source pointer for a matrix scheduler.
     IssueQueueIndexPath srcIssueQueuePtrRegA;
     IssueQueueIndexPath srcIssueQueuePtrRegB;
+`ifdef RSD_MARCH_FP_PIPE
+    IssueQueueIndexPath srcIssueQueuePtrRegC;
+`endif
 
     IssueQueueIndexPath issueQueuePtr;
     ActiveListIndexPath activeListPtr;
@@ -230,10 +238,6 @@ typedef struct packed // ComplexIntegerExecutionStageRegPath
     // register read out
     PRegDataPath operandA;
     PRegDataPath operandB;
-`ifdef RSD_ENABLE_VECTOR_PATH
-    PVecDataPath vecOperandA;
-    PVecDataPath vecOperandB;
-`endif
 
     // Bypass control
     BypassControll bCtrl;
@@ -251,9 +255,6 @@ typedef struct packed // ComplexIntegerRegisterWriteStageRegPath
     ComplexIssueQueueEntry complexQueueData;
 
     PRegDataPath dataOut;   // Result of Execution
-`ifdef RSD_ENABLE_VECTOR_PATH
-    PVecDataPath vecDataOut;
-`endif
 } ComplexIntegerRegisterWriteStageRegPath;
 
 
@@ -287,9 +288,6 @@ typedef struct packed // MemoryExecutionStageRegPath
     // register read out
     PRegDataPath operandA;
     PRegDataPath operandB;
-`ifdef RSD_ENABLE_VECTOR_PATH
-    PVecDataPath vecOperandB;
-`endif
 
     // Bypass control
     BypassControll bCtrl;
@@ -315,9 +313,6 @@ typedef struct packed // MemoryTagAccessStageRegPath
 
     DataPath addrOut;       // The result of address calculation.
     DataPath dataIn;        // The input data for store or CSR data out
-`ifdef RSD_ENABLE_VECTOR_PATH
-    VectorPath vecDataIn;   // The input data for store
-`endif
     MemoryMapType memMapType;  // Memory map type: mem/io
     PhyAddrPath phyAddrOut;
 
@@ -355,6 +350,10 @@ typedef struct packed // MemoryAccessStageRegPath
     // TODO: addrOut and csrDataOut is exclusively used, these can be unified.
     DataPath csrDataOut; 
     BranchGlobalHistoryPath brHistory;
+
+    logic hasAllocatedMSHR; // This op allocated an MSHR entry or not
+    MSHR_IndexPath mshrID;
+    logic storeForwardMiss;      // Store-load forwarding miss occurs
 } MemoryAccessStageRegPath;
 
 
@@ -374,53 +373,65 @@ typedef struct packed // MemoryRegisterWriteStageRegPath
     OpDst    opDst;
     ExecutionState execState; // Execution status. See RenameLogicTypes.sv
     logic isStore;
+    logic isLoad;
 
     PRegDataPath dataOut;    // Result of Load
-`ifdef RSD_ENABLE_VECTOR_PATH
-    PVecDataPath vecDataOut; // Result of Vector Load
-`endif
     BranchGlobalHistoryPath brHistory;
+
+    logic hasAllocatedMSHR; // This op allocated an MSHR entry or not
+    MSHR_IndexPath mshrID;
+    logic storeForwardMiss;      // Store-load forwarding miss occurs
 } MemoryRegisterWriteStageRegPath;
 
-function automatic logic SelectiveFlushDetector(
-    input logic detectRange,
-    input ActiveListIndexPath headPtr,
-    input ActiveListIndexPath tailPtr,
-    input logic flushAllInsns,
-    input ActiveListIndexPath opPtr
-);
-    if(!detectRange) begin
-        return FALSE;
-    end
-    else if (flushAllInsns) begin
-        return TRUE;
-    end
-    else if(detectRange && tailPtr >= headPtr) begin
-        //  |---h***i***t-------|
-        if(opPtr >= headPtr && opPtr < tailPtr) begin
-            return TRUE;
-        end
-        else begin
-            return FALSE;
-        end
-    end
-    else if(detectRange && tailPtr < headPtr) begin
-        //  |*****t----h***i****|
-        if(opPtr >= headPtr && opPtr > tailPtr) begin
-            return TRUE;
-        end
-        //  |**i***t----h*******|
-        else if(opPtr < headPtr && opPtr < tailPtr) begin
-            return TRUE;
-        end
-        else begin
-            return FALSE;
-        end
-    end
-    else begin
-        return FALSE;
-    end
-endfunction
+//
+// FP back end
+//
+typedef struct packed // FPRegisterReadStageRegPath
+{
+`ifndef RSD_DISABLE_DEBUG_REGISTER
+    OpId      opId;
+`endif
+
+    logic valid;     // Valid flag. If this is 0, its op is treated as NOP.
+    logic replay;
+    FPIssueQueueEntry fpQueueData;
+} FPRegisterReadStageRegPath;
+
+
+typedef struct packed // FPExecutionStageRegPath
+{
+`ifndef RSD_DISABLE_DEBUG_REGISTER
+    OpId      opId;
+`endif
+
+    logic valid;      // Valid flag. If this is 0, its op is treated as NOP.
+    logic replay;
+    logic isFlushed;
+    FPIssueQueueEntry fpQueueData;
+
+    // register read out
+    PRegDataPath operandA;
+    PRegDataPath operandB;
+    PRegDataPath operandC;
+
+    // Bypass control
+    BypassControll bCtrl;
+} FPExecutionStageRegPath;
+
+
+typedef struct packed // FPRegisterWriteStageRegPath
+{
+
+`ifndef RSD_DISABLE_DEBUG_REGISTER
+    OpId      opId;
+`endif
+
+    logic valid;  // Valid flag. If this is 0, its op is treated as NOP.
+    FPIssueQueueEntry fpQueueData;
+
+    PRegDataPath dataOut;   // Result of Execution
+    FFlags_Path fflagsOut;
+} FPRegisterWriteStageRegPath;
 
 endpackage
 

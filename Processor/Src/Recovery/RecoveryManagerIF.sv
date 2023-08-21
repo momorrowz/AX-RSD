@@ -10,6 +10,7 @@ import BasicTypes::*;
 import PipelineTypes::*;
 import RenameLogicTypes::*;
 import SchedulerTypes::*;
+import ActiveListIndexTypes::*;
 import LoadStoreUnitTypes::*;
 import FetchUnitTypes::*;
 
@@ -291,6 +292,14 @@ interface RecoveryManagerIF( input logic clk, rst );
         flushAllInsns
     );
 
+    modport MulDivUnit(
+    input
+        toRecoveryPhase,
+        flushRangeHeadPtr,
+        flushRangeTailPtr,
+        flushAllInsns
+    );
+
     modport IntegerIssueStage(
     input
         toRecoveryPhase,
@@ -402,6 +411,48 @@ interface RecoveryManagerIF( input logic clk, rst );
         flushRangeTailPtr,
         flushAllInsns
     );
+
+`ifdef RSD_MARCH_FP_PIPE 
+    modport FPIssueStage(
+    input
+        toRecoveryPhase,
+        flushRangeHeadPtr,
+        flushRangeTailPtr,
+        flushAllInsns
+    );
+
+    modport FPRegisterReadStage(
+    input
+        toRecoveryPhase,
+        flushRangeHeadPtr,
+        flushRangeTailPtr,
+        flushAllInsns
+    );
+
+    modport FPExecutionStage(
+    input
+        toRecoveryPhase,
+        flushRangeHeadPtr,
+        flushRangeTailPtr,
+        flushAllInsns
+    );
+
+    modport FPRegisterWriteStage(
+    input
+        toRecoveryPhase,
+        flushRangeHeadPtr,
+        flushRangeTailPtr,
+        flushAllInsns
+    );
+
+    modport FPDivSqrtUnit(
+    input
+        toRecoveryPhase,
+        flushRangeHeadPtr,
+        flushRangeTailPtr,
+        flushAllInsns
+    );
+`endif
 
     modport ActiveList(
     input

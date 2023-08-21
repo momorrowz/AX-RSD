@@ -30,19 +30,8 @@ module StoreQueue(
         input PhyAddrPath addr,
         input MemAccessMode mode
     );
-`ifdef RSD_ENABLE_VECTOR_PATH
-        // Disable vector data path
-        if (mode.size == MEM_ACCESS_SIZE_VEC) begin
-            dataOut = blockDataIn;  // Vector
-        end
-        else begin
-            dataOut = dataIn;
-            dataOut = dataOut << ( addr[ LSQ_BLOCK_BYTE_WIDTH_BIT_SIZE-1:0 ] * BYTE_WIDTH );
-        end
-`else
         dataOut = dataIn;
         dataOut = dataOut << ( addr[ LSQ_BLOCK_BYTE_WIDTH_BIT_SIZE-1:0 ] * BYTE_WIDTH );
-`endif
     endfunction
 
     //
@@ -301,7 +290,7 @@ module StoreQueue(
             for (int j = 0; j < STORE_QUEUE_ENTRY_NUM; j++) begin
                 addrMatch[i][j] =
                     storeQueue[j].finished &&
-                    port.executedLoadMemMapType[i] != MMT_ILLEGAL &&
+                    port.executedLoadMemMapType[i] != MMT_ILLEGAL && 
                     storeQueue[j].address == LSQ_ToBlockAddr(port.executedLoadAddr[i]) &&
                     ((storeQueue[j].wordWE & executedLoadWordRE[i]) != '0) &&
                     ((storeQueue[j].byteWE & executedLoadByteRE[i]) != '0);

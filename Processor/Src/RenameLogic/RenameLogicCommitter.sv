@@ -11,6 +11,7 @@
 import BasicTypes::*;
 import RenameLogicTypes::*;
 import SchedulerTypes::*;
+import ActiveListIndexTypes::*;
 
 
 module RenameLogicCommitter(
@@ -140,7 +141,7 @@ module RenameLogicCommitter(
             end
 
             recovery.inRecoveryAL = FALSE;
-            flushNum = 0;
+            flushNum = '0;
         end
         else if(phase == PHASE_RECOVER_0) begin
             activeList.popHeadNum = 0;
@@ -150,7 +151,7 @@ module RenameLogicCommitter(
                 nextReleasedReg[i].phyReleasedReg = 0;
             end
             recovery.inRecoveryAL = TRUE;
-            flushNum = 0;
+            flushNum = '0;
         end
         else begin
 

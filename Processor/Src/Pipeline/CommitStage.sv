@@ -15,9 +15,9 @@ import MicroOpTypes::*;
 import PipelineTypes::*;
 import RenameLogicTypes::*;
 import SchedulerTypes::*;
+import ActiveListIndexTypes::*;
 import DebugTypes::*;
 import FetchUnitTypes::*;
-
 
 // 実行が終わってInsnの範囲を調べ、
 // それがアクティブリストの先頭からop何個分に相当するかを返す
@@ -243,6 +243,10 @@ module CommitStage(
     CommitLaneCountPath commitNum;
     CommitLaneCountPath commitLoadNum;
     CommitLaneCountPath commitStoreNum;
+`ifdef RSD_MARCH_FP_PIPE
+    logic fflagsWE;
+    FFlags_Path fflagsData;
+`endif
 
     PipelinePhase phase;
 
@@ -250,6 +254,13 @@ module CommitStage(
 
     always_ff@(posedge port.clk) begin
         prevLastCommittedPC <= lastCommittedPC;
+        /*
+        for (int i=0; i < COMMIT_WIDTH; ++i) begin
+            if(commit[i] & |activeList.fflagsData[i]) begin
+                $display("%x %b", alReadData[i].pc, activeList.fflagsData[i]);
+            end
+        end
+        */
     end
 
     always_comb begin
@@ -335,6 +346,20 @@ module CommitStage(
 
         // CSR Update
         csrUnit.commitNum = commitNum;
+    
+`ifdef RSD_MARCH_FP_PIPE
+        // CSR FFLAGS Update
+        fflagsWE = FALSE;
+        fflagsData = '0;
+        for (int i = 0; i < COMMIT_WIDTH; i++) begin
+            if (commit[i]) begin
+                fflagsWE = TRUE;
+                fflagsData |= activeList.fflagsData[i];
+            end
+        end
+        csrUnit.fflagsWE = fflagsWE;
+        csrUnit.fflagsData = fflagsData;
+`endif
 
         // Debug Register
         for (int i = 0; i < COMMIT_WIDTH; i++) begin
@@ -363,6 +388,28 @@ module CommitStage(
             );
         end
     endgenerate
+`ifdef RSD_FUNCTIONAL_SIMULATION
+    localparam DEADLOCK_DETECT_CYCLES = 500;
+    integer cycles;
+    always_ff @(posedge port.clk) begin
+        if (port.rst || commit[0]) begin
+            cycles <= 0;
+        end
+        else begin
+            cycles <= cycles + 1;
+        end
+    end
+
+
+    generate
+        `RSD_ASSERT_CLK(
+            port.clk,
+            !(cycles > DEADLOCK_DETECT_CYCLES),
+            "Deadlock detected"
+        );
+    endgenerate
+
+`endif
 
 endmodule : CommitStage
 

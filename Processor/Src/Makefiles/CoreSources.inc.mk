@@ -1,30 +1,35 @@
 
-# CAUTION! These macros must be defined in SynthesisMacros.sv on synthesis
-# Definitions related to microarchitecture configuration
+# CAUTION! The following macros must be defined in SynthesisMacros.sv on synthesis.
+#
+# Definitions related to microarchitecture configuration:
 # * RSD_MARCH_UNIFIED_LDST_MEM_PIPE:  Use unified LS/ST pipeline
 # * RSD_MARCH_INT_ISSUE_WIDTH=N: Set issue width to N
 # * RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE: Integrate mul/div to a memory pipe
 RSD_SRC_CFG = \
+	+define+RSD_MARCH_INT_ISSUE_WIDTH=2 \
+	+define+RSD_MARCH_FP_PIPE \
+
 #	+define+CIRCULAR_SELECT_LOGIC \
 #   +define+INT_INTERLEAVED_PICKER \
-#	+define+RSD_MARCH_INT_ISSUE_WIDTH=2 \
 #	+define+RSD_MARCH_UNIFIED_LDST_MEM_PIPE \
 #	+define+RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE \
 
 
-
-# TYPES には型定義を含む package を含んだファイルを指定する．
-# ファイルごとの依存関係に気をつけて，依存先が依存元より前にくるようにならべること．
+# TYPES specifies files that include packages that contain type definitions.
+# Be careful about the order of these files.
+# A file containing a imported package should be placed first.
 TYPES = \
 	MicroArchConf.sv \
 	BasicTypes.sv \
 	Memory/MemoryMapTypes.sv \
+	RenameLogic/ActiveListIndexTypes.sv \
 	Cache/CacheSystemTypes.sv \
 	Memory/MemoryTypes.sv \
 	Decoder/OpFormat.sv \
 	Decoder/MicroOp.sv \
 	RegisterFile/BypassTypes.sv \
 	FetchUnit/FetchUnitTypes.sv \
+	FloatingPointUnit/FPUTypes.sv \
 	LoadStoreUnit/LoadStoreUnitTypes.sv \
 	RenameLogic/RenameLogicTypes.sv \
 	Scheduler/SchedulerTypes.sv \
@@ -33,18 +38,9 @@ TYPES = \
 	Privileged/CSR_UnitTypes.sv \
 	Debug/DebugTypes.sv \
 
-# テスト時のみ使用し、合成時は使用しない module の定義があるファイルを指定する．
-# TestMainはDumperに依存するので後にくること
-TEST_MODULES = \
-	Verification/TestBenchClockGenerator.sv \
-	Verification/Dumper.sv \
-	Verification/TestMain.sv \
-
-# それ以外の module, interface の定義があるファイルを指定する．
-# ここの順番は適当でも大丈夫．
-MODULES = \
-	Main_Zynq_Wrapper.sv \
-	Main_Zynq.sv \
+# CORE_MODULES specifies files that defines the RSD core.
+# The order of the files in this section is arbitrary.
+CORE_MODULES = \
 	Core.sv \
 	Pipeline/FetchStage/NextPCStage.sv \
 	Pipeline/FetchStage/NextPCStageIF.sv \
@@ -88,6 +84,13 @@ MODULES = \
 	Pipeline/MemoryBackEnd/MemoryTagAccessStage.sv \
 	Pipeline/MemoryBackEnd/MemoryRegisterWriteStageIF.sv \
 	Pipeline/MemoryBackEnd/MemoryRegisterWriteStage.sv \
+	Pipeline/FPBackEnd/FPIssueStage.sv \
+	Pipeline/FPBackEnd/FPIssueStageIF.sv \
+	Pipeline/FPBackEnd/FPRegisterReadStage.sv \
+	Pipeline/FPBackEnd/FPRegisterReadStageIF.sv \
+	Pipeline/FPBackEnd/FPExecutionStageIF.sv \
+	Pipeline/FPBackEnd/FPExecutionStage.sv \
+	Pipeline/FPBackEnd/FPRegisterWriteStage.sv \
 	Pipeline/CommitStageIF.sv \
 	Pipeline/CommitStage.sv \
 	RegisterFile/RegisterFile.sv \
@@ -95,12 +98,10 @@ MODULES = \
 	RegisterFile/BypassController.sv \
 	RegisterFile/BypassNetwork.sv \
 	RegisterFile/BypassNetworkIF.sv \
-	RegisterFile/VectorBypassNetwork.sv \
 	ExecUnit/BitCounter.sv \
 	ExecUnit/IntALU.sv \
 	ExecUnit/Shifter.sv \
 	ExecUnit/MultiplierUnit.sv \
-	ExecUnit/VectorUnit.sv \
 	ExecUnit/PipelinedRefDivider.sv \
 	ExecUnit/DividerUnit.sv \
 	MulDivUnit/MulDivUnitIF.sv \
@@ -110,6 +111,13 @@ MODULES = \
 	LoadStoreUnit/LoadQueue.sv \
 	LoadStoreUnit/StoreQueue.sv \
 	LoadStoreUnit/StoreCommitter.sv \
+	FloatingPointUnit/FP32PipelinedAdder.sv \
+	FloatingPointUnit/FP32PipelinedMultiplier.sv \
+	FloatingPointUnit/FP32PipelinedFMA.sv \
+	FloatingPointUnit/FP32PipelinedOther.sv \
+	FloatingPointUnit/FP32DivSqrter.sv \
+	FloatingPointUnit/FPDivSqrtUnit.sv \
+	FloatingPointUnit/FPDivSqrtUnitIF.sv \
 	RenameLogic/RenameLogic.sv \
 	RenameLogic/RenameLogicIF.sv \
 	RenameLogic/ActiveListIF.sv \
@@ -170,6 +178,11 @@ MODULES = \
 	Debug/DebugIF.sv \
 	Debug/PerformanceCounter.sv \
 	Debug/PerformanceCounterIF.sv \
+
+# MODULES specifies what to compile for simulation.
+MODULES = \
+	Main_Zynq_Wrapper.sv \
+	Main_Zynq.sv \
 	Memory/Axi4LiteControlRegisterIF.sv \
 	Memory/Axi4LiteControlRegister.sv \
 	Memory/ControlQueue.sv \
@@ -178,6 +191,14 @@ MODULES = \
 	Memory/MemoryReadReqQueue.sv \
 	Memory/MemoryWriteDataQueue.sv \
 	Memory/MemoryLatencySimulator.sv \
+	$(CORE_MODULES) \
+
+# Specify files with module definitions that are used only for testing and not used for synthesis.
+# TestMain depends on Dumper and should come later.
+TEST_MODULES = \
+	Verification/TestBenchClockGenerator.sv \
+	Verification/Dumper.sv \
+	Verification/TestMain.sv \
 
 # Header files
 # This list is used when generating Vivado custom IP of RSD

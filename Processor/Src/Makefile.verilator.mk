@@ -2,11 +2,11 @@
 MAX_TEST_CYCLES = 50000000000
 SHOW_SERIAL_OUT = 1
 ENABLE_PC_GOAL = 1
-#TEST_CODE = Verification/TestCode/approximate_benchmarks/linear_regression/bin
-#TEST_CODE = gcc/demo
-#TEST_CODE = Verification/TestCode/approximate_benchmarks/mpeg/bin
 TEST_CODE = Verification/TestCode/Coremark/Coremark
-#TEST_CODE = Verification/TestCode/Asm/ApLoad
+#TEST_CODE = Verification/TestCode/C/HelloWorld
+#TEST_CODE = Verification/TestCode/Asm/FP
+#TEST_CODE = Verification/TestCode/C/FP
+#TEST_CODE = Verification/TestCode/Asm/Sandbox
 
 ifndef RSD_VERILATOR_BIN
 VERILATOR_BIN = verilator
@@ -70,7 +70,7 @@ VERILATOR_OPTION = \
 	--Mdir $(LIBRARY_WORK_RTL) \
 	+incdir+. \
 	--trace \
-	-CFLAGS -Os \
+	-CFLAGS "-Os -include limits" \
 	-output-split 15000 \
 	#-CFLAGS "-O0 -g" \
 	#--MMD \
@@ -80,7 +80,7 @@ VERILATOR_TARGET_CXXFLAGS= \
 	-D RSD_FUNCTIONAL_SIMULATION_VERILATOR \
 	-D RSD_FUNCTIONAL_SIMULATION \
 	-D RSD_VERILATOR_TRACE \
-	-D RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE \
+	-D RSD_MARCH_FP_PIPE \
 	-Wno-attributes \
 
 all: $(LIBRARY_WORK_RTL) $(DEPS_RTL) Makefiles/CoreSources.inc.mk

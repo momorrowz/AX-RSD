@@ -13,10 +13,12 @@ import MemoryMapTypes::*;
 import MicroOpTypes::*;
 import RenameLogicTypes::*;
 import SchedulerTypes::*;
+import ActiveListIndexTypes::*;
 import LoadStoreUnitTypes::*;
 import PipelineTypes::*;
 import DebugTypes::*;
 import FetchUnitTypes::*;
+import OpFormatTypes::*;
 
 
 //
@@ -166,6 +168,12 @@ module ActiveList(
             we[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = port.memWrite[i];
             writeData[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = port.memWriteData[i];
         end
+`ifdef RSD_MARCH_FP_PIPE
+        for (int i = 0; i < FP_ISSUE_WIDTH; i++) begin
+            we[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)] = port.fpWrite[i];
+            writeData[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)] = port.fpWriteData[i];
+        end
+`endif
     end
 
 
@@ -189,13 +197,21 @@ module ActiveList(
     logic exceptionDetected;
     RefetchType refetchType;
     IssueLaneIndexPath exceptionIndex;
+    // Some exceptions (e.g. EXEC_STATE_FAULT_LOAD_VIOLATION) must be handled at commit time
+    // because of handling CSRs correctly.
+    logic startRecoveryAtCommit;
 
     RecoveryRegPath recoveryReg;
     RecoveryRegPath nextRecoveryReg;
     ActiveListCountPath recoveryEntryNum, nextRecoveryEntryNum;
     ActiveListIndexPath flushRangeHeadPtr, flushRangeTailPtr;
     always_ff@(posedge port.clk) begin
-        if (port.rst || recovery.toRecoveryPhase && !exceptionDetected ) begin
+        if (port.rst || 
+                ((recovery.toRecoveryPhase && !exceptionDetected) && !startRecoveryAtCommit)) begin
+            // Reset recoveryReg
+            // But, to handle exceptions correctly, do not reset the recoveryReg in the following cases:
+            //   1) another exception occurs when starting recovery
+            //   2) need to start recovery at commit time
             recoveryReg <= '0;
         end
         else begin
@@ -219,6 +235,7 @@ module ActiveList(
         exceptionIndex = '0;
         exceptionDetected = FALSE;
         refetchType = REFETCH_TYPE_THIS_PC;
+        startRecoveryAtCommit = FALSE;
 
         for (int i = 0; i < ISSUE_WIDTH; i++) begin
             writeAge[i] = ActiveListPtrToAge(writeData[i].ptr, headPtr);
@@ -244,6 +261,11 @@ module ActiveList(
                         EXEC_STATE_REFETCH_NEXT, EXEC_STATE_REFETCH_THIS
                     };
                     exceptionIndex = i;
+                    if (!(writeData[i].state inside {EXEC_STATE_REFETCH_NEXT, EXEC_STATE_REFETCH_THIS})) begin
+                        // Need to update the recovery register when handling exceptions at commit time
+                        startRecoveryAtCommit = TRUE;
+                    end
+
                     // refetchTypeはflushOpのheadPtrを決めるためとrecoveredPCを確定するために使う
                     // Int命令の例外は分岐命令なので分岐ターゲットに飛ぶ
                     // Mem命令のREFETCH_NEXTは順序違反検出なので次のPCに飛ぶ
@@ -384,6 +406,64 @@ module ActiveList(
         end
         port.headExecState = headExecState;
     end
+
+`ifdef RSD_MARCH_FP_PIPE
+    //
+    // --- FFLAGS state
+    //
+
+    parameter FFLAGS_STATE_WRITE_NUM = RENAME_WIDTH + FP_ISSUE_WIDTH;
+    logic     ffsWE[FFLAGS_STATE_WRITE_NUM];
+    ActiveListIndexPath ffsWA[FFLAGS_STATE_WRITE_NUM];
+    ActiveListIndexPath ffsRA[COMMIT_WIDTH];
+    FFlags_Path     ffsWV[FFLAGS_STATE_WRITE_NUM];
+    FFlags_Path     ffsRV[COMMIT_WIDTH];
+    
+`ifdef SYNTHESIS_OPT_ASIC
+    RegisterMultiPortRAM #(
+`else
+    DistributedMultiPortRAM #(
+`endif
+        .ENTRY_NUM(ACTIVE_LIST_ENTRY_NUM),
+        .ENTRY_BIT_SIZE($bits(FFlags_Path)),
+        .READ_NUM(COMMIT_WIDTH),
+        .WRITE_NUM(FFLAGS_STATE_WRITE_NUM)
+    )  fflagsState (
+        .clk(port.clk),
+        .we(ffsWE),
+        .wa(ffsWA),
+        .wv(ffsWV),
+        .ra(ffsRA),
+        .rv(ffsRV)
+    );
+
+    always_comb begin
+        if (port.rst) begin
+            // Head entries are initialized.
+            for (int i = 0; i < FFLAGS_STATE_WRITE_NUM; i++) begin
+                ffsWE[i] = FALSE;
+                ffsWA[i] = i;
+                ffsWV[i] = '0;
+            end
+        end
+        else begin
+            for (int i = 0; i < RENAME_WIDTH; i++) begin
+                ffsWE[i] = port.pushTail[i];
+                ffsWA[i] = pushedTailPtr[i];
+                ffsWV[i] = '0;
+            end
+
+            for (int i = 0; i < FP_ISSUE_WIDTH; i++ ) begin
+                ffsWE[(i+RENAME_WIDTH)] = we[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)];
+                ffsWA[(i+RENAME_WIDTH)] = writeData[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)].ptr;
+                ffsWV[(i+RENAME_WIDTH)] = port.fpFFlagsData[i];
+            end
+        end
+
+        ffsRA = headPtrList;
+        port.fflagsData = ffsRV;
+    end
+`endif
     
 // Verify whether the ExecState is correct
 `ifndef RSD_SYNTHESIS

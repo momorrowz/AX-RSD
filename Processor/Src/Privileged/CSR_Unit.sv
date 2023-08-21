@@ -16,6 +16,7 @@ import CSR_UnitTypes::*;
 import OpFormatTypes::*;
 import SchedulerTypes::*;
 import FetchUnitTypes::*;
+import ActiveListIndexTypes::*;
 
 module CSR_Unit(
     CSR_UnitIF.CSR_Unit port,
@@ -76,6 +77,11 @@ module CSR_Unit(
             CSR_NUM_MHPMCOUNTER4: rv = perfCounter.perfCounter.numStoreMiss;
             CSR_NUM_MHPMCOUNTER5: rv = perfCounter.perfCounter.numIC_Miss;
             CSR_NUM_MHPMCOUNTER6: rv = perfCounter.perfCounter.numBranchPredMiss;
+`endif
+`ifdef RSD_MARCH_FP_PIPE
+            CSR_NUM_FFLAGS: rv = csrReg.fcsr.fflags;
+            CSR_NUM_FRM:    rv = csrReg.fcsr.frm;
+            CSR_NUM_FCSR:   rv = csrReg.fcsr;
 `endif
             default:          rv = '0;
         endcase 
@@ -165,9 +171,21 @@ module CSR_Unit(
                 CSR_NUM_MINSTRETH:   csrNext.minstreth = wv;
                 
                 CSR_NUM_AXLEVEL:   csrNext.axlevel = wv;
+`ifdef RSD_MARCH_FP_PIPE
+                CSR_NUM_FFLAGS:     csrNext.fcsr.fflags = wv;
+                CSR_NUM_FRM:        csrNext.fcsr.frm = Rounding_Mode'(wv);
+                CSR_NUM_FCSR:       csrNext.fcsr = FFlags_Path'(wv);
+`endif
                 default:            wv = '0;    // dummy
             endcase 
         end
+`ifdef RSD_MARCH_FP_PIPE
+        // write to fflags from FP-CM and Mem-EX(CSR) shouldn't occur at the same time.
+        else if(port.fflagsWE) begin
+            csrNext.fcsr.fflags = port.fflagsData;
+        end
+        port.frm = csrReg.fcsr.frm;
+`endif
 
         if (axLevelEn == 1'b1) begin
             csrNext.axlevel = {{(DATA_WIDTH-AX_LEVEL_WIDTH){1'b0}}, axLevelData};

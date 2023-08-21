@@ -20,6 +20,7 @@ import PipelineTypes::*;
 import RenameLogicTypes::*;
 import SchedulerTypes::*;
 import FetchUnitTypes::*;
+import ActiveListIndexTypes::*;
 
 module RecoveryManager(
     RecoveryManagerIF.RecoveryManager port,

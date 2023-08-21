@@ -13,6 +13,7 @@ import CacheSystemTypes::*;
 import OpFormatTypes::*;
 import LoadStoreUnitTypes::*;
 import MemoryMapTypes::*;
+import ActiveListIndexTypes::*;
 
 interface LoadStoreUnitIF( input logic clk, rst, rstStart );
 
@@ -29,7 +30,7 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
     logic executeLoad [ LOAD_ISSUE_WIDTH ];
     logic executedLoadRegValid [LOAD_ISSUE_WIDTH];
     PhyAddrPath executedLoadAddr [ LOAD_ISSUE_WIDTH ];
-    MemoryMapType executedLoadMemMapType [LOAD_ISSUE_WIDTH ];
+    MemoryMapType executedLoadMemMapType [ LOAD_ISSUE_WIDTH ];
     DataPath executedLoadData [ LOAD_ISSUE_WIDTH ];
     PC_Path executedLoadPC  [LOAD_ISSUE_WIDTH ];
     VectorPath executedLoadVectorData [ LOAD_ISSUE_WIDTH ];
@@ -93,12 +94,7 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
     PhyAddrPath dcReadAddr[LOAD_ISSUE_WIDTH];
     DCacheLinePath dcReadData[LOAD_ISSUE_WIDTH];
     logic dcReadUncachable[LOAD_ISSUE_WIDTH];
-    logic [$clog2(CONF_ACTIVE_LIST_ENTRY_NUM)-1:0] dcReadActiveListPtr[LOAD_ISSUE_WIDTH];
-
-    // Forward されたのでメインメモリアクセスや MSHR 確保をキャンセルする 
-    // MSHR を確保してしまうと，フォワードしたロードの方はヒット扱いでリタイアするので
-    // 永久に MSHR のエントリが解放されない
-    logic dcReadCancelFromMT_Stage[LOAD_ISSUE_WIDTH];    
+    ActiveListIndexPath dcReadActiveListPtr[LOAD_ISSUE_WIDTH];
 
     // MSHRをAllocateした命令かどうか
     logic loadHasAllocatedMSHR[DCACHE_LSU_READ_PORT_NUM];
@@ -123,15 +119,11 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
 
     // MSHRをAllocateした命令からのメモリリクエストかどうか
     // そのリクエストがアクセスに成功した場合，AllocateされたMSHRは解放可能になる
-    logic makeMSHRCanBeInvalid[LOAD_ISSUE_WIDTH];
-
-    // MSHRをAllocateしたLoad命令がStoreForwardingによって完了した場合，AllocateされたMSHRは解放可能になる
-    logic makeMSHRCanBeInvalidByMemoryTagAccessStage[MSHR_NUM];
+    logic makeMSHRCanBeInvalidDirect[MSHR_NUM];
 
     // MSHR
     logic mshrValid[MSHR_NUM];
     MSHR_Phase mshrPhase[MSHR_NUM]; // MSHR phase.
-    DCacheIndexSubsetPath mshrAddrSubset[MSHR_NUM];
 
     // Memory dependent prediction
     logic conflict [ STORE_ISSUE_WIDTH ];
@@ -155,9 +147,7 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
         dcReadAddr,
         dcReadUncachable,
         dcReadActiveListPtr,
-        dcReadCancelFromMT_Stage,
-        makeMSHRCanBeInvalid,
-        makeMSHRCanBeInvalidByMemoryTagAccessStage,
+        makeMSHRCanBeInvalidDirect,
         isApLoad,
     output
         dcReadHit,
@@ -168,7 +158,6 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
         dcWriteReqAck,
         mshrAddrHit,
         mshrAddrHitMSHRID,
-        mshrAddrSubset,
         mshrReadHit,
         mshrReadData,
         mshrValid,
@@ -317,7 +306,6 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
         dcReadAddr,
         dcReadUncachable,
         dcReadActiveListPtr,
-        makeMSHRCanBeInvalid,
         isApLoad
     );
 
@@ -334,7 +322,6 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
         loadMSHRID,
         fromAVT,
     output
-        dcReadCancelFromMT_Stage,
         executeLoad,
         executedLoadQueuePtrByLoad,
         executedLoadQueuePtrByStore,
@@ -352,7 +339,6 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
         executedStoreRegValid,
         executedLoadMemAccessMode,
         executedStoreMemAccessMode,
-        makeMSHRCanBeInvalidByMemoryTagAccessStage,
         memAccessOrderViolation
     );
 
@@ -362,11 +348,15 @@ interface LoadStoreUnitIF( input logic clk, rst, rstStart );
         executedLoadVectorData
     );
 
+    modport MemoryRegisterWriteStage(
+    output
+        makeMSHRCanBeInvalidDirect
+    );
+
     modport ReplayQueue(
     input
         mshrValid,
-        mshrPhase,
-        mshrAddrSubset
+        mshrPhase
     );
 
     modport CommitStage(

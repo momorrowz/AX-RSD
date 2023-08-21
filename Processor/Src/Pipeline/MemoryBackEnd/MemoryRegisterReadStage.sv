@@ -11,6 +11,7 @@ import BasicTypes::*;
 import OpFormatTypes::*;
 import MicroOpTypes::*;
 import SchedulerTypes::*;
+import ActiveListIndexTypes::*;
 import CacheSystemTypes::*;
 import PipelineTypes::*;
 import DebugTypes::*;
@@ -38,7 +39,6 @@ endfunction
 module MemoryRegisterReadStage(
     MemoryRegisterReadStageIF.ThisStage port,
     MemoryIssueStageIF.NextStage prev,
-    MulDivUnitIF.MemoryRegisterReadStage mulDivUnit,
     RegisterFileIF.MemoryRegisterReadStage registerFile,
     BypassNetworkIF.MemoryRegisterReadStage bypass,
     RecoveryManagerIF.MemoryRegisterReadStage recovery,
@@ -170,25 +170,6 @@ module MemoryRegisterReadStage(
             nextStage[i].issueQueuePtr = pipeReg[i].issueQueuePtr;
         end
 
-        `ifdef RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE
-            // divがこのステージ内でフラッシュされた場合，演算器を解放する
-            for (int i = 0; i < MULDIV_ISSUE_WIDTH; i++) begin
-                mulDivUnit.divResetFromMR_Stage[i] = 
-                    (memOpInfo[i].opType == MEM_MOP_TYPE_DIV) &&
-                    pipeReg[i].valid && flush[i];
-            end
-        `endif
-
-        // Vector Operand
-`ifdef RSD_ENABLE_VECTOR_PATH
-        `RSD_STATIC_ASSERT(FALSE, "TODO: ls/st unified pipeline");
-        for ( int i = 0; i < STORE_ISSUE_LANE_BEGIN; i++ ) begin
-            nextStage[i].vecOperandB = '0;
-        end
-        for ( int i = 0; i < STORE_ISSUE_WIDTH; i++ ) begin
-            nextStage[i+STORE_ISSUE_LANE_BEGIN].vecOperandB = registerFile.memSrcVecDataB[i];
-        end
-`endif
         port.nextStage = nextStage;
 
         // Debug Register

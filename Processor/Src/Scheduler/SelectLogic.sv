@@ -44,6 +44,13 @@ module SelectLogic(
     IssueQueueIndexPath storeSelectedPtr[ STORE_ISSUE_WIDTH ];
 `endif
 
+`ifdef RSD_MARCH_FP_PIPE
+    IssueQueueOneHotPath fpRequest;
+    IssueQueueOneHotPath fpGrant;
+    logic fpSelected[ FP_ISSUE_WIDTH ];
+    IssueQueueIndexPath fpSelectedPtr[ FP_ISSUE_WIDTH ];
+`endif
+
 
     // SelectLogic -> WakeupPipelineRegister
     logic portSelected [ ISSUE_WIDTH ];
@@ -170,6 +177,24 @@ module SelectLogic(
     );
 `endif
 
+`ifdef RSD_MARCH_FP_PIPE
+`ifdef CIRCULAR_SELECT_LOGIC
+    CircularPicker #(
+`else
+    Picker #(
+`endif
+        .ENTRY_NUM(ISSUE_QUEUE_ENTRY_NUM),
+        .GRANT_NUM(FP_ISSUE_WIDTH)
+    )
+    fpPicker(
+        .req(fpRequest),
+        .grant(fpGrant),
+        .grantPtr(fpSelectedPtr),
+        .granted(fpSelected)
+    );
+`endif
+
+
 `ifdef CIRCULAR_SELECT_LOGIC
     always_ff @ (posedge port.clk) begin
         intPrePtr <= intSelected[INT_ISSUE_WIDTH-1] + 1;
@@ -198,6 +223,9 @@ module SelectLogic(
             
             `ifndef RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE
                 compRequest[i] = port.opReady[i] && port.complexIssueReq[i];
+            `endif
+            `ifdef RSD_MARCH_FP_PIPE
+                fpRequest[i] = port.opReady[i] && port.fpIssueReq[i];
             `endif
         end
 
@@ -242,6 +270,16 @@ module SelectLogic(
             portSelectedVector[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+LOAD_ISSUE_WIDTH] = storeGrant;
             recoverySelected[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+LOAD_ISSUE_WIDTH] = storeSelected[i];
             recoverySelectedPtr[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+LOAD_ISSUE_WIDTH] = storeSelectedPtr[i];
+        end
+`endif
+
+`ifdef RSD_MARCH_FP_PIPE
+        for (int i = 0; i < FP_ISSUE_WIDTH; i++) begin
+            portSelected[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH] = fpSelected[i];
+            portSelectedPtr[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH] = fpSelectedPtr[i];
+            portSelectedVector[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH] = fpGrant;
+            recoverySelected[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH] = fpSelected[i];
+            recoverySelectedPtr[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH] = fpSelectedPtr[i];
         end
 `endif
 

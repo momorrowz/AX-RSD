@@ -12,6 +12,7 @@ import OpFormatTypes::*;
 import CacheSystemTypes::*;
 import OpFormatTypes::*;
 import MemoryMapTypes::*;
+import ActiveListIndexTypes::*;
 
 interface DCacheIF(
 input
@@ -99,22 +100,18 @@ input
     // Miss handler
     logic initMSHR[MSHR_NUM];
     PhyAddrPath initMSHR_Addr[MSHR_NUM];
-    logic [$clog2(CONF_ACTIVE_LIST_ENTRY_NUM)-1:0] initMSHR_ActiveListPtr[MSHR_NUM];
+    ActiveListIndexPath initMSHR_ActiveListPtr[MSHR_NUM];
 
     logic mshrValid[MSHR_NUM];
     PhyAddrPath mshrAddr[MSHR_NUM];
 
     MSHR_Phase mshrPhase[MSHR_NUM]; // MSHR phase.
     DCacheLinePath mshrData[MSHR_NUM]; // Data in MSHR.
-    DCacheIndexSubsetPath mshrAddrSubset[MSHR_NUM];
 
-    logic mshrCanBeInvalid[MSHR_NUM];
+    logic mshrCanBeInvalidDirect[MSHR_NUM];
     logic isAllocatedByStore[MSHR_NUM];
 
     logic isUncachable[MSHR_NUM];
-
-    // MSHRをAllocateしたLoad命令がStoreForwardingによって完了した場合，AllocateされたMSHRは解放可能になる
-    logic makeMSHRCanBeInvalidByMemoryTagAccessStage[MSHR_NUM];
 
     DCacheLinePath storedLineData;
     logic [DCACHE_LINE_BYTE_NUM-1:0] storedLineByteWE;
@@ -196,8 +193,7 @@ input
         dataArrayDoesReadEvictedWay,
         replArrayWE,
         replArrayIndexIn,
-        replArrayDataIn,
-        mshrCanBeInvalid
+        replArrayDataIn
     );
 
 
@@ -238,10 +234,9 @@ input
         mshrMemMuxOut,
         memAccessResult,
         memAccessResponse,
-        mshrCanBeInvalid,
+        mshrCanBeInvalidDirect,
         isAllocatedByStore,
         isUncachable,
-        makeMSHRCanBeInvalidByMemoryTagAccessStage,
         storedLineData,
         storedLineByteWE,
         dcFlushing,
@@ -254,7 +249,6 @@ input
         mshrAddr,
         mshrPhase,
         mshrData,
-        mshrAddrSubset,
         mshrFlushComplete
     );
 
@@ -303,7 +297,6 @@ input
         mshrValid,
         mshrAddr,
         mshrPhase,
-        mshrAddrSubset,
         dcFlushReqAck,
         dcFlushComplete,
     output
@@ -318,7 +311,7 @@ input
         initMSHR_ActiveListPtr,
         isAllocatedByStore,
         isUncachable,
-        makeMSHRCanBeInvalidByMemoryTagAccessStage,
+        mshrCanBeInvalidDirect,
         storedLineData,
         storedLineByteWE,
         dcFlushReq,

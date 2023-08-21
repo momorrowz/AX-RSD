@@ -63,7 +63,6 @@ output
 `ifndef RSD_DISABLE_PERFORMANCE_COUNTER
     PerformanceCounter perfCounter(perfCounterIF, debugIF);
 `endif
-
     // CSRUnit -> Ax modules
     logic [ AX_LEVEL_WIDTH-1:0 ] axLevel;
     
@@ -98,6 +97,11 @@ output
     MemoryTagAccessStageIF mtStageIF( clk, rst );
     MemoryAccessStageIF maStageIF( clk, rst );
     //MemoryRegisterWriteStageIF memRwStageIF( clk, rst );
+    
+    FPIssueStageIF fpIsStageIF( clk, rst );
+    FPRegisterReadStageIF fpRrStageIF( clk, rst );
+    FPExecutionStageIF fpExStageIF( clk, rst );
+    FPDivSqrtUnitIF fpDivSqrtUnitIF(clk, rst);
 
     CommitStageIF cmStageIF( clk, rst );
 
@@ -162,8 +166,8 @@ output
 
     ScheduleStage scStage( scStageIF, schedulerIF, recoveryManagerIF, ctrlIF );
         IssueQueue issueQueue( schedulerIF, wakeupSelectIF, recoveryManagerIF, debugIF );
-        ReplayQueue replayQueue( schedulerIF, loadStoreUnitIF, mulDivUnitIF, cacheFlushManagerIF, recoveryManagerIF, ctrlIF );
-        Scheduler scheduler( schedulerIF, wakeupSelectIF, recoveryManagerIF, mulDivUnitIF, debugIF );
+        ReplayQueue replayQueue( schedulerIF, loadStoreUnitIF, mulDivUnitIF, fpDivSqrtUnitIF, cacheFlushManagerIF, recoveryManagerIF, ctrlIF );
+        Scheduler scheduler( schedulerIF, wakeupSelectIF, recoveryManagerIF, mulDivUnitIF, fpDivSqrtUnitIF, debugIF );
         WakeupPipelineRegister wakeupPipelineRegister( wakeupSelectIF, recoveryManagerIF );
         DestinationRAM destinationRAM( wakeupSelectIF );
         WakeupLogic wakeupLogic( wakeupSelectIF );
@@ -180,26 +184,32 @@ output
     ComplexIntegerExecutionStage complexExStage( complexExStageIF, complexRrStageIF, mulDivUnitIF, schedulerIF, bypassNetworkIF, recoveryManagerIF, ctrlIF, debugIF );
     ComplexIntegerRegisterWriteStage complexRwStage( complexExStageIF, registerFileIF, activeListIF, recoveryManagerIF, ctrlIF, debugIF );
 `endif
-        MulDivUnit mulDivUnit(mulDivUnitIF);
+        MulDivUnit mulDivUnit(mulDivUnitIF, recoveryManagerIF);
 
     MemoryIssueStage memIsStage( memIsStageIF, scStageIF, schedulerIF, recoveryManagerIF, mulDivUnitIF, ctrlIF, debugIF );
-    MemoryRegisterReadStage memRrStage( memRrStageIF, memIsStageIF, mulDivUnitIF, registerFileIF, bypassNetworkIF, recoveryManagerIF, ctrlIF, debugIF );
+    MemoryRegisterReadStage memRrStage( memRrStageIF, memIsStageIF, registerFileIF, bypassNetworkIF, recoveryManagerIF, ctrlIF, debugIF );
     MemoryExecutionStage memExStage( memExStageIF, memRrStageIF, loadStoreUnitIF, cacheFlushManagerIF, mulDivUnitIF, bypassNetworkIF, recoveryManagerIF, ctrlIF, csrUnitIF, debugIF );
     MemoryTagAccessStage mtStage( mtStageIF, memExStageIF, schedulerIF, loadStoreUnitIF, mulDivUnitIF, recoveryManagerIF, ctrlIF, debugIF, perfCounterIF );
     MemoryAccessStage maStage( maStageIF, mtStageIF, loadStoreUnitIF, mulDivUnitIF, bypassNetworkIF, ioUnitIF, recoveryManagerIF, ctrlIF, debugIF );
         LoadStoreUnit loadStoreUnit( loadStoreUnitIF, ctrlIF );
         LoadQueue loadQueue( loadStoreUnitIF, recoveryManagerIF );
         StoreQueue storeQueue( loadStoreUnitIF, recoveryManagerIF );
-        StoreCommitter storeCommitter(loadStoreUnitIF, recoveryManagerIF, ioUnitIF, debugIF, perfCounterIF );
-        DCache dCache( loadStoreUnitIF, cacheSystemIF, ctrlIF , recoveryManagerIF , axLevel);
-    MemoryRegisterWriteStage memRwStage( /*memRwStageIF,*/ maStageIF, registerFileIF, activeListIF, recoveryManagerIF, ctrlIF, debugIF );
+        StoreCommitter storeCommitter(loadStoreUnitIF, recoveryManagerIF, ioUnitIF, debugIF, perfCounterIF);
+        DCache dCache( loadStoreUnitIF, cacheSystemIF, ctrlIF, recoveryManagerIF, axLevel);
+    MemoryRegisterWriteStage memRwStage( /*memRwStageIF,*/ maStageIF, loadStoreUnitIF, registerFileIF, activeListIF, recoveryManagerIF, ctrlIF, debugIF );
+
+`ifdef RSD_MARCH_FP_PIPE
+    FPIssueStage fpIsStage( fpIsStageIF, scStageIF, schedulerIF, recoveryManagerIF, fpDivSqrtUnitIF, ctrlIF, debugIF );
+    FPRegisterReadStage fpRrStage( fpRrStageIF, fpIsStageIF, registerFileIF, bypassNetworkIF, recoveryManagerIF, ctrlIF, debugIF );
+    FPExecutionStage fpExStage( fpExStageIF, fpRrStageIF, fpDivSqrtUnitIF, schedulerIF, bypassNetworkIF, recoveryManagerIF, ctrlIF, debugIF, csrUnitIF);
+    FPRegisterWriteStage fpRwStage( fpExStageIF, registerFileIF, activeListIF, recoveryManagerIF, ctrlIF, debugIF );
+    FPDivSqrtUnit fpDivSqrtUnit(fpDivSqrtUnitIF, recoveryManagerIF);
+`endif
 
     RegisterFile registerFile( registerFileIF );
         BypassController bypassController( bypassNetworkIF, ctrlIF );
         BypassNetwork  bypassNetwork( bypassNetworkIF, ctrlIF );
-`ifdef RSD_ENABLE_VECTOR_PATH
-        VectorBypassNetwork  vectorBypassNetwork( bypassNetworkIF, ctrlIF );
-`endif
+    
     // A commitment stage generates a flush signal and this is send to scheduler.
     CommitStage cmStage( cmStageIF, renameLogicIF, activeListIF, loadStoreUnitIF, recoveryManagerIF, csrUnitIF, debugIF );
         RecoveryManager recoveryManager( recoveryManagerIF, activeListIF, csrUnitIF, ctrlIF, perfCounterIF );

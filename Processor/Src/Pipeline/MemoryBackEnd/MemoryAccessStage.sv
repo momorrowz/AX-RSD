@@ -15,6 +15,7 @@ import PipelineTypes::*;
 import DebugTypes::*;
 import MicroOpTypes::*;
 import MemoryMapTypes::*;
+import ActiveListIndexTypes::*;
 
 module MemoryAccessStage(
     MemoryAccessStageIF.ThisStage port,
@@ -74,7 +75,6 @@ module MemoryAccessStage(
     PRegDataPath  dataOut[MEM_ISSUE_WIDTH];
     PRegDataPath  ldDataOut[LOAD_ISSUE_WIDTH];
     PRegDataPath  stDataOut[STORE_ISSUE_WIDTH];
-    PVecDataPath  vecDataOut[MEM_ISSUE_WIDTH];
 
     always_comb begin
         
@@ -163,13 +163,6 @@ module MemoryAccessStage(
         `endif
 
         for ( int i = 0; i < MEM_ISSUE_WIDTH; i++ ) begin
-
-`ifdef RSD_ENABLE_VECTOR_PATH
-            vecDataOut[i].data = loadStoreUnit.executedLoadVectorData[i];
-            vecDataOut[i].valid = regValid[i];
-            nextStage[i].vecDataOut = vecDataOut[i];
-`endif
-
             nextStage[i].dataOut = dataOut[i];
             bypass.memDstRegDataOut[i] = dataOut[i];    // Bypass
 
@@ -188,20 +181,15 @@ module MemoryAccessStage(
             nextStage[i].addrOut = pipeReg[i].addrOut;
             nextStage[i].isStore = pipeReg[i].isStore;
             nextStage[i].brHistory = pipeReg[i].brHistory;
+            nextStage[i].isLoad = pipeReg[i].isLoad;
+            nextStage[i].hasAllocatedMSHR = pipeReg[i].hasAllocatedMSHR;
+            nextStage[i].mshrID = pipeReg[i].mshrID;
+            nextStage[i].storeForwardMiss = pipeReg[i].storeForwardMiss;
 
             // リセットorフラッシュ時はNOP
             nextStage[i].valid =
                 (stall || clear || port.rst || flush[i]) ? FALSE : pipeReg[i].valid;
         end
-
-
-        // Vector Bypass
-        for ( int i = 0; i < LOAD_ISSUE_WIDTH; i++ ) begin
-`ifdef RSD_ENABLE_VECTOR_PATH
-            bypass.memDstVecDataOut[i] = vecDataOut[i];
-`endif
-        end
-
 
         port.nextStage = nextStage;
 

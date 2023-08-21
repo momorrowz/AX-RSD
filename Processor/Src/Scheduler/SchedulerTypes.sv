@@ -18,6 +18,7 @@ import BypassTypes::*;
 import RenameLogicTypes::*;
 import LoadStoreUnitTypes::*;
 import FetchUnitTypes::*;
+import ActiveListIndexTypes::*;
 
 // Issue queue
 localparam ISSUE_QUEUE_ENTRY_NUM = CONF_ISSUE_QUEUE_ENTRY_NUM;
@@ -34,8 +35,9 @@ localparam ISSUE_QUEUE_INT_LATENCY     = 1;
 //localparam ISSUE_QUEUE_COMPLEX_LATENCY = COMPLEX_EXEC_STAGE_DEPTH;
 localparam ISSUE_QUEUE_COMPLEX_LATENCY = COMPLEX_EXEC_STAGE_DEPTH + 2;
 localparam ISSUE_QUEUE_MEM_LATENCY     = 3;
+localparam ISSUE_QUEUE_FP_LATENCY      = FP_EXEC_STAGE_DEPTH + 2;
 
-localparam WAKEUP_WIDTH = INT_ISSUE_WIDTH + COMPLEX_ISSUE_WIDTH + LOAD_ISSUE_WIDTH;    // Stores do not wakeup consumers.
+localparam WAKEUP_WIDTH = INT_ISSUE_WIDTH + COMPLEX_ISSUE_WIDTH + LOAD_ISSUE_WIDTH + FP_ISSUE_WIDTH;    // Stores do not wakeup consumers.
 
 // --- Issue queue flush count
 // - 例外発生時に、発行キューは例外命令より後方の命令が選択的にフラッシュされる。
@@ -53,14 +55,6 @@ localparam ISSUE_QUEUE_RESET_CYCLE
 localparam ISSUE_QUEUE_RESET_CYCLE_BIT_SIZE
     = $clog2( ISSUE_QUEUE_RESET_CYCLE );
 
-
-//
-// --- Active list 
-//
-localparam ACTIVE_LIST_ENTRY_NUM = CONF_ACTIVE_LIST_ENTRY_NUM;
-localparam ACTIVE_LIST_ENTRY_NUM_BIT_WIDTH = $clog2( ACTIVE_LIST_ENTRY_NUM );
-typedef logic [ACTIVE_LIST_ENTRY_NUM_BIT_WIDTH-1:0] ActiveListIndexPath;
-typedef logic [ACTIVE_LIST_ENTRY_NUM_BIT_WIDTH:0] ActiveListCountPath;
 
 // Information about the execution of an op.
 typedef enum logic [3:0] // ExecutionState
@@ -202,6 +196,7 @@ typedef struct packed // IntIssueQueueEntry
     OpId      opId;
 `endif
 
+    // Decoded op information
     IntOpInfo intOpInfo;
 
     IntMicroOpSubType opType;
@@ -245,6 +240,7 @@ typedef struct packed // ComplexIssueQueueEntry
     OpId      opId;
 `endif
 
+    // Decoded op information
     ComplexOpInfo complexOpInfo;
     ComplexMicroOpSubType opType;
 
@@ -287,17 +283,8 @@ typedef struct packed // MemOpInfo
     DivOpSubInfo divSubInfo;
 `endif
 
-    // Pointer of LSQ
-    LoadQueueIndexPath loadQueuePtr;
-    StoreQueueIndexPath storeQueuePtr;
-
-    // MSHRをAllocateした命令かどうか
-    logic hasAllocatedMSHR;
-    MSHR_IndexPath mshrID;
-    
     // load命令がap.loadか
     logic isApLoad;
-
 } MemOpInfo;
 
 typedef struct packed // MemIssueQueueEntry
@@ -306,7 +293,17 @@ typedef struct packed // MemIssueQueueEntry
     OpId      opId;
 `endif
 
-    MemOpInfo memOpInfo;
+    // Decoded op information
+    MemOpInfo memOpInfo;    
+
+    // Pointer of LSQ
+    LoadQueueIndexPath loadQueuePtr;
+    StoreQueueIndexPath storeQueuePtr;
+
+    // Whether this load has allocated MSHR or not
+    logic hasAllocatedMSHR;
+    MSHR_IndexPath mshrID;
+
     ActiveListIndexPath activeListPtr;
     LoadQueueIndexPath loadQueueRecoveryPtr;    //for recovery
     StoreQueueIndexPath storeQueueRecoveryPtr;    //for recovery
@@ -315,6 +312,35 @@ typedef struct packed // MemIssueQueueEntry
     PC_Path pc;
     BranchGlobalHistoryPath brHistory;
 } MemIssueQueueEntry;
+
+typedef struct packed // FPOpInfo
+{
+    FPMicroOpSubType opType;
+    FPU_Code fpuCode;
+    Rounding_Mode rm;
+
+    // 論理レジスタを読むかどうか
+    OpOperandType operandTypeA;
+    OpOperandType operandTypeB;
+    OpOperandType operandTypeC;
+} FPOpInfo;
+
+typedef struct packed // FPIssueQueueEntry
+{
+`ifndef RSD_DISABLE_DEBUG_REGISTER // Debug info
+    OpId      opId;
+`endif
+
+    FPOpInfo fpOpInfo;
+
+    ActiveListIndexPath activeListPtr;
+    LoadQueueIndexPath loadQueueRecoveryPtr;    //for recovery
+    StoreQueueIndexPath storeQueueRecoveryPtr;    //for recovery
+    OpSrc opSrc;
+    OpDst opDst;
+    PC_Path pc;
+    BranchGlobalHistoryPath brHistory;
+} FPIssueQueueEntry;
 
 //
 // Entry of Scheduler
@@ -327,12 +353,18 @@ typedef struct packed // SchedulerEntry
 
     logic srcRegValidA;
     logic srcRegValidB;
+`ifdef RSD_MARCH_FP_PIPE
+    logic srcRegValidC;
+`endif
     OpSrc opSrc;
     OpDst opDst;
 
     // Pointer to producers in an issue queue.
     IssueQueueIndexPath srcPtrRegA;
     IssueQueueIndexPath srcPtrRegB;
+`ifdef RSD_MARCH_FP_PIPE
+    IssueQueueIndexPath srcPtrRegC;
+`endif
 } SchedulerEntry;
 
 

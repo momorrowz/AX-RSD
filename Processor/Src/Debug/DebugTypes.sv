@@ -16,6 +16,7 @@ import MicroOpTypes::*;
 import FetchUnitTypes::*;
 import RenameLogicTypes::*;
 import SchedulerTypes::*;
+import ActiveListIndexTypes::*;
 import LoadStoreUnitTypes::*;
 import PipelineTypes::*;
 
@@ -109,11 +110,18 @@ typedef struct packed { // DispatchStageDebugRegister
     LRegNumPath logSrcRegB;
     PRegNumPath phySrcRegB;
 
+`ifdef RSD_MARCH_FP_PIPE
+    logic readRegC;
+    LRegNumPath logSrcRegC;
+    PRegNumPath phySrcRegC;
+`endif
+
     logic writeReg;
     LRegNumPath logDstReg;
     PRegNumPath phyDstReg;
     PRegNumPath phyPrevDstReg;
 
+    ActiveListIndexPath activeListPtr;
     IssueQueueIndexPath issueQueuePtr;
 `endif
 } DispatchStageDebugRegister;
@@ -177,10 +185,6 @@ typedef struct packed { // ComplexIntegerExecutionStageDebugRegister
     DataPath dataOut;
     DataPath fuOpA;
     DataPath fuOpB;
-
-    VectorPath vecDataOut;
-    VectorPath fuVecOpA;
-    VectorPath fuVecOpB;
 `endif
 
 } ComplexIntegerExecutionStageDebugRegister;
@@ -214,7 +218,6 @@ typedef struct packed { // MemoryExecutionStageDebugRegister
     AddrPath addrOut;
     DataPath fuOpA;
     DataPath fuOpB;
-    VectorPath fuVecOpB;
     MemMicroOpSubType opType;
     MemAccessSizeType size;
     logic isSigned;
@@ -255,6 +258,42 @@ typedef struct packed { // MemoryRegisterWriteStageDebugRegister
     logic flush;
     OpId opId;
 } MemoryRegisterWriteStageDebugRegister;
+
+`ifdef RSD_MARCH_FP_PIPE
+typedef struct packed { // FPIssueStageDebugRegister
+    logic valid;
+    logic flush;
+    OpId opId;
+} FPIssueStageDebugRegister;
+
+typedef struct packed { // FPRegisterReadStageDebugRegister
+    logic valid;
+    logic flush;
+    OpId opId;
+} FPRegisterReadStageDebugRegister;
+
+typedef struct packed { // FPExecutionStageDebugRegister
+    logic [ FP_EXEC_STAGE_DEPTH-1:0 ] valid;
+    logic [ FP_EXEC_STAGE_DEPTH-1:0 ] flush;
+    OpId [ FP_EXEC_STAGE_DEPTH-1:0 ] opId;
+
+`ifdef RSD_FUNCTIONAL_SIMULATION
+    // 演算のソースと結果の値は、機能シミュレーション時のみデバッグ出力する
+    // 合成時は、IOポートが足りなくて不可能であるため
+    DataPath dataOut;
+    DataPath fuOpA;
+    DataPath fuOpB;
+    DataPath fuOpC;
+`endif
+
+} FPExecutionStageDebugRegister;
+
+typedef struct packed { // FPRegisterWriteStageDebugRegister
+    logic valid;
+    logic flush;
+    OpId opId;
+} FPRegisterWriteStageDebugRegister;
+`endif
 
 typedef struct packed { // CommitStageDebugRegister
     logic commit;
@@ -314,6 +353,13 @@ typedef struct packed { // DebugRegister
     MemoryAccessStageDebugRegister         [ MEM_ISSUE_WIDTH-1:0 ] maReg;
     MemoryRegisterWriteStageDebugRegister  [ MEM_ISSUE_WIDTH-1:0 ] memRwReg;
 
+`ifdef RSD_MARCH_FP_PIPE
+    FPIssueStageDebugRegister         [ FP_ISSUE_WIDTH-1:0 ] fpIsReg;
+    FPRegisterReadStageDebugRegister  [ FP_ISSUE_WIDTH-1:0 ] fpRrReg;
+    FPExecutionStageDebugRegister     [ FP_ISSUE_WIDTH-1:0 ] fpExReg;
+    FPRegisterWriteStageDebugRegister [ FP_ISSUE_WIDTH-1:0 ] fpRwReg;
+`endif
+
     CommitStageDebugRegister [ COMMIT_WIDTH-1:0 ] cmReg;
 
     SchedulerDebugRegister  [ ISSUE_QUEUE_ENTRY_NUM-1:0 ] scheduler;
@@ -343,7 +389,7 @@ typedef struct packed { // DebugRegister
     logic storeQueueEmpty;
 
 `ifdef RSD_FUNCTIONAL_SIMULATION
-    // Performance monitoring counters are exported only on simulation.
+    // Performance monitoring counters are exported to DebugRegister only on simulation.
     PerfCounterPath perfCounter;
 `endif
 } DebugRegister;

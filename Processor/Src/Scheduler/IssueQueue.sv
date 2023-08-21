@@ -10,6 +10,7 @@ import BasicTypes::*;
 import PipelineTypes::*;
 import MicroOpTypes::*;
 import SchedulerTypes::*;
+import ActiveListIndexTypes::*;
 import RenameLogicTypes::*;
 
 module IssueQueue (
@@ -121,6 +122,10 @@ module IssueQueue (
     IssueQueueIndexPath    complexIssuePtr   [ COMPLEX_ISSUE_WIDTH ];
     ComplexIssueQueueEntry complexIssuedData [ COMPLEX_ISSUE_WIDTH ];
 `endif
+`ifdef RSD_MARCH_FP_PIPE
+    IssueQueueIndexPath    fpIssuePtr   [ FP_ISSUE_WIDTH ];
+    FPIssueQueueEntry      fpIssuedData [ FP_ISSUE_WIDTH ];
+`endif
 
 `ifdef SYNTHESIS_OPT_ASIC
     RegisterMultiPortRAM #(
@@ -178,6 +183,26 @@ module IssueQueue (
         .rv( memIssuedData )
     );
 
+`ifdef RSD_MARCH_FP_PIPE
+`ifdef SYNTHESIS_OPT_ASIC
+    RegisterMultiPortRAM #(
+`else
+    DistributedMultiPortRAM #(
+`endif
+        .ENTRY_NUM( ISSUE_QUEUE_ENTRY_NUM ),
+        .ENTRY_BIT_SIZE( $bits( FPIssueQueueEntry ) ),
+        .READ_NUM( FP_ISSUE_WIDTH ),
+        .WRITE_NUM( DISPATCH_WIDTH )
+    ) fpPayloadRAM (
+        .clk( port.clk ),
+        .we( port.write ),
+        .wa( port.writePtr ),
+        .wv( port.fpWriteData ),
+        .ra( fpIssuePtr ),
+        .rv( fpIssuedData )
+    );
+`endif
+
 
     always_comb begin
         for ( int i = 0; i < INT_ISSUE_WIDTH; i++ ) begin
@@ -194,6 +219,12 @@ module IssueQueue (
             memIssuePtr[i] = port.memIssuePtr[i];
             port.memIssuedData[i] = memIssuedData[i];
         end
+`ifdef RSD_MARCH_FP_PIPE
+        for ( int i = 0; i < FP_ISSUE_WIDTH; i++ ) begin
+            fpIssuePtr[i] = port.fpIssuePtr[i];
+            port.fpIssuedData[i] = fpIssuedData[i];
+        end
+`endif
     end
 
 

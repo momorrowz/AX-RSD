@@ -59,7 +59,6 @@ module WakeupLogic (
         .clk( port.clk ),
         .rst( port.rst ),
         .rstStart( port.rstStart ),
-        .stall( port.stall ),
         .wakeup( port.wakeup ),
         .wakeupDstValid( wakeupDstRegValid ),
         .wakeupDstRegNum( wakeupDstRegNum ),
@@ -107,7 +106,6 @@ module WakeupLogic (
     ) regSrcCAM (
         .clk( port.clk ),
         .rst( port.rst ),
-        .stall( port.stall ),
         .dispatch( port.write ),
         .dispatchPtr( port.writePtr ),
         .dispatchedSrcRegNum( dispatchedSrcRegNum ),
@@ -134,14 +132,12 @@ module WakeupLogic (
     // Wakeup dst valid は，無条件でビットを下ろしておけば良いのでいらない．
     ProducerMatrix producerMatrix(
         .clk( port.clk ),
-        .stall( port.stall ),
         .dispatch( port.write ),
         .dispatchedSrcRegReady( dispatchedSrcRegReady ),
         .dispatchedSrcRegPtr( dispatchedSrcRegPtr ),
         .dependStoreBitVector ( dependStoreBitVector ),
         .dispatchPtr( port.writePtr ),
         .wakeupDstVector( wakeupDstVector ),
-        .wakeup( port.wakeup ),
         .opReady(opMatrixReady)
     );
 

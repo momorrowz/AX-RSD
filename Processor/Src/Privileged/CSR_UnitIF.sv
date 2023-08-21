@@ -12,6 +12,7 @@ import MemoryMapTypes::*;
 import OpFormatTypes::*;
 import MicroOpTypes::*;
 import SchedulerTypes::*;
+import ActiveListIndexTypes::*;
 import CSR_UnitTypes::*;
 import FetchUnitTypes::*;
 
@@ -50,6 +51,12 @@ interface CSR_UnitIF(
     // Used in updating minstret
     CommitLaneCountPath commitNum;
 
+`ifdef RSD_MARCH_FP_PIPE
+    Rounding_Mode frm;
+    logic fflagsWE;
+    FFlags_Path fflagsData;
+`endif
+
     modport MemoryExecutionStage(
     input
         clk, rst, rstStart,
@@ -60,6 +67,13 @@ interface CSR_UnitIF(
         csrCode,
         csrWriteIn
     );
+
+`ifdef RSD_MARCH_FP_PIPE
+    modport FPExecutionStage(
+    input
+        frm
+    );
+`endif
 
     // 割り込みは以下の流れで要求が流れる
     // IO_Unit -> reqTimerInterrupt ->
@@ -75,6 +89,11 @@ interface CSR_UnitIF(
     modport CommitStage (
     output
         commitNum
+`ifdef RSD_MARCH_FP_PIPE
+        ,
+        fflagsWE,
+        fflagsData
+`endif
     );
 
 
@@ -106,7 +125,14 @@ interface CSR_UnitIF(
         triggerInterrupt,
         interruptCode,
         interruptRetAddr,
+`ifdef RSD_MARCH_FP_PIPE
+        fflagsWE,
+        fflagsData,
+`endif
     output 
+`ifdef RSD_MARCH_FP_PIPE
+        frm,
+`endif
         csrWholeOut,
         csrReadOut,
         excptTargetAddr,
