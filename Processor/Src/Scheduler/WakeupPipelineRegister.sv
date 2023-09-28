@@ -394,7 +394,7 @@ module WakeupPipelineRegister(
             flushRangeTailPtr <= 0;
             flushAllInsns <= FALSE;
         end
-        else if(recovery.toRecoveryPhase) begin
+        else if(recovery.toRecoveryPhase && recovery.recoveryFromRwStage) begin
             canBeFlushedRegCountInt <= ISSUE_QUEUE_INT_LATENCY;
 `ifndef RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE
             canBeFlushedRegCountComplex <= ISSUE_QUEUE_COMPLEX_LATENCY;

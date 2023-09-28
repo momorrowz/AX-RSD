@@ -568,10 +568,6 @@ module ReplayQueue(
 `endif
         end
 
-        if (replayCount >= ISSUE_WIDTH) begin
-            popEntry = FALSE;
-        end
-
         // To stall upper stages.
         if (count >= (REPLAY_QUEUE_ENTRY_NUM - ISSUE_QUEUE_MEM_LATENCY)) begin
             almostFull = TRUE;
