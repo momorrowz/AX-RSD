@@ -53,7 +53,7 @@ localparam ISSUE_QUEUE_RETURN_INDEX_CYCLE_BIT_SIZE
 localparam ISSUE_QUEUE_RESET_CYCLE
     = (ISSUE_QUEUE_ENTRY_NUM-1) / (ISSUE_WIDTH+ISSUE_QUEUE_RETURN_INDEX_WIDTH) + 1; // 割り算して切り上げ
 localparam ISSUE_QUEUE_RESET_CYCLE_BIT_SIZE
-    = $clog2( ISSUE_QUEUE_RESET_CYCLE );
+    = ISSUE_QUEUE_RESET_CYCLE == 1 ? 1 : $clog2( ISSUE_QUEUE_RESET_CYCLE );
 
 
 // Information about the execution of an op.

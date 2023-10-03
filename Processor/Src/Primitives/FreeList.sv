@@ -151,7 +151,9 @@ output
         if (rstStart) begin
             rstIndex <= 0;
         end
+        /* verilator lint_off UNSIGNED */
         else if ( rstIndex >= SIZE - PUSH_WIDTH ) begin
+        /* verilator lint_off UNSIGNED */
             rstIndex <= 0;
         end
         else begin
