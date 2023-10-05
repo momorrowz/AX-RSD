@@ -98,7 +98,6 @@ module FetchStage(
     // Hence, when stalled, the process of branch prediction must be performed at the beginning cycle of stall.
     // And more, it is necessary to keep the branch prediction result of the stalled instruction.
     BranchPred regBrPred[FETCH_WIDTH];
-    logic flushCheckStart;
     always_ff @(posedge port.clk) begin
         if (port.rst) begin
             for (int i = 0; i < FETCH_WIDTH; i++) begin
@@ -119,8 +118,8 @@ module FetchStage(
         // The result of branch prediction
         for (int i = 0; i < FETCH_WIDTH; i++) begin
             // Don't use btbOut[i]; we are using RAS as well as BTB.
-            brPred[i].predAddr = port.brDecidTaken[i] ?
-                port.axbtbOut[i] : (port.brPredTaken[i] ? prev.predNextPC : pipeReg[i].pc + INSN_BYTE_WIDTH );
+            brPred[i].predAddr = port.brPredTaken[i] ? 
+                prev.predNextPC : (port.brDecidTaken[i] ? port.axbtbOut[i] : pipeReg[i].pc + INSN_BYTE_WIDTH );
             brPred[i].predTaken = port.brPredTaken[i] | port.brDecidTaken[i]; // used in IE Stage
             brPred[i].globalHistory = port.brGlobalHistory[i];
             brPred[i].phtIndex = port.phtIndex[i];
@@ -130,11 +129,17 @@ module FetchStage(
         end
 
         // Check whether instructions are flushed by branch prediction
-        flushCheckStart = FALSE;
         for (int i = 0; i < FETCH_WIDTH; i++) begin
-            isFlushed[i] = flushCheckStart ? pipeReg[i].valid : FALSE;
-            if (!regStall && pipeReg[i].valid && (port.brPredTaken[i] | port.brDecidTaken[i])) begin
-                flushCheckStart = TRUE;
+            isFlushed[i] = FALSE;
+        end
+
+        for (int i = 0; i < FETCH_WIDTH; i++) begin
+            if (!regStall && pipeReg[i].valid && (port.brPredTaken[i] || port.brDecidTaken[i])) begin
+                for (int j = i + 1; j < FETCH_WIDTH; j++) begin
+                    isFlushed[j] = pipeReg[j].valid;
+                end
+
+                break;
             end
         end
 
