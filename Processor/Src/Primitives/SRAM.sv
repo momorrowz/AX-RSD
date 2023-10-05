@@ -111,97 +111,78 @@ module SRAM128W256_2RW_BWEB #(
 );
     localparam INDEX_BIT_SIZE = $clog2(ENTRY_NUM);
     typedef logic [INDEX_BIT_SIZE-1: 0] Address;
-    typedef logic [63:0] Value [3:0];
+    typedef logic [31:0] Value [7:0];
     
-    //logic[1:0] isContention;
-    logic[ENTRY_BYTE_SIZE-1: 0] isContention[PORT_NUM];
-    logic[ENTRY_BYTE_SIZE-1: 0] preWV;
-    //logic[ENTRY_BYTE_SIZE-1: 0] isWrite[PORT_NUM];
-    //logic[1:0] isWrite;
-
     logic [1:0] WTSEL;
     logic [1:0] RTSEL;
-    logic VG;
-    logic VS;
+    logic [1:0] PTSEL;
     Address AA;
     Value DA;
     Value BWEBA;
     logic WEBA;
     logic CEBA;
-    logic CLKA;
+    logic CLK;
     Address AB;
     Value DB;
     Value BWEBB;
     logic WEBB;
     logic CEBB;
-    logic CLKB;
+    logic AWT;
     Value QA;
     Value QB;
 
-    always_ff @( posedge clk ) begin
-        preWV <= (|we[0] == 1'b1) ? wv[0] : wv[1];
-        for (int i = 0; i < 32; i++) begin
-            isContention[0][i] <= (rwa[0] == rwa[1]) && (we[1][i] == 1'b1) ? 1'b1 : 1'b0;
-            isContention[1][i] <= (rwa[0] == rwa[1]) && (we[0][i] == 1'b1) ? 1'b1 : 1'b0;
-        end
-    end
-
     always_comb begin
-        for (int i = 0; i < 4; i++) begin
+        for (int i = 0; i < 8; i++) begin
             for (int j = 0; j < 8; j++) begin
                 for(int b = 0; b < 8; b++) begin
-                    BWEBA[i][j*8+b] = ~we[0][i*8+j]; 
-                    BWEBB[i][j*8+b] = ~we[1][i*8+j]; 
+                    BWEBA[i][j*8+b] = ~we[0][i*4+j]; 
+                    BWEBB[i][j*8+b] = ~we[1][i*4+j]; 
                 end
             end
         end
-        for (int i = 0; i < 4; i++) begin
+        for (int i = 0; i < 8; i++) begin
             for (int j = 0; j < 8; j++) begin
                 for(int b = 0; b < 8; b++) begin
-                    DA[i][j*8+b] = wv[0][i*64+j*8+b];
-                    DB[i][j*8+b] = wv[1][i*64+j*8+b];
-                    rv[0][i*64+j*8+b] = isContention[0][i*8+j] ? preWV[i*64+j*8+b] : QA[i][j*8+b];
-                    rv[1][i*64+j*8+b] = isContention[1][i*8+j] ? preWV[i*64+j*8+b] : QB[i][j*8+b];
+                    DA[i][j*8+b] = wv[0][i*32+j*8+b];
+                    DB[i][j*8+b] = wv[1][i*32+j*8+b];
+                    rv[0][i*32+j*8+b] = QA[i][j*8+b];
+                    rv[1][i*32+j*8+b] = QB[i][j*8+b];
                 end
             end
         end
     end
 
-    assign WTSEL = 2'b01;
-    assign RTSEL = 2'b01;
-    assign VG = 1'b1;
-    assign VS = 1'b1;
+    assign WTSEL = 2'b00;
+    assign RTSEL = 2'b00;
+    assign PTSEL = 2'b00;
     assign AA = rwa[0];
     assign WEBA = ~(|we[0]);
-    //assign CEBA = (rwa[0] == rwa[1]) && (|we[1] == 1'b1) ? 1'b1 : 1'b0;
     assign CEBA = 1'b0;
-    assign CLKA = clk;
+    assign CLK = clk;
     assign AB = rwa[1];
     assign WEBB = ~(|we[1]);
-    //assign CEBB = (rwa[0] == rwa[1]) && (|we[0] == 1'b1) ? 1'b1 : 1'b0;
     assign CEBB = 1'b0;
-    assign CLKB = clk; 
+    assign AWT = 1'b0;
 
 generate
-    for (genvar i = 0; i < 4; i++) begin
-        TSDN28HPCPA128X64M4MW sram
+    for (genvar i = 0; i < 8; i++) begin
+        TSDN28HPCPUHDB128X32M4MWA sram
         (
         .WTSEL(WTSEL),
         .RTSEL(RTSEL),
-        .VG(VG),
-        .VS(VS),
+        .PTSEL(PTSEL),
         .AA(AA),
         .DA(DA[i]),
         .BWEBA(BWEBA[i]),
         .WEBA(WEBA),
         .CEBA(CEBA),
-        .CLKA(CLKA),
+        .CLK(CLK),
         .AB(AB),
         .DB(DB[i]),
         .BWEBB(BWEBB[i]),
         .WEBB(WEBB),
         .CEBB(CEBB),
-        .CLKB(CLKB),
+        .AWT(AWT),
         .QA(QA[i]),
         .QB(QB[i])
         );

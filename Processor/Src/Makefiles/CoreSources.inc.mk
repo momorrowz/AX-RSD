@@ -7,6 +7,7 @@
 # * RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE: Integrate mul/div to a memory pipe
 RSD_SRC_CFG = \
 	+define+UNIT_DELAY \
+	+define+TSMC_CM_UNIT_DELAY \
 	+define+RSD_MARCH_FP_PIPE \
 
 #   +define+RSD_MARCH_INT_ISSUE_WIDTH=4 \
@@ -180,8 +181,7 @@ CORE_MODULES = \
 	Debug/PerformanceCounter.sv \
 	Debug/PerformanceCounterIF.sv \
 	Primitives/tsdn28hpcpa512x68m4m_130a_tt0p9v25c.v \
-	Primitives/tsdn28hpcpa128x8m4m_130a_tt0p9v25c.v \
-	Primitives/tsdn28hpcpa128x64m4mw_130a_tt0p9v25c.v \
+	Primitives/tsdn28hpcpuhdb128x32m4mwa_170a_tt0p9v25c.v \
 	Primitives/SRAM.sv \
 
 # MODULES specifies what to compile for simulation.
