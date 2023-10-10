@@ -111,7 +111,7 @@ module SRAM128W256_2RW_BWEB #(
 );
     localparam INDEX_BIT_SIZE = $clog2(ENTRY_NUM);
     typedef logic [INDEX_BIT_SIZE-1: 0] Address;
-    typedef logic [31:0] Value [7:0];
+    typedef logic [63:0] Value [3:0];
     
     logic [1:0] WTSEL;
     logic [1:0] RTSEL;
@@ -132,21 +132,21 @@ module SRAM128W256_2RW_BWEB #(
     Value QB;
 
     always_comb begin
-        for (int i = 0; i < 8; i++) begin
+        for (int i = 0; i < 4; i++) begin
             for (int j = 0; j < 8; j++) begin
                 for(int b = 0; b < 8; b++) begin
-                    BWEBA[i][j*8+b] = ~we[0][i*4+j]; 
-                    BWEBB[i][j*8+b] = ~we[1][i*4+j]; 
+                    BWEBA[i][j*8+b] = ~we[0][i*8+j]; 
+                    BWEBB[i][j*8+b] = ~we[1][i*8+j]; 
                 end
             end
         end
-        for (int i = 0; i < 8; i++) begin
+        for (int i = 0; i < 4; i++) begin
             for (int j = 0; j < 8; j++) begin
                 for(int b = 0; b < 8; b++) begin
-                    DA[i][j*8+b] = wv[0][i*32+j*8+b];
-                    DB[i][j*8+b] = wv[1][i*32+j*8+b];
-                    rv[0][i*32+j*8+b] = QA[i][j*8+b];
-                    rv[1][i*32+j*8+b] = QB[i][j*8+b];
+                    DA[i][j*8+b] = wv[0][i*64+j*8+b];
+                    DB[i][j*8+b] = wv[1][i*64+j*8+b];
+                    rv[0][i*64+j*8+b] = QA[i][j*8+b];
+                    rv[1][i*64+j*8+b] = QB[i][j*8+b];
                 end
             end
         end
@@ -165,8 +165,8 @@ module SRAM128W256_2RW_BWEB #(
     assign AWT = 1'b0;
 
 generate
-    for (genvar i = 0; i < 8; i++) begin
-        TSDN28HPCPUHDB128X32M4MWA sram
+    for (genvar i = 0; i < 4; i++) begin
+        TSDN28HPCPUHDB128X64M4MWA sram
         (
         .WTSEL(WTSEL),
         .RTSEL(RTSEL),

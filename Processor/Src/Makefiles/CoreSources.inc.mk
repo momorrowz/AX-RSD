@@ -181,7 +181,7 @@ CORE_MODULES = \
 	Debug/PerformanceCounter.sv \
 	Debug/PerformanceCounterIF.sv \
 	Primitives/tsdn28hpcpa512x68m4m_130a_tt0p9v25c.v \
-	Primitives/tsdn28hpcpuhdb128x32m4mwa_170a_tt0p9v25c.v \
+    Primitives/tsdn28hpcpuhdb128x64m4mwa_170a_tt0p9v25c.v \
 	Primitives/SRAM.sv \
 
 # MODULES specifies what to compile for simulation.
