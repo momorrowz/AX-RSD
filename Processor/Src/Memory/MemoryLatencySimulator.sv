@@ -91,7 +91,13 @@ output
         end
 
         hasRequest = pop;
-        requestData = memoryRequestQueue[ headPtr ];
+        if(empty) begin
+            requestData = '0;
+        end
+        else begin
+            requestData = memoryRequestQueue[ headPtr ];
+        end
+
     end
 
     `RSD_ASSERT_CLK(clk, !full, "Cannot response so many memory request.");

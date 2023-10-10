@@ -871,7 +871,7 @@ module DCacheArray(DCacheIF.DCacheArray port);
                     dataArrayByteWE[way][0][i] = TRUE;
                 end
                 //dataArrayIn[i][0] = 8'hcd;
-                dataArrayIn[0][i*8 +: 7] = 8'hcd;
+                dataArrayIn[0][i*8 +: 8] = 8'hcd;
             end
             for (int way = 0; way < DCACHE_WAY_NUM; way++) begin
                 dataArrayWE[way][0] = TRUE;
