@@ -11,8 +11,8 @@ import MemoryMapTypes::*;
 import FetchUnitTypes::*;
 
 module AXBTB(
-    NextPCStageIF.AXBTB port,
-    FetchStageIF.AXBTB fetch
+    NextPCStageIF.BUFFER port,
+    FetchStageIF.BUFFER fetch
 );
 
     // BTB access
@@ -204,11 +204,10 @@ module AXBTB(
             popBtbQueue = FALSE;
         end
 
-        fetch.axreadIsCondBr = readIsCondBr;
-        fetch.axbtbOut = btbOut;
-        fetch.axbtbHit = btbHit;
+        fetch.bufferOut = btbOut;
+        fetch.bufferHit = btbHit;
         
     end
 
 
-endmodule : AXBTB
+endmodule : BUFFER

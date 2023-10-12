@@ -118,12 +118,11 @@ module AXBTB(
 
         // Write request from IntEx Stage
         for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
-            btbWE[i] = port.brResult[i].valid && port.brResult[i].execTaken && port.brResult[i].isAX;
+            btbWE[i] = port.brResult[i].valid && port.brResult[i].execTaken && port.brResult[i].isApBrCyc;
             btbWA[i] = ToAXBTB_Index(port.brResult[i].brAddr);
             btbWV[i].tag = ToAXBTB_Tag(port.brResult[i].brAddr);
             btbWV[i].data = ToBTB_Addr(port.brResult[i].nextAddr);
             btbWV[i].valid = TRUE;
-            btbWV[i].isCondBr = port.brResult[i].isCondBr;
         end
 
         pushBtbQueue = FALSE;
@@ -204,11 +203,10 @@ module AXBTB(
             popBtbQueue = FALSE;
         end
 
-        fetch.axbrcycreadIsCondBr = readIsCondBr;
         fetch.axbrcycbtbOut = btbOut;
         fetch.axbrcycbtbHit = btbHit;
         
     end
 
 
-endmodule : AXBTB
+endmodule : AXBrCycBTB

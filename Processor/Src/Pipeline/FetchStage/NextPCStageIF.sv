@@ -23,6 +23,7 @@ interface NextPCStageIF( input logic clk, rst, rstStart );
     // Executed branch results for updating a branch predictor.
     // This signal is written back from a write back stage.
     BranchResult brResult[ INT_ISSUE_WIDTH ];
+    // BranchResult brcycResult[ INT_ISSUE_WIDTH ];
     logic recoverBrHistory;
     BranchGlobalHistoryPath recoveredBrHistory;
     RAS_CheckpointData recoveredRasCheckpoint;
@@ -101,6 +102,22 @@ interface NextPCStageIF( input logic clk, rst, rstStart );
         brResult
     );
 
+    modport BUFFER(
+    input
+        clk,
+        rst,
+        rstStart,
+        predNextPC,
+    )
+    modport AXBrCycBTB(
+    input
+        clk,
+        rst,
+        rstStart,
+        predNextPC,
+        brResult
+    );
+
     modport BranchPredictor(
     input
         clk,
@@ -119,6 +136,15 @@ interface NextPCStageIF( input logic clk, rst, rstStart );
         rstStart,
         predNextPC,
         brResult
+    );
+
+    modport BranchDeciderCycle(
+    input
+        clk,
+        rst,
+        rstStart,
+        predNextPC,
+        brcycResult
     );
 
     modport ICache(

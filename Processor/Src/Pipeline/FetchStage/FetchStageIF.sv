@@ -32,6 +32,15 @@ interface FetchStageIF( input logic clk, rst, rstStart );
     //AXBTB
     PC_Path axbtbOut[FETCH_WIDTH];
     logic axbtbHit[FETCH_WIDTH];
+
+    // BUFFER
+    PC_Path bufferOut[FETCH_WIDTH];
+    logic bufferHit[FETCH_WIDTH];
+
+
+    //AXBrCycBTB
+    PC_Path axbrcycbtbOut[FETCH_WIDTH];
+    logic axbrcycbtbHit[FETCH_WIDTH];
     
     // BranchPredictor
     logic updateBrHistory[FETCH_WIDTH];
@@ -42,6 +51,9 @@ interface FetchStageIF( input logic clk, rst, rstStart );
 
     // BranchDecider
     logic brDecidTaken[FETCH_WIDTH];
+
+    // BranchDeciderCycle
+    logic brDecidCycTaken[FETCH_WIDTH];
 
     // I-Cache
     logic     icReadHit [ FETCH_WIDTH ];
@@ -133,6 +145,18 @@ interface FetchStageIF( input logic clk, rst, rstStart );
         axbtbHit
     );
 
+    modport BUFFER(
+    output
+        bufferOut,
+        bufferHit
+    );
+    
+    modport AXBrCycBTB(
+    output
+        axbrcycbtbOut,
+        axbrcycbtbHit
+    );
+
     modport BranchPredictor(
     input
         updateBrHistory,
@@ -152,6 +176,14 @@ interface FetchStageIF( input logic clk, rst, rstStart );
         brPredTaken,
     output
         brDecidTaken
+    );
+
+    modport BranchDeciderCycle(
+    input
+        axbrcycbtbHit,
+        brPredTaken,
+    output
+        brDecidCycTaken
     );
 
 endinterface : FetchStageIF

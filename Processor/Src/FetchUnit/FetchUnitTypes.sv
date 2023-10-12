@@ -195,6 +195,8 @@ typedef struct packed // struct BranchResult
     RAS_CheckpointData rasCheckpoint;       // RAS's top&tail pointer
     logic isApBr;          // Whether this branch is ap.branch.
     logic decidTaken;      // Whether ap.branch is taken or not.
+    logic isApBrCyc;    // Whether this branch is ap.bltcycle.
+    logic decidCycTaken;    // Whether ap.bltcycle is taken or not.
 } BranchResult;
 
 typedef struct packed // struct BranchPred
