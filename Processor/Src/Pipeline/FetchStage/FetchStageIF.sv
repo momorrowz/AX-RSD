@@ -186,4 +186,9 @@ interface FetchStageIF( input logic clk, rst, rstStart );
         brDecidCycTaken
     );
 
+    modport BeginCyleCount(
+    input
+        bufferHit
+    )
+
 endinterface : FetchStageIF
