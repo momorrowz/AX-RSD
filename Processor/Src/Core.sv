@@ -66,6 +66,11 @@ output
     // CSRUnit -> Ax modules
     logic [ AX_LEVEL_WIDTH-1:0 ] axLevel;
     
+    // 
+    DataPath axThresholdData;
+    DataPath axThreshold;
+    logic axThresholdEn;
+    DataPath mcycle;
     //
     // --- Interfaces
     //
@@ -115,7 +120,7 @@ output
     BypassNetworkIF bypassNetworkIF( clk, rst, rstStart );
     LoadStoreUnitIF loadStoreUnitIF( clk, rst, rstStart );
     RecoveryManagerIF recoveryManagerIF( clk, rst );
-    CSR_UnitIF csrUnitIF(clk, rst, rstStart, reqExternalInterrupt, externalInterruptCode, axLevel);
+    CSR_UnitIF csrUnitIF(clk, rst, rstStart, reqExternalInterrupt, externalInterruptCode, axLevel, axThreshold);
     IO_UnitIF ioUnitIF(clk, rst, rstStart, gazeIn, serialWE, serialWriteData);
     MulDivUnitIF mulDivUnitIF(clk, rst);
     CacheFlushManagerIF cacheFlushManagerIF(clk, rst);
@@ -214,7 +219,7 @@ output
     CommitStage cmStage( cmStageIF, renameLogicIF, activeListIF, loadStoreUnitIF, recoveryManagerIF, csrUnitIF, debugIF );
         RecoveryManager recoveryManager( recoveryManagerIF, activeListIF, csrUnitIF, ctrlIF, perfCounterIF );
 
-    CSR_Unit csrUnit(csrUnitIF, perfCounterIF, axLevelEn, axLevelData);
+    CSR_Unit csrUnit(csrUnitIF, perfCounterIF, axLevelEn, axThresholdEn, axLevelData, axThresholdData, mcycle);
     CacheFlushManager cacheFlushManager( cacheFlushManagerIF, cacheSystemIF );
     InterruptController interruptCtrl(csrUnitIF, ctrlIF, npStageIF, recoveryManagerIF);
     IO_Unit ioUnit(ioUnitIF, csrUnitIF);

@@ -109,7 +109,8 @@ interface NextPCStageIF( input logic clk, rst, rstStart );
         rstStart,
         predNextPC,
         brResult
-    )
+    );
+
     modport AXBrCycBTB(
     input
         clk,
@@ -145,7 +146,7 @@ interface NextPCStageIF( input logic clk, rst, rstStart );
         rst,
         rstStart,
         predNextPC,
-        brcycResult
+        brResult
     );
 
     modport ICache(

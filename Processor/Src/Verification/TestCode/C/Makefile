@@ -16,6 +16,7 @@ SRC_DIRS = \
 	DCache \
 	Sandbox \
 	FP \
+	Apbltcycle \
 
 
 # TARGETS の中のどれかに該当した場合，SRC_DIRS が依存元となる
