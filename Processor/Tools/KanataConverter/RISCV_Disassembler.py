@@ -44,6 +44,8 @@ class RISCV_Disassembler( object ):
                 insn = self.InstructionSystem( code )
             elif common.IsApprox():
                 insn = self.InstructionApprox( code )
+            elif common.IsApCycle():
+                insn = self.InstructionApCycle( code )
             elif common.IsFLoad():
                 insn = self.InstructionFLoad( code )
             elif common.IsFStore():
@@ -105,6 +107,7 @@ class RISCV_Disassembler( object ):
         OC_MISC_MEM = "0001111"
         OC_SYSTEM   = "1110011"
         OC_APPROX   = "0001011"
+        OC_APCYCLE  = "0101011"
         OC_F_LOAD   = "0000111"
         OC_F_STORE  = "0100111"
         OC_F_OP     = "1010011"
@@ -194,6 +197,9 @@ class RISCV_Disassembler( object ):
         
         def IsApprox( self ):
             return self.opCode == self.OC_APPROX
+        
+        def IsApCycle( self ):
+            return self.opCode == self.OC_APCYCLE
 
         def IsFLoad(self):
             return self.opCode == self.OC_F_LOAD
@@ -235,7 +241,23 @@ class RISCV_Disassembler( object ):
                 opType = 'Unknown'
                 asmStr = opType + ' approximate insns'
             return asmStr
+    
+    class InstructionApCycle( InstructionCommon ):
+        """ Approx Cycle instruction """
+        def __init__(self, code):
+            RISCV_Disassembler.InstructionCommon.__init__(self, code)
 
+        def __str__(self):
+            if self.funct3 == '000' and self.RV32I:
+                opType = 'ap.bltcycle'
+                asmStr = opType + self.B_Imm
+            elif self.funct3 == '001' and self.RV32I:
+                opType = 'ap.begincyclecount'
+                asmStr = opType
+            else:
+                opType = 'Unknown'
+                asmStr = opType + ' approximate cycle insns'
+            return asmStr
     class InstructionLoad( InstructionCommon ):
         """ Load instruction """
 
