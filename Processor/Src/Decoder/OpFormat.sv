@@ -222,6 +222,14 @@ typedef enum logic [2:0]    // enum ApproxFunct3
 } ApproxFunct3;
 
 //
+// --- ApproxCycleのfunct3
+//
+typedef enum logic [2:0]    // enum ApCycleFunct3
+{
+    APCYCLE_FUNCT3_BLT = 3'b000 // ap.bltcycle
+    // APXCYCLE_FUNCT3_BEGIN = 3'b001 // ap.begincyclecount
+} ApCycleFunct3;
+//
 // --- shifter_operand の定義
 //
 
@@ -454,7 +462,8 @@ typedef enum logic [6:0]    // enum OpCode
     RISCV_F_FNMADD  = 7'b1001111,
     RISCV_F_LD      = 7'b0000111,
     RISCV_F_ST      = 7'b0100111,
-    RISCV_APPROX    = 7'b0001011
+    RISCV_APPROX    = 7'b0001011,
+    RISCV_APCYCLE   = 7'b0101011
 } RISCV_OpCode;
 
 
