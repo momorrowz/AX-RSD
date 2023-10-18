@@ -133,6 +133,10 @@ CORE_MODULES = \
 	FetchUnit/RAS.sv \
 	FetchUnit/Bimodal.sv \
 	FetchUnit/AXBTB.sv \
+	FetchUnit/AXBrCycBTB.sv\
+	FetchUnit/Buffer.sv\
+	FetchUnit/BeginCycleCount.sv\
+	FetchUnit/BranchDeciderCycle.sv\
 	FetchUnit/LFSR.sv \
 	FetchUnit/BranchDecider.sv \
 	Scheduler/SchedulerIF.sv \
