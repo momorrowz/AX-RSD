@@ -2,7 +2,7 @@
 
 int main(int argc, char *argv[])
 {
-    long long thd1 = atoi(argv[1]);
+    long long thd1 = 100;
     asm volatile ("csrw 0x801, %0" 
                   :
                   : "r"(thd1)
