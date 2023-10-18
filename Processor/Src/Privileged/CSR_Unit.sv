@@ -22,9 +22,7 @@ module CSR_Unit(
     CSR_UnitIF.CSR_Unit port,
     PerformanceCounterIF.CSR perfCounter,
     input logic axLevelEn,
-    input logic axThresholdEn,
     input logic [AX_LEVEL_WIDTH-1 : 0] axLevelData,
-    input DataPath axThresholdData,
     output DataPath mcycle
 );
 
@@ -197,9 +195,9 @@ module CSR_Unit(
             csrNext.axlevel = {{(DATA_WIDTH-AX_LEVEL_WIDTH){1'b0}}, axLevelData};
         end
 
-        if (axThresholdEn == 1'b1) begin
-            csrNext.axthreshold = axThresholdData;
-        end
+        // if (axThresholdEn == 1'b1) begin
+        //     csrNext.axthreshold = axThresholdData;
+        // end
 
         csrNext.mip.MTIP = port.reqTimerInterrupt;      // Timer interrupt request
         csrNext.mip.MEIP = port.reqExternalInterrupt;   // External interrupt request
