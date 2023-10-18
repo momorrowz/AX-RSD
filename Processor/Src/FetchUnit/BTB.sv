@@ -44,7 +44,8 @@ module BTB(
     logic IsPhtBankConflict[INT_ISSUE_WIDTH];
 
     generate
-        BlockMultiBankRAM #(
+        //BlockMultiBankRAM #(
+        MultiBankSRAM #(
             .ENTRY_NUM( BTB_ENTRY_NUM ),
             .ENTRY_BIT_SIZE( $bits( BTB_Entry ) ),
             .READ_NUM( FETCH_WIDTH ),

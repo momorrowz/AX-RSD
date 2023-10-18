@@ -67,7 +67,8 @@ module Gshare(
 
     // the body of PHT.
     generate
-        BlockMultiBankRAM #(
+        //BlockMultiBankRAM #(
+        MultiBankSRAM #(
             .ENTRY_NUM( PHT_ENTRY_NUM ),
             .ENTRY_BIT_SIZE( $bits( PHT_EntryPath ) ),
             .READ_NUM( FETCH_WIDTH ),
