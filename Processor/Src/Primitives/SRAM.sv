@@ -444,7 +444,7 @@ module SRAM256_2RW_BWEB #(
     assign CLK = clk;
     assign AB = wa;
     assign WEBB = ~(|we); // write
-    assign CEBB = 1'b0;
+    assign CEBB = ~(|we);
     assign AWT = 1'b0;
 
 generate
