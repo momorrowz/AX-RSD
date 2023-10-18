@@ -10,7 +10,7 @@ import BasicTypes::*;
 import MemoryMapTypes::*;
 import FetchUnitTypes::*;
 
-module AXBTB(
+module Buffer(
     NextPCStageIF.BUFFER port,
     FetchStageIF.BUFFER fetch
 );
@@ -118,7 +118,7 @@ module AXBTB(
 
         // Write request from IntEx Stage
         for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
-            btbWE[i] = port.brResult[i].valid && port.brResult[i].execTaken && port.brResult[i].isAX;
+            btbWE[i] = port.brResult[i].valid && port.brResult[i].execTaken && port.brResult[i].isApBr;
             btbWA[i] = ToAXBTB_Index(port.brResult[i].brAddr);
             btbWV[i].tag = ToAXBTB_Tag(port.brResult[i].brAddr);
             btbWV[i].data = ToBTB_Addr(port.brResult[i].nextAddr);
@@ -210,4 +210,4 @@ module AXBTB(
     end
 
 
-endmodule : BUFFER
+endmodule : Buffer

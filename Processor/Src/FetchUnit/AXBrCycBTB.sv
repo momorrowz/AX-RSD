@@ -10,7 +10,7 @@ import BasicTypes::*;
 import MemoryMapTypes::*;
 import FetchUnitTypes::*;
 
-module AXBTB(
+module AXBrCycBTB(
     NextPCStageIF.AXBrCycBTB port,
     FetchStageIF.AXBrCycBTB fetch
 );

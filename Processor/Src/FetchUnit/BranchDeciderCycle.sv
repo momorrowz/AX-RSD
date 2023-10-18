@@ -19,7 +19,7 @@ logic is_taken, hit;
 
 always_comb begin
     // is_taken = ((32'(csr_val) << (LFSR_WIDTH - AX_LEVEL_WIDTH)) > randomval);
-    is_taken = (cyclecounter > (begincycle + threshold))
+    is_taken = (cyclecounter > (begincycle + threshold));
     for(int i = 0; i < FETCH_WIDTH; ++i) begin
         fetch.brDecidCycTaken[i] = (is_taken && fetch.axbrcycbtbHit[i]);
     end
