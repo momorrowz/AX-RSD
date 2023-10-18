@@ -250,7 +250,7 @@ class RISCV_Disassembler( object ):
         def __str__(self):
             if self.funct3 == '000' and self.RV32I:
                 opType = 'ap.bltcycle'
-                asmStr = opType + self.B_Imm
+                asmStr = opType + ',' + self.B_Imm
             elif self.funct3 == '001' and self.RV32I:
                 opType = 'ap.begincyclecount'
                 asmStr = opType
