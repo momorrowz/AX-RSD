@@ -8,17 +8,19 @@ int main(int argc, char *argv[])
                   : "r"(thd1)
                   :
                   );
+    int a = 0;
     asm volatile("ap.begincyclecount");
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 1000; ++i) {
         asm goto (
             "ap.bltcycle %l[ENDING]" 
             :
             :
             :
             : ENDING);
-        int a = 42;
-        int b = 38;
-        int c = a + b;
+        int b = 42;
+        a = a + b;
+        char* ptr = 0x40002000;
+        *ptr = a;
     }
 ENDING:
     return 0;
