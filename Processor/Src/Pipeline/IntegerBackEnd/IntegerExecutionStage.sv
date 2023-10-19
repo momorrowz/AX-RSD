@@ -75,7 +75,7 @@ module IntegerExecutionStage(
         if (port.rst) begin
             for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
                 pipeReg[i].valid <= FALSE;
-          BranchPredisapbr  end
+            end
         end
         else if(!ctrl.backEnd.stall) begin  // write data
             pipeReg <= prev.nextStage;
