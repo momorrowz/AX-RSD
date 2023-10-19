@@ -153,7 +153,7 @@ output
         AXBTB axbtb( npStageIF, ifStageIF  );
         AXBrCycBTB axbrcycbtb( npStageIF, ifStageIF );
         Buffer buffer( npStageIF, ifStageIF );
-        BeginCycleCount begincyccnt( ifStageIF, mcycle, begincycle );
+        BeginCycleCount begincyccnt( npStageIF, ifStageIF, mcycle, begincycle );
         BranchDecider brDecid( npStageIF, ifStageIF, axLevel );
         BranchDeciderCycle brDecidCyc( ifStageIF, mcycle, begincycle, axThreshold);
     FetchStage ifStage( ifStageIF, npStageIF, ctrlIF, debugIF, perfCounterIF );

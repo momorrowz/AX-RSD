@@ -149,6 +149,15 @@ interface NextPCStageIF( input logic clk, rst, rstStart );
         brResult
     );
 
+    modport BeginCycleCount(
+    input
+        clk,
+        rst,
+        rstStart,
+        predNextPC,
+        brResult
+    );
+
     modport ICache(
     input
         clk,
