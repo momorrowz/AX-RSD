@@ -75,7 +75,7 @@ module IntegerExecutionStage(
         if (port.rst) begin
             for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
                 pipeReg[i].valid <= FALSE;
-            end
+          BranchPredisapbr  end
         end
         else if(!ctrl.backEnd.stall) begin  // write data
             pipeReg <= prev.nextStage;
@@ -135,6 +135,7 @@ module IntegerExecutionStage(
     logic isJump   [ INT_ISSUE_WIDTH ];
     logic isApBr   [ INT_ISSUE_WIDTH ];
     logic isApBLT  [ INT_ISSUE_WIDTH ];
+    logic isApBCC  [ INT_ISSUE_WIDTH ];
     logic brTaken  [ INT_ISSUE_WIDTH ];
     BranchResult brResult [ INT_ISSUE_WIDTH ];
     logic predMiss [ INT_ISSUE_WIDTH ];
@@ -209,6 +210,7 @@ module IntegerExecutionStage(
                     || iqData[i].opType == INT_MOP_TYPE_RIJ;
             isApBr[i]  = bPred[i].isApBr;
             isApBLT[i] = bPred[i].isApBLT;
+            isApBCC[i] = bPred[i].isApBCC;
 
             // 分岐orレジスタ間接分岐で，条件が有効ならTaken
             // ap.branchは分岐決定器がtakenのときもtaken
@@ -258,6 +260,7 @@ module IntegerExecutionStage(
             brResult[i].mispred = predMiss[i];
             // ap.branch?
             brResult[i].isApBr = isApBr[i];
+            brResult[i].isApBCC = isApBCC[i];
         end
     end
 
