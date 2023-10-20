@@ -12,7 +12,7 @@ module BeginCycleCount #()
 
 always_comb begin
     for(int i = 0; i < FETCH_WIDTH; ++i) begin
-        if (fetch.bufferHit[i] || port.brResult[i].isApBCC) begin
+        if (fetch.bufferHit[i] || (port.brResult[i].isApBCC && !port.brResult[i].bufHit)) begin
             begincycle = cyclecounter; 
         end
     end

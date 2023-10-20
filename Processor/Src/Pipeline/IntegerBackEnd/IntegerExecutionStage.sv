@@ -136,6 +136,7 @@ module IntegerExecutionStage(
     logic isApBr   [ INT_ISSUE_WIDTH ];
     logic isApBLT  [ INT_ISSUE_WIDTH ];
     logic isApBCC  [ INT_ISSUE_WIDTH ];
+    logic bufHit   [ INT_ISSUE_WIDTH ];
     logic brTaken  [ INT_ISSUE_WIDTH ];
     BranchResult brResult [ INT_ISSUE_WIDTH ];
     logic predMiss [ INT_ISSUE_WIDTH ];
@@ -211,6 +212,7 @@ module IntegerExecutionStage(
             isApBr[i]  = bPred[i].isApBr;
             isApBLT[i] = bPred[i].isApBLT;
             isApBCC[i] = bPred[i].isApBCC;
+            bufHit[i]  = bPred[i].bufHit;
 
             // 分岐orレジスタ間接分岐で，条件が有効ならTaken
             // ap.branchは分岐決定器がtakenのときもtaken
@@ -261,6 +263,7 @@ module IntegerExecutionStage(
             // ap.branch?
             brResult[i].isApBr = isApBr[i];
             brResult[i].isApBCC = isApBCC[i];
+            brResult[i].bufHit = bufHit[i];
         end
     end
 

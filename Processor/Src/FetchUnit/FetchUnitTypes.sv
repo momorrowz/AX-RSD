@@ -196,6 +196,7 @@ typedef struct packed // struct BranchResult
     logic isApBr;          // Whether this branch is ap.branch.
     logic decidTaken;      // Whether ap.branch is taken or not.
     logic isApBCC;    // Whether this branch is ap.bltcycle.
+    logic bufHit;                        // Whether buffer is hit or not.
     logic decidCycTaken;    // Whether ap.bltcycle is taken or not.
 } BranchResult;
 
@@ -211,6 +212,7 @@ typedef struct packed // struct BranchPred
     logic isApBr;                           // Whether this branch is ap.branch.
     logic isApBLT;                          // Whether this branch is ap.blt.
     logic isApBCC;                          // Whether this is ap.begincyclecount.
+    logic bufHit;                        // Whether buffer is hit or not.
     logic decidTaken;                       // Whether ap.branch is taken or not.
 } BranchPred;
 

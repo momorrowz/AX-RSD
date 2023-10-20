@@ -79,6 +79,7 @@ interface FetchStageIF( input logic clk, rst, rstStart );
         rasCheckpoint,
         axbtbOut,
         brDecidTaken,
+        bufferHit,
     output
         fetchStageIsValid,
         fetchStagePC,

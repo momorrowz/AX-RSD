@@ -126,6 +126,7 @@ module FetchStage(
             brPred[i].phtPrevValue = port.phtPrevValue[i];
             brPred[i].rasCheckpoint = port.rasCheckpoint[i];
             brPred[i].decidTaken = port.brDecidTaken[i];
+            brPred[i].bufHit = port.bufferHit[i];
         end
 
         // Check whether instructions are flushed by branch prediction
