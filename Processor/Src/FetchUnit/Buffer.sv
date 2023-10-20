@@ -25,7 +25,7 @@ module Buffer(
     // Output
     PC_Path btbOut[FETCH_WIDTH];
     logic btbHit[FETCH_WIDTH];
-    logic readIsCondBr[FETCH_WIDTH];
+    // logic readIsCondBr[FETCH_WIDTH];
     
     PC_Path pcIn;
     
@@ -113,7 +113,7 @@ module Buffer(
         for (int i = 0; i < FETCH_WIDTH; i++) begin
             btbHit[i] = btbRV[i].valid && (btbRV[i].tag == ToAXBTB_Tag(tagReg[i]));
             btbOut[i] = ToRawAddrFromBTB_Addr(btbRV[i].data, tagReg[i]);
-            readIsCondBr[i] = btbRV[i].isCondBr;
+            // readIsCondBr[i] = btbRV[i].isCondBr;
         end
 
         // Write request from IntEx Stage
