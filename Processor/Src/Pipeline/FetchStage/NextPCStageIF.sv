@@ -111,7 +111,7 @@ interface NextPCStageIF( input logic clk, rst, rstStart );
         brResult
     );
 
-    modport AXBrCycBTB(
+    modport AXBLTCycBTB(
     input
         clk,
         rst,

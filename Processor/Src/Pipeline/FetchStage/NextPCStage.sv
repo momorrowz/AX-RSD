@@ -189,6 +189,10 @@ module NextPCStage(
                         predNextPC = fetch.axbtbOut[i];
                         break;
                     end
+                    else if ( fetch.brDecidCycTaken[i] ) begin
+                        // Use PC from AXBLTCycBTB
+                        predNextPC = fetch.axbltcycbtbOut[i];
+                    end
                     else if( fetch.brPredTaken[i]) begin
                         // Use PC from BTB or RAS
                         predNextPC = fetch.readIsRASPopBr[i] ? fetch.rasOut[i] : fetch.btbOut[i];

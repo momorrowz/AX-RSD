@@ -38,9 +38,9 @@ interface FetchStageIF( input logic clk, rst, rstStart );
     logic bufferHit[FETCH_WIDTH];
 
 
-    //AXBrCycBTB
-    PC_Path axbrcycbtbOut[FETCH_WIDTH];
-    logic axbrcycbtbHit[FETCH_WIDTH];
+    //AXBLTCycBTB
+    PC_Path axbltcycbtbOut[FETCH_WIDTH];
+    logic axbltcycbtbHit[FETCH_WIDTH];
     
     // BranchPredictor
     logic updateBrHistory[FETCH_WIDTH];
@@ -78,7 +78,9 @@ interface FetchStageIF( input logic clk, rst, rstStart );
         phtPrevValue,
         rasCheckpoint,
         axbtbOut,
+        axbltcycbtbOut,
         brDecidTaken,
+        brDecidCycTaken,
         bufferHit,
     output
         fetchStageIsValid,
@@ -100,7 +102,10 @@ interface FetchStageIF( input logic clk, rst, rstStart );
         brPredTaken,
         axbtbOut,
         axbtbHit,
-        brDecidTaken
+        axbltcycbtbOut,
+        axbltcycbtbHit,
+        brDecidTaken,
+        brDecidCycTaken
     );
 
     modport NextStage(
@@ -152,10 +157,10 @@ interface FetchStageIF( input logic clk, rst, rstStart );
         bufferHit
     );
     
-    modport AXBrCycBTB(
+    modport AXBLTCycBTB(
     output
-        axbrcycbtbOut,
-        axbrcycbtbHit
+        axbltcycbtbOut,
+        axbltcycbtbHit
     );
 
     modport BranchPredictor(
@@ -181,7 +186,7 @@ interface FetchStageIF( input logic clk, rst, rstStart );
 
     modport BranchDeciderCycle(
     input
-        axbrcycbtbHit,
+        axbltcycbtbHit,
         brPredTaken,
     output
         brDecidCycTaken

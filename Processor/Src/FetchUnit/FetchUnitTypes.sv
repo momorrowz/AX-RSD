@@ -195,6 +195,7 @@ typedef struct packed // struct BranchResult
     RAS_CheckpointData rasCheckpoint;       // RAS's top&tail pointer
     logic isApBr;          // Whether this branch is ap.branch.
     logic decidTaken;      // Whether ap.branch is taken or not.
+    logic isApBLTCyc;                       // Whether this branch is ap.bltcycle.
     logic isApBCC;    // Whether this branch is ap.bltcycle.
     logic bufHit;                        // Whether buffer is hit or not.
     logic decidCycTaken;    // Whether ap.bltcycle is taken or not.
@@ -211,9 +212,11 @@ typedef struct packed // struct BranchPred
     RAS_CheckpointData rasCheckpoint;       // RAS's top&tail pointer
     logic isApBr;                           // Whether this branch is ap.branch.
     logic isApBLT;                          // Whether this branch is ap.blt.
+    logic isApBLTCyc;                       // Whether this branch is ap.bltcycle.
     logic isApBCC;                          // Whether this is ap.begincyclecount.
     logic bufHit;                        // Whether buffer is hit or not.
     logic decidTaken;                       // Whether ap.branch is taken or not.
+    logic decidCycTaken;    // Whether ap.bltcycle is taken or not.
 } BranchPred;
 
 endpackage : FetchUnitTypes

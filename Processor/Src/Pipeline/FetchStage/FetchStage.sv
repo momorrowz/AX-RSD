@@ -119,13 +119,16 @@ module FetchStage(
         for (int i = 0; i < FETCH_WIDTH; i++) begin
             // Don't use btbOut[i]; we are using RAS as well as BTB.
             brPred[i].predAddr = port.brPredTaken[i] ? 
-                prev.predNextPC : (port.brDecidTaken[i] ? port.axbtbOut[i] : pipeReg[i].pc + INSN_BYTE_WIDTH );
-            brPred[i].predTaken = port.brPredTaken[i] | port.brDecidTaken[i]; // used in IE Stage
+                prev.predNextPC : (port.brDecidTaken[i] ? 
+                    port.axbtbOut[i] : (port.brDecidCycTaken[i] ? 
+                        port.axbltcycbtbOut[i] : pipeReg[i].pc + INSN_BYTE_WIDTH ));
+            brPred[i].predTaken = port.brPredTaken[i] | port.brDecidTaken[i] | port.brDecidCycTaken[i]; // used in IE Stage
             brPred[i].globalHistory = port.brGlobalHistory[i];
             brPred[i].phtIndex = port.phtIndex[i];
             brPred[i].phtPrevValue = port.phtPrevValue[i];
             brPred[i].rasCheckpoint = port.rasCheckpoint[i];
             brPred[i].decidTaken = port.brDecidTaken[i];
+            brPred[i].decidCycTaken = port.brDecidCycTaken[i];
             brPred[i].bufHit = port.bufferHit[i];
         end
 
@@ -135,7 +138,7 @@ module FetchStage(
         end
 
         for (int i = 0; i < FETCH_WIDTH; i++) begin
-            if (!regStall && pipeReg[i].valid && (port.brPredTaken[i] || port.brDecidTaken[i])) begin
+            if (!regStall && pipeReg[i].valid && (port.brPredTaken[i] || port.brDecidTaken[i] || port.brDecidCycTaken[i])) begin
                 for (int j = i + 1; j < FETCH_WIDTH; j++) begin
                     isFlushed[j] = pipeReg[j].valid;
                 end

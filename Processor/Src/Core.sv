@@ -151,7 +151,7 @@ output
         RAS ras( npStageIF, ifStageIF, ctrlIF );
         BranchPredictor brPred( npStageIF, ifStageIF, ctrlIF );
         AXBTB axbtb( npStageIF, ifStageIF  );
-        AXBrCycBTB axbrcycbtb( npStageIF, ifStageIF );
+        AXBLTCycBTB axbltcycbtb( npStageIF, ifStageIF );
         Buffer buffer( npStageIF, ifStageIF );
         BeginCycleCount begincyccnt( npStageIF, ifStageIF, mcycle, begincycle );
         BranchDecider brDecid( npStageIF, ifStageIF, axLevel );

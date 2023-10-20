@@ -133,7 +133,7 @@ CORE_MODULES = \
 	FetchUnit/RAS.sv \
 	FetchUnit/Bimodal.sv \
 	FetchUnit/AXBTB.sv \
-	FetchUnit/AXBrCycBTB.sv\
+	FetchUnit/AXBLTCycBTB.sv\
 	FetchUnit/Buffer.sv\
 	FetchUnit/BeginCycleCount.sv\
 	FetchUnit/BranchDeciderCycle.sv\
