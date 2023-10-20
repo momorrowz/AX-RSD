@@ -188,7 +188,7 @@ output
         for (int i = 0; i < DECODE_WIDTH; i++) begin
             brPredOut[i].isApBr  = (brTargetType[i] == BTT_PC_RELATIVE && isfU[i].opCode == RISCV_APPROX && isfB[i].funct3 == APPROX_FUNCT3_BRANCH);
             brPredOut[i].isApBLT = (brTargetType[i] == BTT_PC_RELATIVE && isfU[i].opCode == RISCV_APPROX && isfB[i].funct3 == APPROX_FUNCT3_BLT);
-            brPredOut[i].isApBCC = (brTargetType[i] == BTT_PC_RELATIVE && isfU[i].opCode == RISCV_APCYCLE && isfB[i].funct3 != APCYCLE_FUNCT3_BLT);
+            brPredOut[i].isApBCC = (brTargetType[i] == BTT_NEXT && isfU[i].opCode == RISCV_APCYCLE && isfB[i].funct3 != APCYCLE_FUNCT3_BLT);
         end
     end // always_comb
 

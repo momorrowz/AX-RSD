@@ -1636,7 +1636,7 @@ function automatic void RISCV_DecodeApCycle(
     end else begin
         RISCV_EmitApproxBeginCycleCount(.opInfo(opInfo), .isf(isf));
         writePC = FALSE;
-        isRelBranch = TRUE;
+        isRelBranch = FALSE;
     end
 
     mid = 0;
