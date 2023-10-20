@@ -301,3 +301,60 @@ module CircularRangePickerRightShifter #(
         shiftOut = shiftIn >> shiftAmount;
     end
 endmodule
+
+module FPPicker #( 
+    parameter ENTRY_NUM = 4,
+    parameter GRANT_NUM = 2,
+    parameter DIVSQRT_GRANT_NUM = 1
+)( 
+input
+    logic [ENTRY_NUM-1:0] req,
+    logic [ENTRY_NUM-1:0] divsqrtreq,
+    logic canissuedivsqrt,
+output
+    logic [ENTRY_NUM-1:0] grant,
+    logic [$clog2(ENTRY_NUM)-1:0] grantPtr[GRANT_NUM],
+    logic granted[GRANT_NUM]
+);
+    localparam INDEX_BIT_SIZE = $clog2(ENTRY_NUM);
+
+    logic [ENTRY_NUM-1:0] reqTmp, divsqrtreqTmp;
+    logic grantdivSqrt;
+    
+    always_comb begin
+
+        reqTmp = req;
+        divsqrtreqTmp = divsqrtreq;
+        grant = '0;
+        grantdivSqrt = '0;
+
+        for (int p = 0; p < DIVSQRT_GRANT_NUM; p++) begin
+            granted[p] = '0;
+            grantPtr[p] = '0;
+            for (int e = 0; e < ENTRY_NUM; e++) begin
+                if(canissuedivsqrt && divsqrtreqTmp[e]) begin
+                    grant[e] = '1;
+                    granted[p] = '1;
+                    grantPtr[p] = e;
+                    divsqrtreqTmp[e] = '0;
+                    grantdivSqrt = '1;
+                    break;
+                end
+            end
+        end
+        for (int p = grantdivSqrt; p < GRANT_NUM; p++) begin
+            granted[p] = '0;
+            grantPtr[p] = '0;
+            for (int e = 0; e < ENTRY_NUM; e++) begin
+                if(reqTmp[e]) begin
+                    grant[e] = '1;
+                    granted[p] = '1;
+                    grantPtr[p] = e;
+                    reqTmp[e] = '0;
+                    break;
+                end
+            end
+        end
+    end
+    
+endmodule : FPPicker

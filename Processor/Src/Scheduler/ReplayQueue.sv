@@ -555,7 +555,7 @@ module ReplayQueue(
             end 
 `endif
 `ifdef RSD_MARCH_FP_PIPE
-            for (int i = 0; i < FP_ISSUE_WIDTH; i++) begin 
+            for (int i = 0; i < FP_DIVSQRT_ISSUE_WIDTH; i++) begin 
                 if (replayEntryOut.fpValid[i] && !flushFP[i] && 
                     replayEntryOut.fpData[i].fpOpInfo.opType inside {FP_MOP_TYPE_DIV, FP_MOP_TYPE_SQRT} && 
                     fpDivSqrtUnit.Busy[i]   // FP Div/Sqrt unit is busy and wait it

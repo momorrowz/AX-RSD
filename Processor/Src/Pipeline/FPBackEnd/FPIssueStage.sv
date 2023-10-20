@@ -102,10 +102,12 @@ module FPIssueStage(
             scheduler.fpIssuePtr[i] = issueQueuePtr[i];
 
             // Lock div units
-            fpDivSqrtUnit.Acquire[i] = 
-                !clear && valid[i] &&
-                !flush[i] && (issuedData[i].fpOpInfo.opType inside {FP_MOP_TYPE_DIV, FP_MOP_TYPE_SQRT});
-            fpDivSqrtUnit.acquireActiveListPtr[i] = issuedData[i].activeListPtr;
+            if(i < FP_DIVSQRT_ISSUE_WIDTH) begin
+                fpDivSqrtUnit.Acquire[i] = 
+                    !clear && valid[i] &&
+                    !flush[i] && (issuedData[i].fpOpInfo.opType inside {FP_MOP_TYPE_DIV, FP_MOP_TYPE_SQRT});
+                fpDivSqrtUnit.acquireActiveListPtr[i] = issuedData[i].activeListPtr;
+            end
 
             // --- Pipeline ラッチ書き込み
             // リセットorフラッシュ時はNOP

@@ -46,6 +46,8 @@ module SelectLogic(
 
 `ifdef RSD_MARCH_FP_PIPE
     IssueQueueOneHotPath fpRequest;
+    IssueQueueOneHotPath fpDivSqrtRequest;
+    logic canIssueFPDivSqrt;
     IssueQueueOneHotPath fpGrant;
     logic fpSelected[ FP_ISSUE_WIDTH ];
     IssueQueueIndexPath fpSelectedPtr[ FP_ISSUE_WIDTH ];
@@ -178,16 +180,15 @@ module SelectLogic(
 `endif
 
 `ifdef RSD_MARCH_FP_PIPE
-`ifdef CIRCULAR_SELECT_LOGIC
-    CircularPicker #(
-`else
-    Picker #(
-`endif
+    FPPicker #(
         .ENTRY_NUM(ISSUE_QUEUE_ENTRY_NUM),
-        .GRANT_NUM(FP_ISSUE_WIDTH)
+        .GRANT_NUM(FP_ISSUE_WIDTH),
+        .DIVSQRT_GRANT_NUM(FP_DIVSQRT_ISSUE_WIDTH)
     )
     fpPicker(
         .req(fpRequest),
+        .divsqrtreq(fpDivSqrtRequest),
+        .canissuedivsqrt(canIssueFPDivSqrt),
         .grant(fpGrant),
         .grantPtr(fpSelectedPtr),
         .granted(fpSelected)
@@ -226,6 +227,8 @@ module SelectLogic(
             `endif
             `ifdef RSD_MARCH_FP_PIPE
                 fpRequest[i] = port.opReady[i] && port.fpIssueReq[i];
+                fpDivSqrtRequest[i] = port.opReady[i] && port.fpDivSqrtIssueReq[i];
+                canIssueFPDivSqrt = port.canIssueFPDivSqrt;
             `endif
         end
 

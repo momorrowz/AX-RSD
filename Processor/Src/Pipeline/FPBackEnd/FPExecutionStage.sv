@@ -35,7 +35,8 @@ module FPExecutionStage(
     logic stall, clear;
     logic flush[ FP_ISSUE_WIDTH ][ FP_EXEC_STAGE_DEPTH ];
 
-    `RSD_STATIC_ASSERT(FP_ISSUE_WIDTH == FP_DIVSQRT_ISSUE_WIDTH, "These muse be same");
+    //`RSD_STATIC_ASSERT(FP_ISSUE_WIDTH >= FP_DIVSQRT_ISSUE_WIDTH, "FP_ISSUE_WIDTH must be less than FP_DIVSQRT_ISSUE_WIDTH.");
+    `RSD_STATIC_ASSERT(FP_DIVSQRT_ISSUE_WIDTH == 1, "FP_DIVSQRT_ISSUE_WIDTH must be 1.");
 
     //
     // --- Local Pipeline Register
@@ -194,7 +195,7 @@ module FPExecutionStage(
 
     always_comb begin
         // FP Div/Sqrt Unit
-        for (int i = 0; i < FP_ISSUE_WIDTH; i++) begin
+        for (int i = 0; i < FP_DIVSQRT_ISSUE_WIDTH; i++) begin
 
             fpDivSqrtUnit.dataInA[i] = fuOpA[i].data;
             fpDivSqrtUnit.dataInB[i] = fuOpB[i].data;
@@ -306,7 +307,7 @@ module FPExecutionStage(
                     fflagsOut[i] = '0;
                 end
                 FP_MOP_TYPE_DIV, FP_MOP_TYPE_SQRT: begin
-                    dataOut[i].data = fpDivSqrtUnit.DataOut[i];
+                    dataOut[i].data = i < FP_DIVSQRT_ISSUE_WIDTH ? fpDivSqrtUnit.DataOut[i] : '0;
                     //fflagsData[i] = fpDivSqrtUnit.FFlagsOut[i];
                     fflagsOut[i] = '0;
                 end 
@@ -364,7 +365,7 @@ module FPExecutionStage(
             nextLocalPipeReg[i][0].fpQueueData = pipeReg[i].fpQueueData;
 
             // Reg valid of local pipeline 
-            if (isDivSqrt[i]) begin
+            if (i < FP_DIVSQRT_ISSUE_WIDTH && isDivSqrt[i]) begin
                 nextLocalPipeReg[i][0].regValid = 
                     pipeReg[i].replay && (fpDivSqrtUnit.Finished[i]);
             end

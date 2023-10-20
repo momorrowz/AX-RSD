@@ -277,9 +277,9 @@ module Scheduler(
         end
 `ifdef RSD_MARCH_FP_PIPE
         canIssueFPDivSqrt = TRUE;
-        for (int i = 0; i < FP_ISSUE_WIDTH; i++) begin
+        for (int i = 0; i < FP_DIVSQRT_ISSUE_WIDTH; i++) begin
             if (!fpDivSqrtUnit.Free[i]) begin
-                canIssueFPDivSqrt = FALSE;    // Currently, only a single div/sqrt can be issued 
+                canIssueFPDivSqrt = FALSE;
             end
         end
 `endif
@@ -301,7 +301,11 @@ module Scheduler(
             wakeupSelect.storeIssueReq[i] = notIssued[i] && isStore[i];
 `ifdef RSD_MARCH_FP_PIPE
             wakeupSelect.fpIssueReq[i] = 
-                notIssued[i] && isFP[i] && (!isFPDivSqrt[i] || (isFPDivSqrt[i] && canIssueFPDivSqrt));
+                notIssued[i] && isFP[i] && !isFPDivSqrt[i];
+                //notIssued[i] && isFP[i] && (!isFPDivSqrt[i] || (isFPDivSqrt[i] && canIssueFPDivSqrtNum));
+            wakeupSelect.fpDivSqrtIssueReq[i] = 
+                notIssued[i] && isFP[i] && isFPDivSqrt[i];
+            wakeupSelect.canIssueFPDivSqrt = canIssueFPDivSqrt;
 `endif
         end
 

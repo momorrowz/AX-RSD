@@ -39,7 +39,7 @@ localparam CONF_PSCALAR_FP_NUM = 64;
 localparam CONF_ISSUE_QUEUE_ENTRY_NUM = 16;
 
 // Return width of freelist of issue-queue entries
-localparam CONF_ISSUE_QUEUE_RETURN_INDEX_WIDTH = 8;
+localparam CONF_ISSUE_QUEUE_RETURN_INDEX_WIDTH = 4;
 
 // The number of active-list (ROB: reorder buffer) entries
 localparam CONF_ACTIVE_LIST_ENTRY_NUM = 64;
@@ -77,7 +77,7 @@ localparam CONF_REPLAY_QUEUE_ENTRY_NUM = 20;
 
 // The issue width of fp pipelines.
 `ifdef RSD_MARCH_FP_PIPE
-    localparam CONF_FP_ISSUE_WIDTH = 1;
+    localparam CONF_FP_ISSUE_WIDTH = 2;
 `else
     localparam CONF_FP_ISSUE_WIDTH = 0;
 `endif
