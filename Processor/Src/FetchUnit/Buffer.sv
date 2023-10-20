@@ -118,12 +118,12 @@ module Buffer(
 
         // Write request from IntEx Stage
         for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
-            btbWE[i] = port.brResult[i].valid && port.brResult[i].execTaken && port.brResult[i].isApBCC;
+            btbWE[i] = port.brResult[i].valid && port.brResult[i].isApBCC; //&& port.brResult[i].execTaken
             btbWA[i] = ToAXBTB_Index(port.brResult[i].brAddr);
             btbWV[i].tag = ToAXBTB_Tag(port.brResult[i].brAddr);
             btbWV[i].data = ToBTB_Addr(port.brResult[i].nextAddr);
             btbWV[i].valid = TRUE;
-            btbWV[i].isCondBr = port.brResult[i].isCondBr;
+            // btbWV[i].isCondBr = port.brResult[i].isCondBr;
         end
 
         pushBtbQueue = FALSE;
