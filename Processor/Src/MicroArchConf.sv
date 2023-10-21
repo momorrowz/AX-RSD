@@ -58,7 +58,7 @@ localparam CONF_REPLAY_QUEUE_ENTRY_NUM = 20;
 `ifdef RSD_MARCH_INT_ISSUE_WIDTH
     localparam CONF_INT_ISSUE_WIDTH =`RSD_MARCH_INT_ISSUE_WIDTH;
 `else
-    localparam CONF_INT_ISSUE_WIDTH = 4;
+    localparam CONF_INT_ISSUE_WIDTH = 2;
 `endif
 
 // The issue width of memory pipelines.
@@ -103,9 +103,9 @@ localparam CONF_COMPLEX_EXEC_STAGE_DEPTH = 3;
 
 // --- Predictors
 // Branch predictor
-localparam CONF_BTB_ENTRY_NUM = 4096;
+localparam CONF_BTB_ENTRY_NUM = 1024;
 localparam CONF_AXBTB_ENTRY_NUM = 16;
-localparam CONF_PHT_ENTRY_NUM = 32768;
+localparam CONF_PHT_ENTRY_NUM = 8192;
 localparam CONF_BRANCH_GLOBAL_HISTORY_BIT_WIDTH = 10;   // Global history length for g-share 
 localparam CONF_BRANCH_PREDICTOR_USE_GSHARE = 1;  // if 0, bimodal predictor is used
 
