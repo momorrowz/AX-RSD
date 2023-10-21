@@ -171,6 +171,10 @@ add_file -verilog -vlog_std sysv "../../Src/FetchUnit/BranchDecider.sv"
 add_file -verilog -vlog_std sysv "../../Src/FetchUnit/AXBTB.sv"
 add_file -verilog -vlog_std sysv "../../Src/FetchUnit/LFSR.sv"
 add_file -verilog -vlog_std sysv "../../Src/FetchUnit/RAS.sv"
+add_file -verilog -vlog_std sysv "../../Src/FetchUnit/AXBLTCycBTB.sv"
+add_file -verilog -vlog_std sysv "../../Src/FetchUnit/BeginCycleCount.sv"
+add_file -verilog -vlog_std sysv "../../Src/FetchUnit/BranchDeciderCycle.sv"
+add_file -verilog -vlog_std sysv "../../Src/FetchUnit/Buffer.sv"
 
 
 
