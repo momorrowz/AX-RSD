@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
             char* ptr = 0x40002000;
             *ptr = a;
         }
+        ENDING:
     }
-ENDING:
     return 0;
 }
