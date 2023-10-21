@@ -14,7 +14,7 @@ module BranchDeciderCycle #()
 
 
 // logic [LFSR_WIDTH-1:0] randomval, seed;
-logic is_taken, hit;
+logic is_taken;
 
 
 always_comb begin

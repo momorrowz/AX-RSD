@@ -18,14 +18,13 @@ module AXBLTCycBTB(
     // BTB access
     logic btbWE[INT_ISSUE_WIDTH];
     AXBTB_IndexPath btbWA[INT_ISSUE_WIDTH];
-    BTB_Entry btbWV[INT_ISSUE_WIDTH];
+    AXBTB_Entry btbWV[INT_ISSUE_WIDTH];
     AXBTB_IndexPath btbRA[FETCH_WIDTH];
-    BTB_Entry btbRV[FETCH_WIDTH];
+    AXBTB_Entry btbRV[FETCH_WIDTH];
     
     // Output
     PC_Path btbOut[FETCH_WIDTH];
     logic btbHit[FETCH_WIDTH];
-    logic readIsCondBr[FETCH_WIDTH];
     
     PC_Path pcIn;
     
@@ -44,7 +43,7 @@ module AXBLTCycBTB(
     generate
         BlockMultiBankRAM #(
             .ENTRY_NUM( AXBTB_ENTRY_NUM ),
-            .ENTRY_BIT_SIZE( $bits( BTB_Entry ) ),
+            .ENTRY_BIT_SIZE( $bits( AXBTB_Entry ) ),
             .READ_NUM( FETCH_WIDTH ),
             .WRITE_NUM( INT_ISSUE_WIDTH )
         ) 
@@ -113,12 +112,11 @@ module AXBLTCycBTB(
         for (int i = 0; i < FETCH_WIDTH; i++) begin
             btbHit[i] = btbRV[i].valid && (btbRV[i].tag == ToAXBTB_Tag(tagReg[i]));
             btbOut[i] = ToRawAddrFromBTB_Addr(btbRV[i].data, tagReg[i]);
-            readIsCondBr[i] = btbRV[i].isCondBr;
         end
 
         // Write request from IntEx Stage
         for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
-            btbWE[i] = port.brResult[i].valid && port.brResult[i].execTaken && port.brResult[i].isApBLTCyc;
+            btbWE[i] = port.brResult[i].valid && port.brResult[i].isApBLTCyc; 
             btbWA[i] = ToAXBTB_Index(port.brResult[i].brAddr);
             btbWV[i].tag = ToAXBTB_Tag(port.brResult[i].brAddr);
             btbWV[i].data = ToBTB_Addr(port.brResult[i].nextAddr);

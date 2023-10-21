@@ -1482,8 +1482,8 @@ function automatic void RISCV_EmitApproxBltCycle(
     opInfo.writeReg  = FALSE;
 
     // 論理レジスタを読むかどうか
-    opInfo.opTypeA = OOT_REG;
-    opInfo.opTypeB = OOT_REG;
+    opInfo.opTypeA = OOT_PC;
+    opInfo.opTypeB = OOT_IMM;
 `ifdef RSD_MARCH_FP_PIPE 
     opInfo.opTypeC = OOT_IMM;
 `endif
@@ -1493,7 +1493,7 @@ function automatic void RISCV_EmitApproxBltCycle(
     opInfo.mopSubType.intType = INT_MOP_TYPE_BR;
 
     // 条件コード
-    opInfo.cond = COND_LT;
+    opInfo.cond = COND_AP;
 
     // 分岐ターゲット
     opInfo.operand.brOp.brDisp = GetBranchDisplacement( isfR );

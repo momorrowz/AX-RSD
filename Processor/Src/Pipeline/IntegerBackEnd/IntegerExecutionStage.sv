@@ -217,8 +217,8 @@ module IntegerExecutionStage(
             bufHit[i]  = bPred[i].bufHit;
 
             // 分岐orレジスタ間接分岐で，条件が有効ならTaken
-            // ap.branchは分岐決定器がtakenのときもtaken
-            brTaken[i] = (pipeReg[i].valid && isBranch[i] && isCondEnabled[i] ) || bPred[i].decidTaken;
+            // ap.branchとap.bltcycleは分岐決定器がtakenのときもtaken
+            brTaken[i] = (pipeReg[i].valid && isBranch[i] && isCondEnabled[i] ) || bPred[i].decidTaken || bPred[i].decidCycTaken;
 
             // Whether this branch is conditional one or not.
             brResult[i].isCondBr = !isJump[i] && !isApBr[i] && !isApBLTCyc[i];
