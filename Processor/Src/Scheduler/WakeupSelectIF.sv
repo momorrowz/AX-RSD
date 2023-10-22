@@ -58,8 +58,10 @@ interface WakeupSelectIF( input logic clk, rst, rstStart );
     logic storeIssueReq[ISSUE_QUEUE_ENTRY_NUM];
 `ifdef RSD_MARCH_FP_PIPE
     logic fpIssueReq[ISSUE_QUEUE_ENTRY_NUM];
+`ifdef RSD_MARCH_MULTIPLE_FP_ISSUE
     logic fpDivSqrtIssueReq[ISSUE_QUEUE_ENTRY_NUM];
     logic canIssueFPDivSqrt;
+`endif
 `endif
 
 
@@ -83,8 +85,10 @@ interface WakeupSelectIF( input logic clk, rst, rstStart );
         storeIssueReq,
 `ifdef RSD_MARCH_FP_PIPE
         fpIssueReq,
+`ifdef RSD_MARCH_MULTIPLE_FP_ISSUE
         fpDivSqrtIssueReq,
         canIssueFPDivSqrt,
+`endif
 `endif
         notIssued,
         dispatchStore,
@@ -140,8 +144,10 @@ interface WakeupSelectIF( input logic clk, rst, rstStart );
         storeIssueReq,
 `ifdef RSD_MARCH_FP_PIPE
         fpIssueReq,
+`ifdef RSD_MARCH_MULTIPLE_FP_ISSUE
         fpDivSqrtIssueReq,
         canIssueFPDivSqrt,
+`endif
 `endif
     output
         selected,

@@ -300,12 +300,16 @@ module Scheduler(
 `endif
             wakeupSelect.storeIssueReq[i] = notIssued[i] && isStore[i];
 `ifdef RSD_MARCH_FP_PIPE
+`ifndef RSD_MARCH_MULTIPLE_FP_ISSUE
             wakeupSelect.fpIssueReq[i] = 
-                notIssued[i] && isFP[i] && !isFPDivSqrt[i];
-                //notIssued[i] && isFP[i] && (!isFPDivSqrt[i] || (isFPDivSqrt[i] && canIssueFPDivSqrtNum));
+                notIssued[i] && isFP[i] && (!isFPDivSqrt[i] || (isFPDivSqrt[i] && canIssueFPDivSqrt));
+`else
+            wakeupSelect.fpIssueReq[i] = 
+                notIssued[i] && isFP[i] && !isFPDivSqrt[i];;
             wakeupSelect.fpDivSqrtIssueReq[i] = 
                 notIssued[i] && isFP[i] && isFPDivSqrt[i];
             wakeupSelect.canIssueFPDivSqrt = canIssueFPDivSqrt;
+`endif
 `endif
         end
 

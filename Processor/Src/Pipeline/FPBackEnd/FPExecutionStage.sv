@@ -35,8 +35,12 @@ module FPExecutionStage(
     logic stall, clear;
     logic flush[ FP_ISSUE_WIDTH ][ FP_EXEC_STAGE_DEPTH ];
 
-    //`RSD_STATIC_ASSERT(FP_ISSUE_WIDTH >= FP_DIVSQRT_ISSUE_WIDTH, "FP_ISSUE_WIDTH must be less than FP_DIVSQRT_ISSUE_WIDTH.");
     `RSD_STATIC_ASSERT(FP_DIVSQRT_ISSUE_WIDTH == 1, "FP_DIVSQRT_ISSUE_WIDTH must be 1.");
+`ifndef RSD_MARCH_MULTIPLE_FP_ISSUE
+    `RSD_STATIC_ASSERT(FP_ISSUE_WIDTH == FP_DIVSQRT_ISSUE_WIDTH, "These must be same.");
+`else
+    `RSD_STATIC_ASSERT(FP_ISSUE_WIDTH >= FP_DIVSQRT_ISSUE_WIDTH, "FP_ISSUE_WIDTH must be greater than or equal to FP_DIVSQRT_ISSUE_WIDTH.");
+`endif
 
     //
     // --- Local Pipeline Register

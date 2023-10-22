@@ -77,7 +77,11 @@ localparam CONF_REPLAY_QUEUE_ENTRY_NUM = 20;
 
 // The issue width of fp pipelines.
 `ifdef RSD_MARCH_FP_PIPE
+`ifdef RSD_MARCH_MULTIPLE_FP_ISSUE
     localparam CONF_FP_ISSUE_WIDTH = 2;
+`else
+    localparam CONF_FP_ISSUE_WIDTH = 1;
+`endif
 `else
     localparam CONF_FP_ISSUE_WIDTH = 0;
 `endif
