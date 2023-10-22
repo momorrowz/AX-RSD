@@ -36,8 +36,11 @@ module ICacheArray(
     WayData readWayData, writeWayData;
 
     // tag + instruction array
-    //BlockDualPortRAM #(
+`ifdef SYNTHESIS_USE_SRAM
     SRAM512W272_1R1W #(
+`else
+    BlockDualPortRAM #(
+`endif
         .ENTRY_NUM( ICACHE_INDEX_NUM ),
         .ENTRY_BIT_SIZE( $bits(WayData)  )
     ) tagValidArray ( 

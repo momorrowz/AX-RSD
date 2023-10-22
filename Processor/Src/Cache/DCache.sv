@@ -638,13 +638,16 @@ endmodule : DCacheArrayPortMultiplexer
 module DCacheArray(DCacheIF.DCacheArray port);
     // Data array signals
     logic dataArrayWE[DCACHE_WAY_NUM][DCACHE_ARRAY_PORT_NUM];
-    //logic dataArrayByteWE[DCACHE_LINE_BYTE_NUM][DCACHE_WAY_NUM][DCACHE_ARRAY_PORT_NUM];
-    DCacheByteEnablePath dataArrayByteWE[DCACHE_WAY_NUM][DCACHE_ARRAY_PORT_NUM];
     DCacheIndexPath dataArrayIndex[DCACHE_ARRAY_PORT_NUM];
-    //BytePath        dataArrayIn[DCACHE_LINE_BYTE_NUM][DCACHE_ARRAY_PORT_NUM];
+`ifdef SYNTHESIS_USE_SRAM
+    DCacheByteEnablePath dataArrayByteWE[DCACHE_WAY_NUM][DCACHE_ARRAY_PORT_NUM];
     DCacheLinePath        dataArrayIn[DCACHE_ARRAY_PORT_NUM];
-    //BytePath        dataArrayOut[DCACHE_LINE_BYTE_NUM][DCACHE_WAY_NUM][DCACHE_ARRAY_PORT_NUM];
     DCacheLinePath        dataArrayOut[DCACHE_WAY_NUM][DCACHE_ARRAY_PORT_NUM];
+`else
+    logic dataArrayByteWE[DCACHE_LINE_BYTE_NUM][DCACHE_WAY_NUM][DCACHE_ARRAY_PORT_NUM];
+    BytePath        dataArrayIn[DCACHE_LINE_BYTE_NUM][DCACHE_ARRAY_PORT_NUM];
+    BytePath        dataArrayOut[DCACHE_LINE_BYTE_NUM][DCACHE_WAY_NUM][DCACHE_ARRAY_PORT_NUM];
+`endif
     logic           dataArrayDirtyIn[DCACHE_ARRAY_PORT_NUM];
     logic           dataArrayDirtyOut[DCACHE_WAY_NUM][DCACHE_ARRAY_PORT_NUM];
     DCacheWayPath   dataArrayReadWayReg[DCACHE_ARRAY_PORT_NUM];
@@ -700,10 +703,18 @@ module DCacheArray(DCacheIF.DCacheArray port);
     generate
         for (genvar way = 0; way < DCACHE_WAY_NUM; way++) begin
             // Data array instance
-            /*
+`ifdef SYNTHESIS_USE_SRAM
+            SRAM128W256_2RW_BWEB #(
+            ) dataArray (
+                .clk(port.clk),
+                .we(dataArrayByteWE[way]),
+                .rwa(dataArrayIndex),
+                .wv(dataArrayIn),
+                .rv(dataArrayOut[way])
+            );
+`else
             for (genvar i = 0; i < DCACHE_LINE_BYTE_NUM; i++) begin
-                //BlockTrueDualPortRAM #(
-                DualSRAM128W8 #(
+                BlockTrueDualPortRAM #(
                     .ENTRY_NUM( DCACHE_INDEX_NUM ),
                     .ENTRY_BIT_SIZE( $bits(BytePath) )
                     //.PORT_NUM( DCACHE_ARRAY_PORT_NUM )
@@ -715,15 +726,7 @@ module DCacheArray(DCacheIF.DCacheArray port);
                     .rv( dataArrayOut[i][way] )
                 );
             end
-            */
-            SRAM128W256_2RW_BWEB #(
-            ) dataArray (
-                .clk(port.clk),
-                .we(dataArrayByteWE[way]),
-                .rwa(dataArrayIndex),
-                .wv(dataArrayIn),
-                .rv(dataArrayOut[way])
-            );
+`endif
 
             // Dirty array instance
             // The dirty array is synchronized with the data array.
@@ -814,15 +817,24 @@ module DCacheArray(DCacheIF.DCacheArray port);
         for (int p = 0; p < DCACHE_ARRAY_PORT_NUM; p++) begin
             for (int i = 0; i < DCACHE_LINE_BYTE_NUM; i++) begin
                 for (int way = 0; way < DCACHE_WAY_NUM; way++) begin
-                    //dataArrayByteWE[i][way][p] = dataArrayWE[way][p] && dataArrayByteWE_Tmp[p][i];
+`ifdef SYNTHESIS_USE_SRAM
                     dataArrayByteWE[way][p][i] = dataArrayWE[way][p] && dataArrayByteWE_Tmp[p][i];
+`else
+                    dataArrayByteWE[i][way][p] = dataArrayWE[way][p] && dataArrayByteWE_Tmp[p][i];
+`endif
                 end
                 for (int b = 0; b < 8; b++) begin
-                    //dataArrayIn[i][p][b] = dataArrayInTmp[p][i*8 + b];
+`ifdef SYNTHESIS_USE_SRAM
                     dataArrayIn[p][i*8 + b] = dataArrayInTmp[p][i*8 + b];
+`else
+                    dataArrayIn[i][p][b] = dataArrayInTmp[p][i*8 + b];
+`endif
                     for (int way = 0; way < DCACHE_WAY_NUM; way++) begin
-                        //dataArrayOutTmp[way][p][i*8 + b] = dataArrayOut[i][way][p][b];
+`ifdef SYNTHESIS_USE_SRAM
                         dataArrayOutTmp[way][p][i*8 + b] = dataArrayOut[way][p][i*8 + b];
+`else
+                        dataArrayOutTmp[way][p][i*8 + b] = dataArrayOut[i][way][p][b];
+`endif
                     end
                 end
             end
@@ -857,8 +869,11 @@ module DCacheArray(DCacheIF.DCacheArray port);
             for (int p = 0; p < DCACHE_ARRAY_PORT_NUM; p++) begin
                 for (int way = 0; way < DCACHE_WAY_NUM; way++) begin
                     for (int i = 0; i < DCACHE_LINE_BYTE_NUM; i++) begin
-                        //dataArrayByteWE[i][way][p] = FALSE;
+`ifdef SYNTHESIS_USE_SRAM
                         dataArrayByteWE[way][p][i] = FALSE;
+`else
+                        dataArrayByteWE[i][way][p] = FALSE;
+`endif
                     end
                     tagArrayWE[way][p] = FALSE;
                 end
@@ -867,11 +882,17 @@ module DCacheArray(DCacheIF.DCacheArray port);
             // Port 0 is used for reset.
             for (int i = 0; i < DCACHE_LINE_BYTE_NUM; i++) begin
                 for (int way = 0; way < DCACHE_WAY_NUM; way++) begin
-                    //dataArrayByteWE[i][way][0] = TRUE;
+`ifdef SYNTHESIS_USE_SRAM
                     dataArrayByteWE[way][0][i] = TRUE;
+`else
+                    dataArrayByteWE[i][way][0] = TRUE;
+`endif
                 end
-                //dataArrayIn[i][0] = 8'hcd;
+`ifdef SYNTHESIS_USE_SRAM
                 dataArrayIn[0][i*8 +: 8] = 8'hcd;
+`else
+                dataArrayIn[i][0] = 8'hcd;
+`endif
             end
             for (int way = 0; way < DCACHE_WAY_NUM; way++) begin
                 dataArrayWE[way][0] = TRUE;
