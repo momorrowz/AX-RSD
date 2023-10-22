@@ -106,10 +106,6 @@ interface BypassNetworkIF(input logic clk, rst, rstStart);
 
     logic fpWriteReg  [ FP_ISSUE_WIDTH ];
 
-    PRegDataPath fpSrcRegDataA [ FP_ISSUE_WIDTH ];
-    PRegDataPath fpSrcRegDataB [ FP_ISSUE_WIDTH ];
-    PRegDataPath fpSrcRegDataC [ FP_ISSUE_WIDTH ];
-
     BypassControll fpCtrlOut [ FP_ISSUE_WIDTH ];
     
     // Execution stage

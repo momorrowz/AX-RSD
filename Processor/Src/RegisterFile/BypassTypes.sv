@@ -10,12 +10,16 @@ package BypassTypes;
 
 import BasicTypes::*;
 
-typedef enum logic unsigned [1:0]   // enum BypassSelect
+typedef enum logic unsigned [2:0]   // enum BypassSelect
 {
     BYPASS_STAGE_INT_EX = 0,
     BYPASS_STAGE_INT_WB = 1,
     BYPASS_STAGE_MEM_MA = 2,
-    BYPASS_STAGE_MEM_WB = 3
+    BYPASS_STAGE_MEM_WB = 3,
+    BYPASS_STAGE_COMPLEX_EX2 = 4,
+    BYPASS_STAGE_COMPLEX_WB = 5,
+    BYPASS_STAGE_FP_EX4 = 6,
+    BYPASS_STAGE_FP_WB = 7
 } BypassSelectStage;
 
 
