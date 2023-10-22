@@ -7,6 +7,7 @@
 # * RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE: Integrate mul/div to a memory pipe
 RSD_SRC_CFG = \
 	+define+RSD_MARCH_FP_PIPE \
+	+define+ENABLE_ZICOND \
 
 #   +define+RSD_MARCH_INT_ISSUE_WIDTH=4 \
 #	+define+CIRCULAR_SELECT_LOGIC \

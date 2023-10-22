@@ -2003,9 +2003,11 @@ output
                 if (rv32mFunct7 == RV32M_FUNCT7_ALL) begin
                     RISCV_DecodeComplexOp(microOps, insnInfo, insn);
                 end
+`ifdef ENABLE_ZICOND
                 else if (zicondFunct7 == ZICOND_FUNCT7_CZERO) begin
                     RISCV_DecodeZicond(microOps, insnInfo, insn);
                 end
+`endif
                 else begin
                     RISCV_DecodeOp(microOps, insnInfo, insn);
                 end
