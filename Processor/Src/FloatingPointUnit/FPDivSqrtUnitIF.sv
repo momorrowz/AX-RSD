@@ -10,8 +10,9 @@
 import BasicTypes::*;
 import OpFormatTypes::*;
 import ActiveListIndexTypes::*;
+import FetchUnitTypes::*;
 
-interface FPDivSqrtUnitIF(input logic clk, rst);
+interface FPDivSqrtUnitIF(input logic clk, rst,  logic [AX_LEVEL_WIDTH-1:0] csr_val);
     logic stall;
 
     DataPath dataInA[FP_DIVSQRT_ISSUE_WIDTH];
@@ -20,6 +21,9 @@ interface FPDivSqrtUnitIF(input logic clk, rst);
     DataPath    DataOut  [FP_DIVSQRT_ISSUE_WIDTH];
     FFlags_Path FFlagsOut[FP_DIVSQRT_ISSUE_WIDTH];
     logic is_divide      [FP_DIVSQRT_ISSUE_WIDTH];
+`ifdef ENABLE_ANYTIME_FP
+    logic isAX           [FP_DIVSQRT_ISSUE_WIDTH];
+`endif
     Rounding_Mode rm     [FP_DIVSQRT_ISSUE_WIDTH];
     logic       Req      [FP_DIVSQRT_ISSUE_WIDTH];
     logic       Reserved [FP_DIVSQRT_ISSUE_WIDTH];
@@ -44,6 +48,10 @@ interface FPDivSqrtUnitIF(input logic clk, rst);
         Acquire,
         Release,
         acquireActiveListPtr,
+`ifdef ENABLE_ANYTIME_FP
+        csr_val,
+        isAX,
+`endif
     output
         DataOut,
         FFlagsOut,
@@ -72,6 +80,9 @@ interface FPDivSqrtUnitIF(input logic clk, rst);
         dataInA,
         dataInB,
         is_divide,
+`ifdef ENABLE_ANYTIME_FP
+        isAX,
+`endif
         rm,
         Req,
         Release

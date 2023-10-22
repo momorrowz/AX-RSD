@@ -101,7 +101,7 @@ output
     FPIssueStageIF fpIsStageIF( clk, rst );
     FPRegisterReadStageIF fpRrStageIF( clk, rst );
     FPExecutionStageIF fpExStageIF( clk, rst );
-    FPDivSqrtUnitIF fpDivSqrtUnitIF(clk, rst);
+    FPDivSqrtUnitIF fpDivSqrtUnitIF(clk, rst, axLevel);
 
     CommitStageIF cmStageIF( clk, rst );
 

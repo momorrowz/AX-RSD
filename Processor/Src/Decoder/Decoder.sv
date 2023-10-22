@@ -1596,6 +1596,11 @@ function automatic void RISCV_EmitFPOp(
     // Rounding Mode
     opInfo.operand.fpOp.rm = rm;
 
+    // isAX?
+`ifdef ENABLE_ANYTIME_FP
+    opInfo.operand.fpOp.isAX = (rv32fFunct7 inside {RV32F_FUNCT7_FDIV_AX, RV32F_FUNCT7_FSQRT_AX});
+`endif
+
     // FPU
     opInfo.operand.fpOp.fpuCode = fpuCode;
     opInfo.operand.fpOp.padding = '0;
@@ -1691,6 +1696,11 @@ function automatic void RISCV_EmitFPFMAOp(
 
     // Rounding Mode
     opInfo.operand.fpOp.rm = rm;
+    
+    // isAX?
+`ifdef ENABLE_ANYTIME_FP
+    opInfo.operand.fpOp.isAX = FALSE;
+`endif
 
     // FPU
     RISCV_DecodeFPFMAOpFunct3( fpuCode, opCode);

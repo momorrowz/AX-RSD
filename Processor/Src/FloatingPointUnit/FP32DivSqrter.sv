@@ -1,4 +1,5 @@
 import FPUTypes::*;
+import FetchUnitTypes::*;
 
 module FP32DivSqrter (
 input
@@ -7,6 +8,10 @@ input
     logic [31:0] rhs,
     logic is_divide,
     logic req,
+`ifdef ENABLE_ANYTIME_FP
+    logic isAX,
+    logic [AX_LEVEL_WIDTH-1:0] csr_val,
+`endif
 output
     logic finished,
     logic [31:0] result
@@ -151,6 +156,9 @@ output
             nextData.res_is_inf = is_divide ? (lhs_is_inf | rhs_is_zero) : (!lhs_sign & lhs_is_inf);
             nextData.res_is_zero = is_divide ? (lhs_is_zero | rhs_is_inf) : lhs_is_zero;
             nextData.nan = nan;
+`ifdef ENABLE_ANYTIME_FP
+            nextData.isAX = isAX;
+`endif
             nextPhase = PHASE_PREPARATION;
         end
         else if (regPhase == PHASE_PREPARATION) begin
@@ -160,7 +168,11 @@ output
             nextData.rem = rem_0;
             nextData.quo = quo_0;
             nextPhase = PHASE_PROCESSING;
+`ifndef ENABLE_ANYTIME_FP
             nextCounter = regData.is_divide ? 24 : 22;
+`else
+            nextCounter = InitialCounter(regData.isAX, regData.is_divide, csr_val);
+`endif
         end
         else if (regPhase == PHASE_PROCESSING) begin
             nextData.rem = rem;
@@ -181,6 +193,15 @@ output
         finished = regPhase == PHASE_FINISHED;
         result = regResult;
     end
+
+`ifdef ENABLE_ANYTIME_FP
+    function automatic logic [4:0] InitialCounter(input logic isAX, input logic is_divide, logic [AX_LEVEL_WIDTH-1:0] csr_val);
+         logic [4:0] div_initial = isAX ? (csr_val <= 12 ? 24 - 2 * csr_val : 0) : 24;
+         logic [4:0] sqrt_initial  = isAX ? (csr_val <= 11 ? 22 - 2 * csr_val : 0) : 22;
+         logic [4:0] initial_counter = is_divide ? div_initial : sqrt_initial;
+         return initial_counter;
+    endfunction
+`endif
 
 endmodule
 

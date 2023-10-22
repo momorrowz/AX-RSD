@@ -162,6 +162,10 @@ typedef enum logic [6:0]    // enum RV32FFunct7
     RV32F_FUNCT7_FMUL           = 7'b0001000,
     RV32F_FUNCT7_FDIV           = 7'b0001100,
     RV32F_FUNCT7_FSQRT          = 7'b0101100,
+`ifdef ENABLE_ANYTIME_FP
+    RV32F_FUNCT7_FDIV_AX        = 7'b0001101,
+    RV32F_FUNCT7_FSQRT_AX       = 7'b0101101,
+`endif
     RV32F_FUNCT7_FSGNJ          = 7'b0010000,
     RV32F_FUNCT7_FMIN_FMAX      = 7'b0010100,
     RV32F_FUNCT7_FCVT_WS        = 7'b1100000,
@@ -900,6 +904,14 @@ function automatic void RISCV_DecodeFPOpFunct3(
         RV32F_FUNCT7_FSQRT : begin
             fpuCode = FC_SQRT;
         end
+`ifdef ENABLE_ANYTIME_FP
+        RV32F_FUNCT7_FDIV_AX : begin
+            fpuCode = FC_DIV;
+        end
+        RV32F_FUNCT7_FSQRT_AX : begin
+            fpuCode = FC_SQRT;
+        end
+`endif
         RV32F_FUNCT7_FSGNJ : begin
             //Todo: ここにfpTypeの代入かけるのか
             case (rv32ffunct3.fsgnjFunct3)

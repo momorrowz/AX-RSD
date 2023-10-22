@@ -227,7 +227,12 @@ typedef struct packed // FPMicroOpOperand
 
     FPU_Code fpuCode;
     Rounding_Mode rm;
+`ifndef ENABLE_ANYTIME_FP
     logic [20:0] padding;        // Padding field.
+`else
+    logic isAX;
+    logic [19:0] padding;        // Padding field.
+`endif
 } FPMicroOpOperand;
 
 typedef union packed    // MicroOpOperand

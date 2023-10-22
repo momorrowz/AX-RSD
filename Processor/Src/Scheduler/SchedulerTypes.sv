@@ -320,6 +320,10 @@ typedef struct packed // FPOpInfo
     FPU_Code fpuCode;
     Rounding_Mode rm;
 
+`ifdef ENABLE_ANYTIME_FP
+    logic isAX;
+`endif
+
     // 論理レジスタを読むかどうか
     OpOperandType operandTypeA;
     OpOperandType operandTypeB;
