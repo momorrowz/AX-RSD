@@ -11,6 +11,9 @@ RSD_SRC_CFG = \
 	+define+RSD_MARCH_BYPASS_COMPLEX_FP \
 	+define+ENABLE_ANYTIME_FP \
 	+define+ENABLE_ZICOND \
+	+define+SYNTHESIS_USE_SRAM \
+	+define+UNIT_DELAY \
+	+define+TSMC_CM_UNIT_DELAY \
 
 #   +define+RSD_MARCH_INT_ISSUE_WIDTH=4 \
 #	+define+CIRCULAR_SELECT_LOGIC \
@@ -182,6 +185,11 @@ CORE_MODULES = \
 	Debug/DebugIF.sv \
 	Debug/PerformanceCounter.sv \
 	Debug/PerformanceCounterIF.sv \
+	Primitives/SRAM.sv \
+	Primitives/tsdn28hpcpa512x68m4m_130a_tt0p9v25c.v \
+    Primitives/tsdn28hpcpuhdb128x64m4mwa_170a_tt0p9v25c.v \
+    Primitives/tsdn28hpcpuhdb256x64m4mwa_170a_tt0p9v25c.v \
+    Primitives/tsdn28hpcpuhdb256x84m4mwa_170a_tt0p9v25c.v \
 
 # MODULES specifies what to compile for simulation.
 MODULES = \
