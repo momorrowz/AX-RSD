@@ -1076,8 +1076,13 @@ module DCache(
 
             port.lsuCacheReq[(i+DCACHE_LSU_READ_PORT_BEGIN)] = lsu.dcReadReq[i];
             port.lsuMuxIn[(i+DCACHE_LSU_READ_PORT_BEGIN)].tagWE = FALSE;
+`ifdef SYNTHESIS_USE_SRAM
             port.lsuMuxIn[(i+DCACHE_LSU_READ_PORT_BEGIN)].indexIn = lsu.dcReadReq[i] ? ToIndexPartFromFullAddr(lsu.dcReadAddr[i]) : '0;
             port.lsuMuxIn[(i+DCACHE_LSU_READ_PORT_BEGIN)].tagDataIn = lsu.dcReadReq[i] ? ToTagPartFromFullAddr(lsu.dcReadAddr[i]) : '0;
+`else
+            port.lsuMuxIn[(i+DCACHE_LSU_READ_PORT_BEGIN)].indexIn = ToIndexPartFromFullAddr(lsu.dcReadAddr[i]);
+            port.lsuMuxIn[(i+DCACHE_LSU_READ_PORT_BEGIN)].tagDataIn = ToTagPartFromFullAddr(lsu.dcReadAddr[i]);
+`endif
             port.lsuMuxIn[(i+DCACHE_LSU_READ_PORT_BEGIN)].tagValidIn = TRUE;
             port.lsuMuxIn[(i+DCACHE_LSU_READ_PORT_BEGIN)].dataDataIn = '0;
             port.lsuMuxIn[(i+DCACHE_LSU_READ_PORT_BEGIN)].dataByteWE = '0;
