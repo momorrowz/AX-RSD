@@ -109,6 +109,9 @@ typedef struct packed {
     logic [31:0] nan;
     logic [26:0] rem;
     logic [25:0] quo;
+`ifdef ENABLE_ANYTIME_FP
+    logic isAX;
+`endif
 } FDivSqrtRegPath;
 
 typedef struct packed {

@@ -31,6 +31,10 @@ module FPDivSqrtUnit(FPDivSqrtUnitIF.FPDivSqrtUnit port, RecoveryManagerIF.FPDiv
             .rhs(port.dataInB[i]),
             .is_divide(port.is_divide[i]),
             .req(port.Req[i]),
+`ifdef ENABLE_ANYTIME_FP
+            .isAX(port.isAX[i]),
+            .csr_val(port.csr_val),
+`endif
             .finished(finished[i]),
             .result(port.DataOut[i])
         );

@@ -229,6 +229,9 @@ module DispatchStage(
             fpEntry[i].fpOpInfo.opType = opInfo[i].mopSubType.fpType;
             fpEntry[i].fpOpInfo.fpuCode = opInfo[i].operand.fpOp.fpuCode;
             fpEntry[i].fpOpInfo.rm = opInfo[i].operand.fpOp.rm;
+`ifdef ENABLE_ANYTIME_FP
+            fpEntry[i].fpOpInfo.isAX = opInfo[i].operand.fpOp.isAX;
+`endif
             fpEntry[i].fpOpInfo.operandTypeA = opInfo[i].opTypeA;
             fpEntry[i].fpOpInfo.operandTypeB = opInfo[i].opTypeB;
             fpEntry[i].fpOpInfo.operandTypeC = opInfo[i].opTypeC;
