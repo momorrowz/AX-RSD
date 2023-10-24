@@ -34,7 +34,7 @@ interface FetchStageIF( input logic clk, rst, rstStart );
     logic axbtbHit[FETCH_WIDTH];
 
     // BUFFER
-    PC_Path bufferOut[FETCH_WIDTH];
+    // PC_Path bufferOut[FETCH_WIDTH];
     logic bufferHit[FETCH_WIDTH];
 
 
@@ -153,7 +153,7 @@ interface FetchStageIF( input logic clk, rst, rstStart );
 
     modport BUFFER(
     output
-        bufferOut,
+        // bufferOut,
         bufferHit
     );
     

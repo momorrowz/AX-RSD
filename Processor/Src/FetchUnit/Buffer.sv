@@ -18,12 +18,12 @@ module Buffer(
     // BTB access
     logic btbWE[INT_ISSUE_WIDTH];
     AXBTB_IndexPath btbWA[INT_ISSUE_WIDTH];
-    AXBTB_Entry btbWV[INT_ISSUE_WIDTH];
+    Buffer_Entry btbWV[INT_ISSUE_WIDTH];
     AXBTB_IndexPath btbRA[FETCH_WIDTH];
-    AXBTB_Entry btbRV[FETCH_WIDTH];
+    Buffer_Entry btbRV[FETCH_WIDTH];
     
     // Output
-    PC_Path btbOut[FETCH_WIDTH];
+    // PC_Path btbOut[FETCH_WIDTH];
     logic btbHit[FETCH_WIDTH];
     
     PC_Path pcIn;
@@ -34,9 +34,9 @@ module Buffer(
     logic pushBtbQueue, popBtbQueue;
     logic full, empty;
 
-    BTBQueueEntry btbQueue[BTB_QUEUE_SIZE];
+    BufferQueueEntry btbQueue[BTB_QUEUE_SIZE];
     BTBQueuePointerPath headPtr, tailPtr;
-    BTBQueueEntry btbQueueWV;
+    BufferQueueEntry btbQueueWV;
 
     logic IsPhtBankConflict[INT_ISSUE_WIDTH];
 
@@ -110,16 +110,16 @@ module Buffer(
             
         // Make logic for using at other module.
         for (int i = 0; i < FETCH_WIDTH; i++) begin
-            btbHit[i] = btbRV[i].valid && (btbRV[i].tag == ToAXBTB_Tag(tagReg[i]));
-            btbOut[i] = ToRawAddrFromBTB_Addr(btbRV[i].data, tagReg[i]);
+            btbHit[i] = btbRV[i].valid && (btbRV[i].tag == ToBUFFER_Tag(tagReg[i]));
+            // btbOut[i] = ToRawAddrFromBTB_Addr(btbRV[i].data, tagReg[i]);
         end
 
         // Write request from IntEx Stage
         for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
             btbWE[i] = port.brResult[i].valid && port.brResult[i].isApBCC;
             btbWA[i] = ToAXBTB_Index(port.brResult[i].brAddr);
-            btbWV[i].tag = ToAXBTB_Tag(port.brResult[i].brAddr);
-            btbWV[i].data = ToBTB_Addr(port.brResult[i].nextAddr);
+            btbWV[i].tag = ToBUFFER_Tag(port.brResult[i].brAddr);
+            // btbWV[i].data = ToBTB_Addr(port.brResult[i].nextAddr);
             btbWV[i].valid = TRUE;
         end
 
@@ -188,7 +188,7 @@ module Buffer(
                 btbWE[i] = (i == 0) ? TRUE : FALSE;
                 btbWA[i] = resetIndex;
                 btbWV[i].tag = 0;
-                btbWV[i].data = 0;
+                // btbWV[i].data = 0;
                 btbWV[i].valid = FALSE;
             end
 
@@ -201,7 +201,7 @@ module Buffer(
             popBtbQueue = FALSE;
         end
 
-        fetch.bufferOut = btbOut;
+        // fetch.bufferOut = btbOut;
         fetch.bufferHit = btbHit;
         
     end
