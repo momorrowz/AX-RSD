@@ -1550,7 +1550,7 @@ function automatic void RISCV_EmitApproxBeginCycleCount(
     opInfo.mopSubType.intType = INT_MOP_TYPE_BR; // 分岐命令ではないが、分岐命令のような動き（BufferにPCを書き込むなど）をするため命令タイプは分岐とする。
 
     // 条件コード
-    opInfo.cond = COND_LT;
+    opInfo.cond = COND_AP;
 
     // 分岐ターゲット
     opInfo.operand.brOp.brDisp = GetBranchDisplacement( isfR );
