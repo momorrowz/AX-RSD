@@ -342,7 +342,8 @@ output
                 end
             end
         end
-        for (int p = grantdivSqrt; p < GRANT_NUM; p++) begin
+        for (int p = 0; p < GRANT_NUM; p++) begin
+            if(p < grantdivSqrt) continue;
             granted[p] = '0;
             grantPtr[p] = '0;
             for (int e = 0; e < ENTRY_NUM; e++) begin
