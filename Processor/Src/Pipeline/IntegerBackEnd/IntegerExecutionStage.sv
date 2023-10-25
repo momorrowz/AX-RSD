@@ -259,7 +259,7 @@ module IntegerExecutionStage(
                      (bPred[i].predTaken != brTaken[i]) ||
                      (brTaken[i] == TRUE &&
                       bPred[i].predAddr != brResult[i].nextAddr)
-                ) && !(isApBr[i] || isApBLT[i] || isApBLTCyc[i]);
+                ) && !(isApBr[i] || isApBLT[i] || isApBLTCyc[i] || isApBCC[i]);
 
             brResult[i].mispred = predMiss[i];
             // ap.branch?
