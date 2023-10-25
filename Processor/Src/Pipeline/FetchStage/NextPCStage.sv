@@ -192,6 +192,7 @@ module NextPCStage(
                     else if ( fetch.brDecidCycTaken[i] ) begin
                         // Use PC from AXBLTCycBTB
                         predNextPC = fetch.axbltcycbtbOut[i];
+                        break;
                     end
                     else if( fetch.brPredTaken[i]) begin
                         // Use PC from BTB or RAS

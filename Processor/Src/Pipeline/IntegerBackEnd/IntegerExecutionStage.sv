@@ -232,6 +232,9 @@ module IntegerExecutionStage(
             if (bPred[i].isApBr) begin
                 brResult[i].nextAddr = ToPC_FromAddr(pc[i] + ExtendApproxBranchDisplacement(brSubInfo[i].brDisp));
             end
+            else if (bPred[i].isApBLTCyc) begin
+                brResult[i].nextAddr = ToPC_FromAddr(pc[i] + ExtendBranchDisplacement(brSubInfo[i].brDisp));
+            end
             else if( brTaken[i] ) begin
                 brResult[i].nextAddr =
                     ToPC_FromAddr(
