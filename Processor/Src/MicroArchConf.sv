@@ -58,7 +58,7 @@ localparam CONF_REPLAY_QUEUE_ENTRY_NUM = 20;
 `ifdef RSD_MARCH_INT_ISSUE_WIDTH
     localparam CONF_INT_ISSUE_WIDTH =`RSD_MARCH_INT_ISSUE_WIDTH;
 `else
-    localparam CONF_INT_ISSUE_WIDTH = 4;
+    localparam CONF_INT_ISSUE_WIDTH = 2;
 `endif
 
 // The issue width of memory pipelines.
