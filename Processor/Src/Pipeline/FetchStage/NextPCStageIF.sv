@@ -140,20 +140,20 @@ interface NextPCStageIF( input logic clk, rst, rstStart );
         brResult
     );
 
-    modport BranchDeciderCycle(
-    input
-        clk,
-        rst,
-        rstStart,
-        predNextPC,
-        brResult
-    );
+    // modport BranchDeciderCycle(
+    // input
+    //     clk,
+    //     rst,
+    //     rstStart,
+    //     predNextPC,
+    //     brResult
+    // );
 
     modport BeginCycleCount(
     input
         clk,
         rst,
-        rstStart,
+        // rstStart,
         predNextPC,
         brResult
     );
