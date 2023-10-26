@@ -104,6 +104,7 @@ interface FetchStageIF( input logic clk, rst, rstStart );
         axbtbHit,
         axbltcycbtbOut,
         axbltcycbtbHit,
+        bufferHit,
         brDecidTaken,
         brDecidCycTaken
     );
