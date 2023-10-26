@@ -29,7 +29,7 @@ always_comb begin
         end
     end
     for (int i = 0; i < INT_ISSUE_WIDTH; ++i) begin
-        if (port.brResult[i].isApBCC && !port.brResult[i].bufHit) begin
+        if (port.brResult[i].valid && port.brResult[i].isApBCC && !port.brResult[i].bufHit) begin
             update = TRUE;
         end
     end
