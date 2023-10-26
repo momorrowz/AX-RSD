@@ -125,7 +125,7 @@ module NextPCStage(
             writePC_FromOuter = FALSE;
             for (int i = 0; i < FETCH_WIDTH; i++) begin
                 if (!regStall && fetch.fetchStageIsValid[i] && 
-                        (fetch.btbHit[i] || fetch.axbtbHit[i])) begin
+                        (fetch.btbHit[i] || fetch.axbtbHit[i] || fetch.axbltcycbtbHit[i] || fetch.bufferHit[i])) begin
                     writePC_FromOuter = TRUE;
                 end
             end
