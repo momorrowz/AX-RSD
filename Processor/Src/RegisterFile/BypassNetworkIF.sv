@@ -114,8 +114,11 @@ interface BypassNetworkIF(input logic clk, rst, rstStart);
     PRegDataPath  fpSrcRegDataOutA [ FP_ISSUE_WIDTH ];
     PRegDataPath  fpSrcRegDataOutB [ FP_ISSUE_WIDTH ];
     PRegDataPath  fpSrcRegDataOutC [ FP_ISSUE_WIDTH ];
-
+`ifndef RSD_MARCH_LOW_LATENCY_FP
     PRegDataPath  fpDstRegDataOut  [ FP_ISSUE_WIDTH ];
+`else
+    PRegDataPath  fpDstRegDataOut  [ FP_ISSUE_WIDTH * 3];
+`endif
 `endif
 
     modport BypassController(

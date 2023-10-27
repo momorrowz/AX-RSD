@@ -9,9 +9,10 @@ RSD_SRC_CFG = \
 	+define+RSD_MARCH_FP_PIPE \
 	+define+RSD_MARCH_MULTIPLE_FP_ISSUE \
 	+define+RSD_MARCH_BYPASS_COMPLEX_FP \
+	+define+RSD_MARCH_LOW_LATENCY_FP \
 	+define+ENABLE_ANYTIME_FP \
 	+define+ENABLE_ZICOND \
-	+define+SYNTHESIS_USE_SRAM \
+	#+define+SYNTHESIS_USE_SRAM \
 	+define+UNIT_DELAY \
 	+define+TSMC_CM_UNIT_DELAY \
 
@@ -185,7 +186,7 @@ CORE_MODULES = \
 	Debug/DebugIF.sv \
 	Debug/PerformanceCounter.sv \
 	Debug/PerformanceCounterIF.sv \
-	Primitives/SRAM.sv \
+	#Primitives/SRAM.sv \
 	Primitives/tsdn28hpcpa512x68m4m_130a_tt0p9v25c.v \
     Primitives/tsdn28hpcpuhdb128x64m4mwa_170a_tt0p9v25c.v \
     Primitives/tsdn28hpcpuhdb256x64m4mwa_170a_tt0p9v25c.v \

@@ -144,8 +144,14 @@ module FPExecutionStage(
     FFlags_Path   fmaFFlagsOut [ FP_ISSUE_WIDTH ];
     FFlags_Path   otherFFlagsOut [ FP_ISSUE_WIDTH ];
 
-
-
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+    DataPath  addDataOut_to_bypass   [ FP_ISSUE_WIDTH ];
+    DataPath  mulDataOut_to_bypass   [ FP_ISSUE_WIDTH ];
+    DataPath  otherDataOut_to_bypass_1 [ FP_ISSUE_WIDTH ];
+    DataPath  otherDataOut_to_bypass_3 [ FP_ISSUE_WIDTH ];
+    PRegDataPath  dataOut1  [ FP_ISSUE_WIDTH ];
+    PRegDataPath  dataOut3  [ FP_ISSUE_WIDTH ];
+`endif
     //
     // Divider/Sqrt Unit
     //
@@ -159,6 +165,9 @@ module FPExecutionStage(
             .lhs ( fuOpA[i].data ),
             .rhs ( fpuCode[i] == FC_SUB ? {~fuOpB[i].data[31], fuOpB[i].data[30:0]} : fuOpB[i].data ),
             //.rm (rm[i]),
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+            .result_to_bypass ( addDataOut_to_bypass[i] ),
+`endif
             .result ( addDataOut[i] )
             //.fflags ( addFFlagsOut[i])
         );
@@ -170,6 +179,9 @@ module FPExecutionStage(
             .lhs ( fuOpA[i].data ),
             .rhs ( fuOpB[i].data ),
             //.rm (rm[i]),
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+            .result_to_bypass ( mulDataOut_to_bypass[i] ),
+`endif
             .result ( mulDataOut[i] )
             //.fflags ( mulFFlagsOut[i])
         );
@@ -192,6 +204,10 @@ module FPExecutionStage(
             .rhs ( fuOpB[i].data ),
             .fpuCode (fpuCode[i]),
             .rm (rm[i]),
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+            .result_to_bypass_1 ( otherDataOut_to_bypass_1[i] ),
+            .result_to_bypass_3 ( otherDataOut_to_bypass_3[i] ),
+`endif
             .result ( otherDataOut[i] ),
             .fflags ( otherFFlagsOut[i])
         );
@@ -338,6 +354,15 @@ module FPExecutionStage(
 
             // 最後のステージで出力
             bypass.fpDstRegDataOut[i] = dataOut[i];
+
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+            dataOut1[i].valid = nextLocalPipeReg[i][0].regValid && pipeReg[i].fpQueueData.fpOpInfo.opType == FP_MOP_TYPE_OTHER;
+            dataOut1[i].data  = otherDataOut_to_bypass_1[i];
+            dataOut3[i].valid = localPipeReg[i][1].regValid && localPipeReg[i][1].fpQueueData.fpOpInfo.opType inside {FP_MOP_TYPE_OTHER, FP_MOP_TYPE_ADD, FP_MOP_TYPE_MUL};
+            dataOut3[i].data  = localPipeReg[i][1].fpQueueData.fpOpInfo.opType == FP_MOP_TYPE_OTHER ? otherDataOut_to_bypass_3[i] : (localPipeReg[i][1].fpQueueData.fpOpInfo.opType == FP_MOP_TYPE_ADD ? addDataOut_to_bypass[i] : mulDataOut_to_bypass[i]);
+            bypass.fpDstRegDataOut[i+FP_ISSUE_WIDTH] = dataOut1[i];
+            bypass.fpDstRegDataOut[i+FP_ISSUE_WIDTH*2] = dataOut3[i];
+`endif
 
             //
             // --- Replay

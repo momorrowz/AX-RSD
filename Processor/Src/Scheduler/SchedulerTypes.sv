@@ -45,8 +45,23 @@ localparam ISSUE_QUEUE_FP_LATENCY      = FP_EXEC_STAGE_DEPTH + 2;
 localparam ISSUE_QUEUE_FP_LATENCY      = FP_EXEC_STAGE_DEPTH;
 `endif
 
-localparam WAKEUP_WIDTH = INT_ISSUE_WIDTH + COMPLEX_ISSUE_WIDTH + LOAD_ISSUE_WIDTH + FP_ISSUE_WIDTH;    // Stores do not wakeup consumers.
+localparam ISSUE_QUEUE_FP_LATENCY_1_CYCLE = 1;
+localparam ISSUE_QUEUE_FP_LATENCY_3_CYCLE = 3;
+localparam ISSUE_QUEUE_FP_LATENCY_5_CYCLE = 5;
 
+typedef enum logic [1:0]
+{
+    FP_LATENCY_0_CYCLE = 2'b00, // NOT FP operations
+    FP_LATENCY_1_CYCLE = 2'b01, // ex. fcvt, fsign, ...
+    FP_LATENCY_3_CYCLE = 2'b10, // fadd, fmul
+    FP_LATENCY_5_CYCLE = 2'b11  // fma, fdiv, fsqrt
+} FPLatencyType;
+
+`ifndef RSD_MARCH_LOW_LATENCY_FP
+localparam WAKEUP_WIDTH = INT_ISSUE_WIDTH + COMPLEX_ISSUE_WIDTH + LOAD_ISSUE_WIDTH + FP_ISSUE_WIDTH;    // Stores do not wakeup consumers.
+`else
+localparam WAKEUP_WIDTH = INT_ISSUE_WIDTH + COMPLEX_ISSUE_WIDTH + LOAD_ISSUE_WIDTH + FP_ISSUE_WIDTH * 3;    // Stores do not wakeup consumers.
+`endif
 // --- Issue queue flush count
 // - 例外発生時に、発行キューは例外命令より後方の命令が選択的にフラッシュされる。
 //   その際、フリーリストへのインデックスの返却は専用のポートを介して複数サイクルで行われる。

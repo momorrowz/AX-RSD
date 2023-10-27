@@ -32,6 +32,9 @@ module Scheduler(
 `ifdef RSD_MARCH_FP_PIPE
     logic [ISSUE_QUEUE_ENTRY_NUM-1:0] isFP;
     logic [ISSUE_QUEUE_ENTRY_NUM-1:0] isFPDivSqrt;
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+    FPLatencyType [ISSUE_QUEUE_ENTRY_NUM-1:0] fpLatency;
+`endif
 `endif
 
     IssueQueueOneHotPath flushIQ_Entry;
@@ -57,6 +60,9 @@ module Scheduler(
 `ifdef RSD_MARCH_FP_PIPE
             isFP = '0;
             isFPDivSqrt = '0;
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+            fpLatency = FP_LATENCY_0_CYCLE;
+`endif
 `endif
         end
     `endif
@@ -87,6 +93,9 @@ module Scheduler(
 `ifdef RSD_MARCH_FP_PIPE
                             isFP[ port.writePtr[i] ] <= FALSE;
                             isFPDivSqrt[ port.writePtr[i] ] <= FALSE;
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+                            fpLatency[port.writePtr[i]] <= FP_LATENCY_0_CYCLE;
+`endif
 `endif
                         end
                         else begin
@@ -113,6 +122,9 @@ module Scheduler(
 `ifdef RSD_MARCH_FP_PIPE
                             isFP[ port.writePtr[i] ] <= FALSE;
                             isFPDivSqrt[ port.writePtr[i] ] <= FALSE;
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+                            fpLatency[port.writePtr[i]] <= FP_LATENCY_0_CYCLE;
+`endif
 `endif
                         end
                     end
@@ -127,6 +139,9 @@ module Scheduler(
 `ifdef RSD_MARCH_FP_PIPE
                             isFP[ port.writePtr[i] ] <= FALSE;
                             isFPDivSqrt[ port.writePtr[i] ] <= FALSE;
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+                            fpLatency[port.writePtr[i]] <= FP_LATENCY_0_CYCLE;
+`endif
 `endif
                         end
                         else begin
@@ -138,12 +153,19 @@ module Scheduler(
 `ifdef RSD_MARCH_FP_PIPE
                             isFP[ port.writePtr[i] ] <= FALSE;
                             isFPDivSqrt[ port.writePtr[i] ] <= FALSE;
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+                            fpLatency[port.writePtr[i]] <= FP_LATENCY_0_CYCLE;
+`endif
 `endif
                         end
                     end
 `ifdef RSD_MARCH_FP_PIPE
                     else if (port.writeSchedulerData[i].opType == MOP_TYPE_FP) begin
-                        if (port.writeSchedulerData[i].opSubType.complexType inside {FP_MOP_TYPE_DIV, FP_MOP_TYPE_SQRT}) begin
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+                        fpLatency[port.writePtr[i]] <= (port.writeSchedulerData[i].opSubType.fpType == FP_MOP_TYPE_OTHER) ? FP_LATENCY_1_CYCLE 
+                                                     : ((port.writeSchedulerData[i].opSubType.fpType inside {FP_MOP_TYPE_ADD, FP_MOP_TYPE_MUL}) ? FP_LATENCY_3_CYCLE : FP_LATENCY_5_CYCLE);
+`endif
+                        if (port.writeSchedulerData[i].opSubType.fpType inside {FP_MOP_TYPE_DIV, FP_MOP_TYPE_SQRT}) begin
                             isLoad[ port.writePtr[i] ] <= FALSE;
                             isStore[ port.writePtr[i] ] <= FALSE;
                             isComplex[ port.writePtr[i] ] <= FALSE;
@@ -172,6 +194,9 @@ module Scheduler(
 `ifdef RSD_MARCH_FP_PIPE
                         isFP[ port.writePtr[i] ] <= FALSE;
                         isFPDivSqrt[ port.writePtr[i] ] <= FALSE;
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+                        fpLatency[port.writePtr[i]] <= FP_LATENCY_0_CYCLE;
+`endif
 `endif
                     end
                 end
@@ -309,6 +334,9 @@ module Scheduler(
             wakeupSelect.fpDivSqrtIssueReq[i] = 
                 notIssued[i] && isFP[i] && isFPDivSqrt[i];
             wakeupSelect.canIssueFPDivSqrt = canIssueFPDivSqrt;
+`endif
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+            wakeupSelect.fpLatency[i] = fpLatency[i];
 `endif
 `endif
         end

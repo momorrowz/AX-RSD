@@ -105,6 +105,12 @@ module BypassNetwork(
         BypassOperand memWB [ LOAD_ISSUE_WIDTH ],
         BypassOperand complexEX2 [ COMPLEX_ISSUE_WIDTH ],
         BypassOperand complexWB [ COMPLEX_ISSUE_WIDTH ],
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+        BypassOperand fpEX0 [ FP_ISSUE_WIDTH ],
+        BypassOperand fpEX1 [ FP_ISSUE_WIDTH ],
+        BypassOperand fpEX2 [ FP_ISSUE_WIDTH ],
+        BypassOperand fpEX3 [ FP_ISSUE_WIDTH ],
+`endif
         BypassOperand fpEX4 [ FP_ISSUE_WIDTH ],
         BypassOperand fpWB [ FP_ISSUE_WIDTH ]
     );
@@ -120,6 +126,16 @@ module BypassNetwork(
             return complexEX2[sel.lane.complexLane].value;
         else   if( sel.stg == BYPASS_STAGE_COMPLEX_WB )
             return complexWB[sel.lane.complexLane].value;
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+        else   if( sel.stg == BYPASS_STAGE_FP_EX0 )
+            return fpEX0[sel.lane.fpLane].value;
+        else   if( sel.stg == BYPASS_STAGE_FP_EX1 )
+            return fpEX1[sel.lane.fpLane].value;
+        else   if( sel.stg == BYPASS_STAGE_FP_EX2 )
+            return fpEX2[sel.lane.fpLane].value;
+        else   if( sel.stg == BYPASS_STAGE_FP_EX3 )
+            return fpEX3[sel.lane.fpLane].value;
+`endif
         else   if( sel.stg == BYPASS_STAGE_FP_EX4 )
             return fpEX4[sel.lane.fpLane].value;
         else   if( sel.stg == BYPASS_STAGE_FP_WB )
@@ -133,6 +149,12 @@ module BypassNetwork(
         BypassSelect sel,
         BypassOperand memMA [ LOAD_ISSUE_WIDTH ],
         BypassOperand memWB [ LOAD_ISSUE_WIDTH ],
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+        BypassOperand fpEX0 [ FP_ISSUE_WIDTH ],
+        BypassOperand fpEX1 [ FP_ISSUE_WIDTH ],
+        BypassOperand fpEX2 [ FP_ISSUE_WIDTH ],
+        BypassOperand fpEX3 [ FP_ISSUE_WIDTH ],
+`endif
         BypassOperand fpEX4 [ FP_ISSUE_WIDTH ],
         BypassOperand fpWB [ FP_ISSUE_WIDTH ]
     );
@@ -140,6 +162,16 @@ module BypassNetwork(
             return memMA[sel.lane.memLane].value;
         else   if( sel.stg == BYPASS_STAGE_MEM_WB )
             return memWB[sel.lane.memLane].value;
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+        else   if( sel.stg == BYPASS_STAGE_FP_EX0 )
+            return fpEX0[sel.lane.fpLane].value;
+        else   if( sel.stg == BYPASS_STAGE_FP_EX1 )
+            return fpEX1[sel.lane.fpLane].value;
+        else   if( sel.stg == BYPASS_STAGE_FP_EX2 )
+            return fpEX2[sel.lane.fpLane].value;
+        else   if( sel.stg == BYPASS_STAGE_FP_EX3 )
+            return fpEX3[sel.lane.fpLane].value;
+`endif
         else   if( sel.stg == BYPASS_STAGE_FP_EX4 )
             return fpEX4[sel.lane.fpLane].value;
         else   if( sel.stg == BYPASS_STAGE_FP_WB )
@@ -164,6 +196,14 @@ module BypassNetwork(
     BypassOperand fpDst [ FP_ISSUE_WIDTH ];
     BypassOperand fpEX4  [ FP_ISSUE_WIDTH ];
     BypassOperand fpWB  [ FP_ISSUE_WIDTH ];
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+    BypassOperand fpDst_0 [ FP_ISSUE_WIDTH ];
+    BypassOperand fpDst_2 [ FP_ISSUE_WIDTH ];
+    BypassOperand fpEX0  [ FP_ISSUE_WIDTH ];
+    BypassOperand fpEX1  [ FP_ISSUE_WIDTH ];
+    BypassOperand fpEX2  [ FP_ISSUE_WIDTH ];
+    BypassOperand fpEX3  [ FP_ISSUE_WIDTH ];
+`endif
 `endif
 `endif
     generate 
@@ -185,6 +225,12 @@ module BypassNetwork(
         
 `ifdef RSD_MARCH_FP_PIPE
         for ( genvar i = 0; i < FP_ISSUE_WIDTH; i++ ) begin : stgFP
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+            BypassStage stgFPEX0( port.clk, port.rst, ctrl.backEnd, fpDst_0[i], fpEX0[i] );
+            BypassStage stgFPEX1( port.clk, port.rst, ctrl.backEnd, fpEX0[0], fpEX1[i] );
+            BypassStage stgFPEX2( port.clk, port.rst, ctrl.backEnd, fpDst_2[i], fpEX2[i] );
+            BypassStage stgFPEX3( port.clk, port.rst, ctrl.backEnd, fpEX2[0], fpEX3[i] );
+`endif
             BypassStage stgFPEX4( port.clk, port.rst, ctrl.backEnd, fpDst[i], fpEX4[i] );
             BypassStage stgFPWB( port.clk, port.rst, ctrl.backEnd, fpEX4[i],  fpWB[i] );
         end
@@ -201,8 +247,13 @@ module BypassNetwork(
             port.intSrcRegDataOutB[i] = SelectData( port.intCtrlIn[i].rB,   intEX, intWB, memMA, memWB );
 `else
 `ifdef RSD_MARCH_FP_PIPE
+`ifndef RSD_MARCH_LOW_LATENCY_FP
             port.intSrcRegDataOutA[i] = SelectData_IntComplexMemFP( port.intCtrlIn[i].rA,   intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX4, fpWB );
             port.intSrcRegDataOutB[i] = SelectData_IntComplexMemFP( port.intCtrlIn[i].rB,   intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX4, fpWB );
+`else
+            port.intSrcRegDataOutA[i] = SelectData_IntComplexMemFP( port.intCtrlIn[i].rA,   intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+            port.intSrcRegDataOutB[i] = SelectData_IntComplexMemFP( port.intCtrlIn[i].rB,   intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+`endif
 `else
             port.intSrcRegDataOutA[i] = SelectData_IntComplexMem( port.intCtrlIn[i].rA,   intEX, intWB, memMA, memWB, complexEX2, complexWB );
             port.intSrcRegDataOutB[i] = SelectData_IntComplexMem( port.intCtrlIn[i].rB,   intEX, intWB, memMA, memWB, complexEX2, complexWB );
@@ -218,8 +269,13 @@ module BypassNetwork(
 `else
             complexDst[i].value = port.complexDstRegDataOut[i];
 `ifdef RSD_MARCH_FP_PIPE
+`ifndef RSD_MARCH_LOW_LATENCY_FP
             port.complexSrcRegDataOutA[i] = SelectData_IntComplexMemFP( port.complexCtrlIn[i].rA,   intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX4, fpWB );
             port.complexSrcRegDataOutB[i] = SelectData_IntComplexMemFP( port.complexCtrlIn[i].rB,   intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX4, fpWB );
+`else
+            port.complexSrcRegDataOutA[i] = SelectData_IntComplexMemFP( port.complexCtrlIn[i].rA,   intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+            port.complexSrcRegDataOutB[i] = SelectData_IntComplexMemFP( port.complexCtrlIn[i].rB,   intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+`endif
 `else
             port.complexSrcRegDataOutA[i] = SelectData_IntComplexMem( port.complexCtrlIn[i].rA,   intEX, intWB, memMA, memWB, complexEX2, complexWB );
             port.complexSrcRegDataOutB[i] = SelectData_IntComplexMem( port.complexCtrlIn[i].rB,   intEX, intWB, memMA, memWB, complexEX2, complexWB );
@@ -238,8 +294,13 @@ module BypassNetwork(
             port.memSrcRegDataOutB[i] = SelectData( port.memCtrlIn[i].rB,   intEX, intWB, memMA, memWB );
 `else
 `ifdef RSD_MARCH_FP_PIPE
+`ifndef RSD_MARCH_LOW_LATENCY_FP
             port.memSrcRegDataOutA[i] = SelectData_IntComplexMemFP( port.memCtrlIn[i].rA,   intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX4, fpWB );
             port.memSrcRegDataOutB[i] = SelectData_IntComplexMemFP( port.memCtrlIn[i].rB,   intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX4, fpWB );
+`else
+            port.memSrcRegDataOutA[i] = SelectData_IntComplexMemFP( port.memCtrlIn[i].rA,   intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+            port.memSrcRegDataOutB[i] = SelectData_IntComplexMemFP( port.memCtrlIn[i].rB,   intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+`endif
 `else
             port.memSrcRegDataOutA[i] = SelectData_IntComplexMem( port.memCtrlIn[i].rA,   intEX, intWB, memMA, memWB, complexEX2, complexWB );
             port.memSrcRegDataOutB[i] = SelectData_IntComplexMem( port.memCtrlIn[i].rB,   intEX, intWB, memMA, memWB, complexEX2, complexWB);
@@ -255,9 +316,17 @@ module BypassNetwork(
             port.fpSrcRegDataOutC[i] = SelectData( port.fpCtrlIn[i].rC,   intEX, intWB, memMA, memWB );
 `else
             fpDst[i].value = port.fpDstRegDataOut[i];
+`ifndef RSD_MARCH_LOW_LATENCY_FP
             port.fpSrcRegDataOutA[i] = SelectData_IntComplexMemFP( port.fpCtrlIn[i].rA,   intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX4, fpWB );
             port.fpSrcRegDataOutB[i] = SelectData_MemFP( port.fpCtrlIn[i].rB,   memMA, memWB, fpEX4, fpWB );
             port.fpSrcRegDataOutC[i] = SelectData_MemFP( port.fpCtrlIn[i].rC,   memMA, memWB, fpEX4, fpWB );
+`else
+            fpDst_0[i].value = port.fpDstRegDataOut[i+FP_ISSUE_WIDTH];
+            fpDst_2[i].value = port.fpDstRegDataOut[i+FP_ISSUE_WIDTH*2];
+            port.fpSrcRegDataOutA[i] = SelectData_IntComplexMemFP( port.fpCtrlIn[i].rA,   intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+            port.fpSrcRegDataOutB[i] = SelectData_MemFP( port.fpCtrlIn[i].rB,   memMA, memWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+            port.fpSrcRegDataOutC[i] = SelectData_MemFP( port.fpCtrlIn[i].rC,   memMA, memWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+`endif
 `endif
         end
 `endif

@@ -188,6 +188,12 @@ module BypassController(
         BypassCtrlOperand memWB [ LOAD_ISSUE_WIDTH ],
         BypassCtrlOperand complexEX2 [COMPLEX_ISSUE_WIDTH ],
         BypassCtrlOperand complexWB [ COMPLEX_ISSUE_WIDTH ],
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+        BypassCtrlOperand fpEX0 [FP_ISSUE_WIDTH ],
+        BypassCtrlOperand fpEX1 [FP_ISSUE_WIDTH ],
+        BypassCtrlOperand fpEX2 [FP_ISSUE_WIDTH ],
+        BypassCtrlOperand fpEX3 [FP_ISSUE_WIDTH ],
+`endif
         BypassCtrlOperand fpEX4 [FP_ISSUE_WIDTH ],
         BypassCtrlOperand fpWB [ FP_ISSUE_WIDTH ]
     );
@@ -262,6 +268,34 @@ module BypassController(
                 break;
             end
         end
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+        for ( int i = 0; i < FP_ISSUE_WIDTH; i++ ) begin
+            if ( read && fpEX0[i].writeReg && regNum == fpEX0[i].dstRegNum ) begin
+                ret.valid = TRUE;
+                ret.stg = BYPASS_STAGE_FP_EX0;
+                ret.lane.fpLane = i;
+                break;
+            end
+            if ( read && fpEX1[i].writeReg && regNum == fpEX1[i].dstRegNum ) begin
+                ret.valid = TRUE;
+                ret.stg = BYPASS_STAGE_FP_EX1;
+                ret.lane.fpLane = i;
+                break;
+            end
+            if ( read && fpEX2[i].writeReg && regNum == fpEX2[i].dstRegNum ) begin
+                ret.valid = TRUE;
+                ret.stg = BYPASS_STAGE_FP_EX2;
+                ret.lane.fpLane = i;
+                break;
+            end
+            if ( read && fpEX3[i].writeReg && regNum == fpEX3[i].dstRegNum ) begin
+                ret.valid = TRUE;
+                ret.stg = BYPASS_STAGE_FP_EX3;
+                ret.lane.fpLane = i;
+                break;
+            end
+        end
+`endif
         
         return ret;
     endfunction
@@ -272,6 +306,12 @@ module BypassController(
         logic read,
         BypassCtrlOperand memMA [ LOAD_ISSUE_WIDTH ],
         BypassCtrlOperand memWB [ LOAD_ISSUE_WIDTH ],
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+        BypassCtrlOperand fpEX0 [FP_ISSUE_WIDTH ],
+        BypassCtrlOperand fpEX1 [FP_ISSUE_WIDTH ],
+        BypassCtrlOperand fpEX2 [FP_ISSUE_WIDTH ],
+        BypassCtrlOperand fpEX3 [FP_ISSUE_WIDTH ],
+`endif
         BypassCtrlOperand fpEX4 [ FP_ISSUE_WIDTH ],
         BypassCtrlOperand fpWB [ FP_ISSUE_WIDTH ]
     );
@@ -315,6 +355,34 @@ module BypassController(
                 break;
             end
         end
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+        for ( int i = 0; i < FP_ISSUE_WIDTH; i++ ) begin
+            if ( read && fpEX0[i].writeReg && regNum == fpEX0[i].dstRegNum ) begin
+                ret.valid = TRUE;
+                ret.stg = BYPASS_STAGE_FP_EX0;
+                ret.lane.fpLane = i;
+                break;
+            end
+            if ( read && fpEX1[i].writeReg && regNum == fpEX1[i].dstRegNum ) begin
+                ret.valid = TRUE;
+                ret.stg = BYPASS_STAGE_FP_EX1;
+                ret.lane.fpLane = i;
+                break;
+            end
+            if ( read && fpEX2[i].writeReg && regNum == fpEX2[i].dstRegNum ) begin
+                ret.valid = TRUE;
+                ret.stg = BYPASS_STAGE_FP_EX2;
+                ret.lane.fpLane = i;
+                break;
+            end
+            if ( read && fpEX3[i].writeReg && regNum == fpEX3[i].dstRegNum ) begin
+                ret.valid = TRUE;
+                ret.stg = BYPASS_STAGE_FP_EX3;
+                ret.lane.fpLane = i;
+                break;
+            end
+        end
+`endif
         
         return ret;
     endfunction
@@ -407,8 +475,13 @@ module BypassController(
             intBypassCtrl[i].rB   = SelectReg ( port.intPhySrcRegNumB[i], port.intReadRegB[i], intEX, intWB, memMA, memWB );
 `else
 `ifdef RSD_MARCH_FP_PIPE
+`ifndef RSD_MARCH_LOW_LATENCY_FP
             intBypassCtrl[i].rA   = SelectReg_IntComplexMemFP ( port.intPhySrcRegNumA[i], port.intReadRegA[i], intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX4, fpWB );
             intBypassCtrl[i].rB   = SelectReg_IntComplexMemFP ( port.intPhySrcRegNumB[i], port.intReadRegB[i], intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX4, fpWB );
+`else
+            intBypassCtrl[i].rA   = SelectReg_IntComplexMemFP ( port.intPhySrcRegNumA[i], port.intReadRegA[i], intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+            intBypassCtrl[i].rB   = SelectReg_IntComplexMemFP ( port.intPhySrcRegNumB[i], port.intReadRegB[i], intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+`endif
 `else
             intBypassCtrl[i].rA   = SelectReg_IntComplexMem ( port.intPhySrcRegNumA[i], port.intReadRegA[i], intEX, intWB, memMA, memWB, complexEX2, complexWB );
             intBypassCtrl[i].rB   = SelectReg_IntComplexMem ( port.intPhySrcRegNumB[i], port.intReadRegB[i], intEX, intWB, memMA, memWB, complexEX2, complexWB );
@@ -427,8 +500,13 @@ module BypassController(
             complexRR[i].writeReg  = port.complexWriteReg[i];
 
 `ifdef RSD_MARCH_FP_PIPE
+`ifndef RSD_MARCH_LOW_LATENCY_FP
             complexBypassCtrl[i].rA   = SelectReg_IntComplexMemFP ( port.complexPhySrcRegNumA[i], port.complexReadRegA[i], intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX4, fpWB );
             complexBypassCtrl[i].rB   = SelectReg_IntComplexMemFP ( port.complexPhySrcRegNumB[i], port.complexReadRegB[i], intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX4, fpWB);
+`else
+            complexBypassCtrl[i].rA   = SelectReg_IntComplexMemFP ( port.complexPhySrcRegNumA[i], port.complexReadRegA[i], intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+            complexBypassCtrl[i].rB   = SelectReg_IntComplexMemFP ( port.complexPhySrcRegNumB[i], port.complexReadRegB[i], intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB);
+`endif
 `else
             complexBypassCtrl[i].rA   = SelectReg_IntComplexMem ( port.complexPhySrcRegNumA[i], port.complexReadRegA[i], intEX, intWB, memMA, memWB, complexEX2, complexWB );
             complexBypassCtrl[i].rB   = SelectReg_IntComplexMem ( port.complexPhySrcRegNumB[i], port.complexReadRegB[i], intEX, intWB, memMA, memWB, complexEX2, complexWB );
@@ -449,8 +527,13 @@ module BypassController(
             memBypassCtrl[i].rB   = SelectReg ( port.memPhySrcRegNumB[i], port.memReadRegB[i], intEX, intWB, memMA, memWB );
 `else
 `ifdef RSD_MARCH_FP_PIPE
+`ifndef RSD_MARCH_LOW_LATENCY_FP
             memBypassCtrl[i].rA   = SelectReg_IntComplexMemFP ( port.memPhySrcRegNumA[i], port.memReadRegA[i], intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX4, fpWB );
             memBypassCtrl[i].rB   = SelectReg_IntComplexMemFP ( port.memPhySrcRegNumB[i], port.memReadRegB[i], intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX4, fpWB );
+`else
+            memBypassCtrl[i].rA   = SelectReg_IntComplexMemFP ( port.memPhySrcRegNumA[i], port.memReadRegA[i], intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+            memBypassCtrl[i].rB   = SelectReg_IntComplexMemFP ( port.memPhySrcRegNumB[i], port.memReadRegB[i], intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+`endif
 `else
             memBypassCtrl[i].rA   = SelectReg_IntComplexMem ( port.memPhySrcRegNumA[i], port.memReadRegA[i], intEX, intWB, memMA, memWB, complexEX2, complexWB );
             memBypassCtrl[i].rB   = SelectReg_IntComplexMem ( port.memPhySrcRegNumB[i], port.memReadRegB[i], intEX, intWB, memMA, memWB, complexEX2, complexWB );
@@ -468,9 +551,15 @@ module BypassController(
 `else
             fpRR[i].dstRegNum = port.fpPhyDstRegNum[i];
             fpRR[i].writeReg  = port.fpWriteReg[i];
+`ifndef RSD_MARCH_LOW_LATENCY_FP
             fpBypassCtrl[i].rA   = SelectReg_IntComplexMemFP ( port.fpPhySrcRegNumA[i], port.fpReadRegA[i], intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX4, fpWB );
             fpBypassCtrl[i].rB   = SelectReg_MemFP ( port.fpPhySrcRegNumB[i], port.fpReadRegB[i], memMA, memWB, fpEX4, fpWB );
             fpBypassCtrl[i].rC   = SelectReg_MemFP ( port.fpPhySrcRegNumC[i], port.fpReadRegC[i], memMA, memWB, fpEX4, fpWB );
+`else
+            fpBypassCtrl[i].rA   = SelectReg_IntComplexMemFP ( port.fpPhySrcRegNumA[i], port.fpReadRegA[i], intEX, intWB, memMA, memWB, complexEX2, complexWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+            fpBypassCtrl[i].rB   = SelectReg_MemFP ( port.fpPhySrcRegNumB[i], port.fpReadRegB[i], memMA, memWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+            fpBypassCtrl[i].rC   = SelectReg_MemFP ( port.fpPhySrcRegNumC[i], port.fpReadRegC[i], memMA, memWB, fpEX0, fpEX1, fpEX2, fpEX3, fpEX4, fpWB );
+`endif
 `endif
         end
         port.fpCtrlOut = fpBypassCtrl;

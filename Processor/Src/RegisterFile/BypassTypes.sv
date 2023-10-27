@@ -10,7 +10,11 @@ package BypassTypes;
 
 import BasicTypes::*;
 
+`ifndef RSD_MARCH_LOW_LATENCY_FP
 typedef enum logic unsigned [2:0]   // enum BypassSelect
+`else
+typedef enum logic unsigned [3:0]   // enum BypassSelect
+`endif
 {
     BYPASS_STAGE_INT_EX = 0,
     BYPASS_STAGE_INT_WB = 1,
@@ -20,6 +24,13 @@ typedef enum logic unsigned [2:0]   // enum BypassSelect
     BYPASS_STAGE_COMPLEX_WB = 5,
     BYPASS_STAGE_FP_EX4 = 6,
     BYPASS_STAGE_FP_WB = 7
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+    ,
+    BYPASS_STAGE_FP_EX0 = 8,
+    BYPASS_STAGE_FP_EX1 = 9,
+    BYPASS_STAGE_FP_EX2 = 10,
+    BYPASS_STAGE_FP_EX3 = 11
+`endif
 } BypassSelectStage;
 
 

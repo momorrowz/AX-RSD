@@ -5,6 +5,9 @@ input
     logic [31:0] lhs,
     logic [31:0] rhs,
 output
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+    logic [31:0] result_to_bypass,
+`endif
     logic [31:0] result
 );
 
@@ -23,6 +26,9 @@ output
         end else begin
             result = stg2Out;
         end
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+        result_to_bypass = stg2Out;
+`endif
     end
     always_ff @(posedge clk) begin
         if (PIPELINE_DEPTH > 3) begin

@@ -62,6 +62,9 @@ interface WakeupSelectIF( input logic clk, rst, rstStart );
     logic fpDivSqrtIssueReq[ISSUE_QUEUE_ENTRY_NUM];
     logic canIssueFPDivSqrt;
 `endif
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+    FPLatencyType fpLatency[ISSUE_QUEUE_ENTRY_NUM];
+`endif
 `endif
 
 
@@ -88,6 +91,9 @@ interface WakeupSelectIF( input logic clk, rst, rstStart );
 `ifdef RSD_MARCH_MULTIPLE_FP_ISSUE
         fpDivSqrtIssueReq,
         canIssueFPDivSqrt,
+`endif
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+        fpLatency,
 `endif
 `endif
         notIssued,
@@ -163,6 +169,9 @@ interface WakeupSelectIF( input logic clk, rst, rstStart );
         selected,
         selectedPtr,
         selectedVector,
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+        fpLatency,
+`endif
     output
         wakeup,
         wakeupPtr,
