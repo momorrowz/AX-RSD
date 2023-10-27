@@ -183,8 +183,30 @@ module NextPCStage(
                     break;
                 end
                 */
+                // if (!regStall && fetch.fetchStageIsValid[i]) begin
+                //     if (fetch.brDecidTaken[i]) begin
+                //         // Use PC from AXBTB
+                //         predNextPC = fetch.axbtbOut[i];
+                //         break;
+                //     end
+                //     else if ( fetch.brDecidCycTaken[i] ) begin
+                //         // Use PC from AXBLTCycBTB
+                //         predNextPC = fetch.axbltcycbtbOut[i];
+                //         break;
+                //     end
+                //     else if( fetch.brPredTaken[i]) begin
+                //         // Use PC from BTB or RAS
+                //         predNextPC = fetch.readIsRASPopBr[i] ? fetch.rasOut[i] : fetch.btbOut[i];
+                //         break;
+                //     end
+                // end
                 if (!regStall && fetch.fetchStageIsValid[i]) begin
-                    if (fetch.brDecidTaken[i]) begin
+                    if( fetch.brPredTaken[i]) begin
+                        // Use PC from BTB or RAS
+                        predNextPC = fetch.readIsRASPopBr[i] ? fetch.rasOut[i] : fetch.btbOut[i];
+                        break;
+                    end
+                    else if (fetch.brDecidTaken[i]) begin
                         // Use PC from AXBTB
                         predNextPC = fetch.axbtbOut[i];
                         break;
@@ -192,11 +214,6 @@ module NextPCStage(
                     else if ( fetch.brDecidCycTaken[i] ) begin
                         // Use PC from AXBLTCycBTB
                         predNextPC = fetch.axbltcycbtbOut[i];
-                        break;
-                    end
-                    else if( fetch.brPredTaken[i]) begin
-                        // Use PC from BTB or RAS
-                        predNextPC = fetch.readIsRASPopBr[i] ? fetch.rasOut[i] : fetch.btbOut[i];
                         break;
                     end
                 end
