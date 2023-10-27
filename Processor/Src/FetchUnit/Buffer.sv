@@ -43,7 +43,7 @@ module Buffer(
     generate
         BlockMultiBankRAM #(
             .ENTRY_NUM( AXBTB_ENTRY_NUM ),
-            .ENTRY_BIT_SIZE( $bits( AXBTB_Entry ) ),
+            .ENTRY_BIT_SIZE( $bits( Buffer_Entry ) ),
             .READ_NUM( FETCH_WIDTH ),
             .WRITE_NUM( INT_ISSUE_WIDTH )
         ) 
