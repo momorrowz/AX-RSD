@@ -18,9 +18,9 @@ module AXBLTCycBTB(
     // BTB access
     logic btbWE[INT_ISSUE_WIDTH];
     AXBTB_IndexPath btbWA[INT_ISSUE_WIDTH];
-    AXBTB_Entry btbWV[INT_ISSUE_WIDTH];
+    AXBLTCYCBTB_Entry btbWV[INT_ISSUE_WIDTH];
     AXBTB_IndexPath btbRA[FETCH_WIDTH];
-    AXBTB_Entry btbRV[FETCH_WIDTH];
+    AXBLTCYCBTB_Entry btbRV[FETCH_WIDTH];
     
     // Output
     PC_Path btbOut[FETCH_WIDTH];
@@ -43,7 +43,7 @@ module AXBLTCycBTB(
     generate
         BlockMultiBankRAM #(
             .ENTRY_NUM( AXBTB_ENTRY_NUM ),
-            .ENTRY_BIT_SIZE( $bits( AXBTB_Entry ) ),
+            .ENTRY_BIT_SIZE( $bits( AXBLTCYCBTB_Entry ) ),
             .READ_NUM( FETCH_WIDTH ),
             .WRITE_NUM( INT_ISSUE_WIDTH )
         ) 
@@ -110,7 +110,7 @@ module AXBLTCycBTB(
             
         // Make logic for using at other module.
         for (int i = 0; i < FETCH_WIDTH; i++) begin
-            btbHit[i] = btbRV[i].valid && (btbRV[i].tag == ToAXBTB_Tag(tagReg[i]));
+            btbHit[i] = btbRV[i].valid && (btbRV[i].tag == ToAXBLTCYCBTB_Tag(tagReg[i]));
             btbOut[i] = ToRawAddrFromBTB_Addr(btbRV[i].data, tagReg[i]);
         end
 
@@ -118,7 +118,7 @@ module AXBLTCycBTB(
         for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
             btbWE[i] = port.brResult[i].valid && port.brResult[i].isApBLTCyc; 
             btbWA[i] = ToAXBTB_Index(port.brResult[i].brAddr);
-            btbWV[i].tag = ToAXBTB_Tag(port.brResult[i].brAddr);
+            btbWV[i].tag = ToAXBLTCYCBTB_Tag(port.brResult[i].brAddr);
             btbWV[i].data = ToBTB_Addr(port.brResult[i].nextAddr);
             btbWV[i].valid = TRUE;
         end
