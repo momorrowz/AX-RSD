@@ -23,7 +23,8 @@ localparam AXBTB_ENTRY_NUM = CONF_AXBTB_ENTRY_NUM;
 // The width of a block ram is 18bits, thus the sum of these parameters is set to 18 bits.
 
 // Tag width, only lower bits are checked and the results of the BTB may incorrect.
-localparam BTB_TAG_WIDTH = 4;                
+localparam BTB_TAG_WIDTH = 4;
+localparam AXBLTCYCBTB_TAG_WIDTH = 8;                
 
 // BTB have bits with BTB_CONTENTS_ADDR_WIDTH. The remaining address bits are made from the PC.
 localparam BTB_CONTENTS_ADDR_WIDTH = 13;     
@@ -59,6 +60,13 @@ typedef struct packed // struct AXBTB_Entry
     logic [BTB_TAG_WIDTH-1:0] tag;
     BTB_AddrPath data;
 } AXBTB_Entry;
+
+typedef struct packed // struct AXBLTCYCBTB_Entry
+{
+    logic valid;
+    logic [AXBLTCYCBTB_TAG_WIDTH-1:0] tag;
+    BTB_AddrPath data;
+} AXBLTCYCBTB_Entry;
 
 typedef struct packed // struct Buffer_Entry
 {
@@ -102,6 +110,13 @@ endfunction
 function automatic BTB_TagPath ToAXBTB_Tag(PC_Path addr);
     return addr[
         AXBTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH + BTB_TAG_WIDTH - 1:
+        AXBTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH
+    ];
+endfunction
+
+function automatic BTB_TagPath ToAXBLTCYCBTB_Tag(PC_Path addr);
+    return addr[
+        AXBTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH + AXBLTCYCBTB_TAG_WIDTH - 1:
         AXBTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH
     ];
 endfunction
