@@ -119,10 +119,10 @@ module FetchStage(
         // The result of branch prediction
         for (int i = 0; i < FETCH_WIDTH; i++) begin
             // Don't use btbOut[i]; we are using RAS as well as BTB.
-            brPred[i].predAddr = port.brPredTaken[i] ? 
-                prev.predNextPC : (port.brDecidTaken[i] ? 
-                    port.axbtbOut[i] : (port.brDecidCycTaken[i] ? 
-                        port.axbltcycbtbOut[i] : pipeReg[i].pc + INSN_BYTE_WIDTH ));
+            brPred[i].predAddr = port.brDecidTaken[i] ?
+                port.axbtbOut[i] : (port.brDecidCycTaken[i] ?
+                    port.axbltcycbtbOut[i] : (port.brPredTaken[i] ?
+                        prev.predNextPC : pipeReg[i].pc + INSN_BYTE_WIDTH ));
             brPred[i].predTaken = port.brPredTaken[i] | port.brDecidTaken[i] | port.brDecidCycTaken[i]; // used in IE Stage
             brPred[i].globalHistory = port.brGlobalHistory[i];
             brPred[i].phtIndex = port.phtIndex[i];
