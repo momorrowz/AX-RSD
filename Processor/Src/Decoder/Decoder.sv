@@ -1539,8 +1539,8 @@ function automatic void RISCV_EmitApproxBeginCycleCount(
     opInfo.writeReg  = FALSE;
 
     // 論理レジスタを読むかどうか
-    opInfo.opTypeA = OOT_REG;
-    opInfo.opTypeB = OOT_REG;
+    opInfo.opTypeA = OOT_IMM;
+    opInfo.opTypeB = OOT_IMM;
 `ifdef RSD_MARCH_FP_PIPE 
     opInfo.opTypeC = OOT_IMM;
 `endif
@@ -1569,56 +1569,6 @@ function automatic void RISCV_EmitApproxBeginCycleCount(
 
     // Control
     opInfo.valid = TRUE;    // Valid outputs
-//     RISCV_ISF_SYSTEM isfSystem;
-//     SystemMicroOpOperand systemOp;
-//     logic undefined;
-
-//     isfSystem = isf;
-
-//     // 論理レジスタ番号
-// `ifdef RSD_MARCH_FP_PIPE
-//     systemOp.dstRegNum.isFP  = FALSE;
-//     systemOp.srcRegNumA.isFP = FALSE;
-//     systemOp.srcRegNumB.isFP = FALSE;
-// `endif
-//     systemOp.dstRegNum.regNum  = '0;
-//     systemOp.srcRegNumA.regNum = '0;
-//     systemOp.srcRegNumB.regNum = '0;
-//     systemOp.isEnv = TRUE;
-//     systemOp.padding = '0;
-//     systemOp.imm = '0;
-
-//     undefined = FALSE;
-
-//     // NOP 扱いにしておく
-//     opInfo.mopType = MOP_TYPE_INT;
-//     opInfo.mopSubType.intType = INT_MOP_TYPE_ALU;
-//     systemOp.envCode = ENV_BREAK;
-
-//     opInfo.operand.systemOp = systemOp;
-
-//     // レジスタ書き込みを行うかどうか
-//     opInfo.writeReg  = FALSE;
-
-//     // 論理レジスタを読むかどうか
-//     opInfo.opTypeA = OOT_IMM;
-//     opInfo.opTypeB = OOT_IMM;
-// `ifdef RSD_MARCH_FP_PIPE 
-//     opInfo.opTypeC = OOT_IMM;
-// `endif
-
-
-//     // 条件コード
-//     opInfo.cond = COND_AL;
-
-//     // Control
-//     opInfo.valid = TRUE;
-
-//     opInfo.unsupported = FALSE;
-//     opInfo.undefined = undefined;
-
-//     // Serialized
-//     opInfo.serialized = TRUE;
 endfunction
 
 function automatic void RISCV_DecodeApCycle(
