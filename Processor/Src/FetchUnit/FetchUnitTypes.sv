@@ -25,11 +25,10 @@ localparam AXBTB_ENTRY_NUM = CONF_AXBTB_ENTRY_NUM;
 // Tag width, only lower bits are checked and the results of the BTB may incorrect.
 localparam BTB_TAG_WIDTH = 4;
 localparam AXBLTCYCBTB_TAG_WIDTH = 8;                
+localparam BUFFER_TAG_WIDTH = BTB_TAG_WIDTH + BTB_CONTENTS_ADDR_WIDTH;
 
 // BTB have bits with BTB_CONTENTS_ADDR_WIDTH. The remaining address bits are made from the PC.
-localparam BTB_CONTENTS_ADDR_WIDTH = 13;     
-
-localparam BUFFER_TAG_WIDTH = BTB_TAG_WIDTH + BTB_CONTENTS_ADDR_WIDTH;
+localparam BTB_CONTENTS_ADDR_WIDTH = 13;
 
 localparam BTB_ENTRY_NUM_BIT_WIDTH = $clog2(BTB_ENTRY_NUM);
 localparam AXBTB_ENTRY_NUM_BIT_WIDTH = $clog2(AXBTB_ENTRY_NUM);
@@ -37,6 +36,7 @@ typedef logic [BTB_ENTRY_NUM_BIT_WIDTH-1:0] BTB_IndexPath;
 typedef logic [AXBTB_ENTRY_NUM_BIT_WIDTH-1:0] AXBTB_IndexPath;
 typedef logic [BTB_CONTENTS_ADDR_WIDTH-1:0] BTB_AddrPath;
 typedef logic [BTB_TAG_WIDTH-1:0] BTB_TagPath;
+typedef logic [AXBLTCYCBTB_TAG_WIDTH-1:0] AXBLTCYCBTB_TagPath;
 typedef logic [BUFFER_TAG_WIDTH-1:0] BUFFER_TagPath;
 
 
@@ -114,7 +114,7 @@ function automatic BTB_TagPath ToAXBTB_Tag(PC_Path addr);
     ];
 endfunction
 
-function automatic BTB_TagPath ToAXBLTCYCBTB_Tag(PC_Path addr);
+function automatic AXBLTCYCBTB_TagPath ToAXBLTCYCBTB_Tag(PC_Path addr);
     return addr[
         AXBTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH + AXBLTCYCBTB_TAG_WIDTH - 1:
         AXBTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH
