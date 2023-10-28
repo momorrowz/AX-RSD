@@ -161,11 +161,15 @@ module WakeupPipelineRegister(
             for( int i = 0; i < FP_ISSUE_WIDTH; i++ ) begin
                 for( int j = 0; j < ISSUE_QUEUE_FP_LATENCY; j++ ) begin
                     fpPipeReg[i][j].valid <= FALSE;
-`ifdef RSD_MARCH_LOW_LATENCY_FP
-                    fpPipeReg1[i][j].valid <= FALSE;
-                    fpPipeReg3[i][j].valid <= FALSE;
-`endif
                 end
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+                for( int j = 0; j < ISSUE_QUEUE_FP_LATENCY_1_CYCLE; j++ ) begin
+                    fpPipeReg1[i][j].valid <= FALSE;
+                end
+                for( int j = 0; j < ISSUE_QUEUE_FP_LATENCY_3_CYCLE; j++ ) begin
+                    fpPipeReg3[i][j].valid <= FALSE;
+                end
+`endif
             end
 `endif
         end

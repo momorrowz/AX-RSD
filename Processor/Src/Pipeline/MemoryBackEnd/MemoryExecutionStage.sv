@@ -83,9 +83,6 @@ module MemoryExecutionStage(
     // FENCE.I
     logic cacheFlushReq;
 
-    // ap.load
-    logic isApLoad[LOAD_ISSUE_WIDTH];
-
     always_comb begin
         stall = ctrl.backEnd.stall;
         clear = ctrl.backEnd.clear;
@@ -122,9 +119,6 @@ module MemoryExecutionStage(
                 (memOpInfo[i].operandTypeA != OOT_REG || fuOpA[i].valid ) &&
                 (memOpInfo[i].operandTypeB != OOT_REG || fuOpB[i].valid );
 
-            // for ap.load
-            isApLoad[i] = memOpInfo[i].isApLoad;
-
         end // for ( int i = 0; i < MEM_ISSUE_WIDTH; i++ ) begin
         
         for ( int i = 0; i < LOAD_ISSUE_WIDTH; i++ ) begin
@@ -141,7 +135,8 @@ module MemoryExecutionStage(
 
             loadStoreUnit.dcReadUncachable[i] = isUncachable[i];
 
-            loadStoreUnit.isApLoad[i] = isApLoad[i];
+            // for ap.load
+            loadStoreUnit.isApLoad[i] = memOpInfo[i].isApLoad;
             
             // AL Ptr to release MSHR entry when allocator load is flushed.
             loadStoreUnit.dcReadActiveListPtr[i] = pipeReg[i].memQueueData.activeListPtr;

@@ -1270,7 +1270,7 @@ module DCache(
         end
 
         for (int i = 0; i < DCACHE_LSU_PORT_NUM; i++) begin
-            if (!missReq[i] || (isApLoad[i] && is_taken) || mshrConflict[i]) begin
+            if (!missReq[i] || (i < DCACHE_LSU_READ_PORT_NUM && isApLoad[i] && is_taken) || mshrConflict[i]) begin
                 // This access hits the cache or is invalid.
                 // An access with the same index cannot enter to the MSHR.
                 continue;
