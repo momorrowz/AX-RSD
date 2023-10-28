@@ -142,6 +142,7 @@ module IntegerExecutionStage(
     BranchResult brResult [ INT_ISSUE_WIDTH ];
     logic predMiss [ INT_ISSUE_WIDTH ];
     logic regValid [ INT_ISSUE_WIDTH ];
+    CondCode cond [ INT_ISSUE_WIDTH ];
 
     IntOpSubInfo intSubInfo[ INT_ISSUE_WIDTH ];
     BrOpSubInfo  brSubInfo[ INT_ISSUE_WIDTH ];
@@ -168,8 +169,9 @@ module IntegerExecutionStage(
             fuOpA[i] = ( pipeReg[i].bCtrl.rA.valid ? bypass.intSrcRegDataOutA[i] : pipeReg[i].operandA );
             fuOpB[i] = ( pipeReg[i].bCtrl.rB.valid ? bypass.intSrcRegDataOutB[i] : pipeReg[i].operandB );
 
+            cond[i] = iqData[i].cond;
             // Condition
-            isCondEnabled[i] = IsConditionEnabledInt( iqData[i].cond, fuOpA[i].data, fuOpB[i].data );
+            isCondEnabled[i] = IsConditionEnabledInt( cond[i], fuOpA[i].data, fuOpB[i].data );
 
             // Shifter
             shiftOperandType[i] = intSubInfo[i].shiftType;
@@ -208,7 +210,7 @@ module IntegerExecutionStage(
             bPred[i] = brSubInfo[i].bPred;
             isBranch[i] = ( iqData[i].opType inside { INT_MOP_TYPE_BR, INT_MOP_TYPE_RIJ } );
             isJump[i] = 
-                (iqData[i].opType == INT_MOP_TYPE_BR && iqData[i].cond == COND_AL)
+                (iqData[i].opType == INT_MOP_TYPE_BR && cond[i] == COND_AL)
                     || iqData[i].opType == INT_MOP_TYPE_RIJ;
             isApBr[i]  = bPred[i].isApBr;
             isApBLT[i] = bPred[i].isApBLT;
@@ -218,7 +220,7 @@ module IntegerExecutionStage(
 
             // 分岐orレジスタ間接分岐で，条件が有効ならTaken
             // ap.branchとap.bltcycleは分岐決定器がtakenのときもtaken
-            brTaken[i] = (pipeReg[i].valid && isBranch[i] && isCondEnabled[i] ) || bPred[i].decidTaken || bPred[i].decidCycTaken;
+            brTaken[i] = (pipeReg[i].valid && isBranch[i] && isCondEnabled[i] ) || bPred[i].decidTaken || (bPred[i].decidCycTaken && isApBLTCyc[i]);
 
             // Whether this branch is conditional one or not.
             brResult[i].isCondBr = !isJump[i] && !isApBr[i] && !isApBLTCyc[i] && !isApBCC[i];
