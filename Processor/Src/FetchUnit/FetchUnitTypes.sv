@@ -24,12 +24,13 @@ localparam AXBTB_ENTRY_NUM = CONF_AXBTB_ENTRY_NUM;
 
 // Tag width, only lower bits are checked and the results of the BTB may incorrect.
 localparam BTB_TAG_WIDTH = 4;
-localparam AXBLTCYCBTB_TAG_WIDTH = 4;
+localparam AXBLTCYCBTB_TAG_WIDTH = 8;
+localparam BUFFER_TAG_WIDTH = 8;
 
 // BTB have bits with BTB_CONTENTS_ADDR_WIDTH. The remaining address bits are made from the PC.
 localparam BTB_CONTENTS_ADDR_WIDTH = 13;
 
-localparam BUFFER_TAG_WIDTH = BTB_TAG_WIDTH + BTB_CONTENTS_ADDR_WIDTH;
+// localparam BUFFER_TAG_WIDTH = BTB_TAG_WIDTH + BTB_CONTENTS_ADDR_WIDTH;
 
 localparam BTB_ENTRY_NUM_BIT_WIDTH = $clog2(BTB_ENTRY_NUM);
 localparam AXBTB_ENTRY_NUM_BIT_WIDTH = $clog2(AXBTB_ENTRY_NUM);
