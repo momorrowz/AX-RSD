@@ -39,8 +39,13 @@ interface WakeupSelectIF( input logic clk, rst, rstStart );
 
 
     // Release issue queue entries.
+`ifndef RSD_MARCH_LOW_LATENCY_FP
     logic releaseEntry[ ISSUE_WIDTH ];
     IssueQueueIndexPath releasePtr[ISSUE_WIDTH];
+`else
+    logic releaseEntry[ ISSUE_WIDTH + FP_ISSUE_WIDTH * 2];
+    IssueQueueIndexPath releasePtr[ISSUE_WIDTH + FP_ISSUE_WIDTH * 2];
+`endif
 
     // Memory dependent predict
     logic memDependencyPred [DISPATCH_WIDTH];

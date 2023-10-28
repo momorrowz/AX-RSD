@@ -227,9 +227,9 @@ module BypassNetwork(
         for ( genvar i = 0; i < FP_ISSUE_WIDTH; i++ ) begin : stgFP
 `ifdef RSD_MARCH_LOW_LATENCY_FP
             BypassStage stgFPEX0( port.clk, port.rst, ctrl.backEnd, fpDst_0[i], fpEX0[i] );
-            BypassStage stgFPEX1( port.clk, port.rst, ctrl.backEnd, fpEX0[0], fpEX1[i] );
+            BypassStage stgFPEX1( port.clk, port.rst, ctrl.backEnd, fpEX0[i], fpEX1[i] );
             BypassStage stgFPEX2( port.clk, port.rst, ctrl.backEnd, fpDst_2[i], fpEX2[i] );
-            BypassStage stgFPEX3( port.clk, port.rst, ctrl.backEnd, fpEX2[0], fpEX3[i] );
+            BypassStage stgFPEX3( port.clk, port.rst, ctrl.backEnd, fpEX2[i], fpEX3[i] );
 `endif
             BypassStage stgFPEX4( port.clk, port.rst, ctrl.backEnd, fpDst[i], fpEX4[i] );
             BypassStage stgFPWB( port.clk, port.rst, ctrl.backEnd, fpEX4[i],  fpWB[i] );

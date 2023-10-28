@@ -167,7 +167,7 @@ output
         end
 `ifdef RSD_MARCH_LOW_LATENCY_FP
         result_to_bypass_1 = resultOut;
-        result_to_bypass_3 = pipeReg[PIPELINE_DEPTH-3];
+        result_to_bypass_3 = pipeReg[PIPELINE_DEPTH-3].result;
 `endif
     end
     always_ff @(posedge clk) begin

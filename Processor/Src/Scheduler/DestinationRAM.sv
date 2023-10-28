@@ -80,6 +80,12 @@ module DestinationRAM (WakeupSelectIF.DestinationRAM port);
         for (int i = 0; i < FP_ISSUE_WIDTH; i++) begin
             readPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+LOAD_ISSUE_WIDTH)] = port.wakeupPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+LOAD_ISSUE_WIDTH)];
         end
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+        for (int i = 0; i < FP_ISSUE_WIDTH; i++) begin
+            readPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+LOAD_ISSUE_WIDTH+FP_ISSUE_WIDTH)] = port.wakeupPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+LOAD_ISSUE_WIDTH+FP_ISSUE_WIDTH)];
+            readPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+LOAD_ISSUE_WIDTH+FP_ISSUE_WIDTH*2)] = port.wakeupPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+LOAD_ISSUE_WIDTH+FP_ISSUE_WIDTH*2)];
+        end
+`endif
 `endif
         // Stores do not wake up consumers.
 

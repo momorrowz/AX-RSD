@@ -36,7 +36,7 @@ localparam CONF_PSCALAR_NUM = 64;
 localparam CONF_PSCALAR_FP_NUM = 64;
 
 // The number of issue-queue entries
-localparam CONF_ISSUE_QUEUE_ENTRY_NUM = 16;
+localparam CONF_ISSUE_QUEUE_ENTRY_NUM = 32;
 
 // Return width of freelist of issue-queue entries
 localparam CONF_ISSUE_QUEUE_RETURN_INDEX_WIDTH = 4;

@@ -63,6 +63,9 @@ module WakeupPipelineRegister(
     WakeupPipeReg nextFPPipeReg3[ FP_ISSUE_WIDTH ];
     logic flushFP1[ FP_ISSUE_WIDTH ];
     logic flushFP3[ FP_ISSUE_WIDTH ];
+    IssueQueueOneHotPath fpSelectedVectorMask1;
+    IssueQueueOneHotPath fpSelectedVectorMask3;
+    IssueQueueOneHotPath fpSelectedVectorMask5;
 `endif
     logic [$clog2(ISSUE_QUEUE_FP_LATENCY):0] canBeFlushedRegCountFP;    //FlushedOpが存在している可能性があるFPパイプラインレジスタの段数
     logic flushFP[ FP_ISSUE_WIDTH ];
@@ -286,6 +289,13 @@ module WakeupPipelineRegister(
         end
 
 `ifdef RSD_MARCH_FP_PIPE
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+        for (int i = 0; i < ISSUE_QUEUE_ENTRY_NUM; i++) begin
+            fpSelectedVectorMask1[i] = port.fpLatency[i] == FP_LATENCY_1_CYCLE;
+            fpSelectedVectorMask3[i] = port.fpLatency[i] == FP_LATENCY_3_CYCLE;
+            fpSelectedVectorMask5[i] = port.fpLatency[i] == FP_LATENCY_5_CYCLE;
+        end
+`endif
         for (int i = 0; i < FP_ISSUE_WIDTH; i++) begin
             fpSelectedPtr[i] = port.selectedPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)];
 `ifndef RSD_MARCH_LOW_LATENCY_FP
@@ -294,16 +304,20 @@ module WakeupPipelineRegister(
             nextFPPipeReg[i].valid = port.selected[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)] && !flushIQ_Entry[fpSelectedPtr[i]] && port.fpLatency[fpSelectedPtr[i]] == FP_LATENCY_5_CYCLE;
 `endif
             nextFPPipeReg[i].ptr = port.selectedPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)];
+`ifndef RSD_MARCH_LOW_LATENCY_FP
             nextFPPipeReg[i].depVector = port.selectedVector[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)];
+`else
+            nextFPPipeReg[i].depVector = fpSelectedVectorMask5 & port.selectedVector[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)];
+`endif
             nextFPPipeReg[i].activeListPtr = recovery.selectedActiveListPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)];
 `ifdef RSD_MARCH_LOW_LATENCY_FP
             nextFPPipeReg1[i].valid = port.selected[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)] && !flushIQ_Entry[fpSelectedPtr[i]] && port.fpLatency[fpSelectedPtr[i]] == FP_LATENCY_1_CYCLE;
             nextFPPipeReg1[i].ptr = port.selectedPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)];
-            nextFPPipeReg1[i].depVector = port.fpLatency[fpSelectedPtr[i]] == FP_LATENCY_1_CYCLE ? port.selectedVector[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)] : '0;
+            nextFPPipeReg1[i].depVector = fpSelectedVectorMask1 & port.selectedVector[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)];
             nextFPPipeReg1[i].activeListPtr = recovery.selectedActiveListPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)];
             nextFPPipeReg3[i].valid = port.selected[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)] && !flushIQ_Entry[fpSelectedPtr[i]] && port.fpLatency[fpSelectedPtr[i]] == FP_LATENCY_3_CYCLE;
             nextFPPipeReg3[i].ptr = port.selectedPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)];
-            nextFPPipeReg3[i].depVector = port.fpLatency[fpSelectedPtr[i]] == FP_LATENCY_3_CYCLE ? port.selectedVector[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)] : '0;
+            nextFPPipeReg3[i].depVector = fpSelectedVectorMask3 & port.selectedVector[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)];
             nextFPPipeReg3[i].activeListPtr = recovery.selectedActiveListPtr[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)];
 `endif
         end

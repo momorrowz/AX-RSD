@@ -27,8 +27,13 @@ module IssueQueue (
     // A free list for an issue queue entries.
     // Both its index and values have the same bit width, because
     // the sizes of an issue queue and its free list are same.
+`ifndef RSD_MARCH_LOW_LATENCY_FP
     logic releaseEntry [ ISSUE_WIDTH + ISSUE_QUEUE_RETURN_INDEX_WIDTH ];
     IssueQueueIndexPath releasePtr [ ISSUE_WIDTH + ISSUE_QUEUE_RETURN_INDEX_WIDTH ];
+`else
+    logic releaseEntry [ ISSUE_WIDTH + ISSUE_QUEUE_RETURN_INDEX_WIDTH + FP_ISSUE_WIDTH * 2 ];
+    IssueQueueIndexPath releasePtr [ ISSUE_WIDTH + ISSUE_QUEUE_RETURN_INDEX_WIDTH + FP_ISSUE_WIDTH * 2 ];
+`endif
     IssueQueueCountPath freeListCount;
     logic freeListReset;
     logic [ ISSUE_QUEUE_RESET_CYCLE_BIT_SIZE-1 : 0 ] freeListResetCycleCount;
@@ -47,7 +52,11 @@ module IssueQueue (
     MultiWidthFreeList #(
         .SIZE( ISSUE_QUEUE_ENTRY_NUM ),
         .ENTRY_BIT_SIZE( ISSUE_QUEUE_ENTRY_NUM_BIT_WIDTH ),
+`ifndef RSD_MARCH_LOW_LATENCY_FP
         .PUSH_WIDTH( ISSUE_WIDTH + ISSUE_QUEUE_RETURN_INDEX_WIDTH ),
+`else
+        .PUSH_WIDTH( ISSUE_WIDTH + ISSUE_QUEUE_RETURN_INDEX_WIDTH + FP_ISSUE_WIDTH * 2),
+`endif
         .POP_WIDTH( RENAME_WIDTH ),
         .INITIAL_LENGTH (ISSUE_QUEUE_ENTRY_NUM)
     ) issueQueueFreeList (
@@ -85,6 +94,12 @@ module IssueQueue (
                 releasePtr[ ISSUE_WIDTH + i ] = returnIndexOffset + i;
             end
         end
+`ifdef RSD_MARCH_LOW_LATENCY_FP
+        for ( int i = 0; i < FP_ISSUE_WIDTH * 2; i++ ) begin
+            releasePtr[ISSUE_WIDTH + ISSUE_QUEUE_RETURN_INDEX_WIDTH + i] = wakeupSelect.releasePtr[i + ISSUE_WIDTH];
+            releaseEntry[ISSUE_WIDTH + ISSUE_QUEUE_RETURN_INDEX_WIDTH + i] = wakeupSelect.releaseEntry[i + ISSUE_WIDTH];
+        end
+`endif
     end
 
     // Reset(when recovery at commit occurs)
