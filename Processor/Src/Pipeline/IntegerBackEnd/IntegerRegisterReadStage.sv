@@ -50,9 +50,9 @@ input
     case( opType )
     default:    // OOT_REG
         return regV;
-    OOT_IMM:
+    OOT_IMM: // 01
         return immV;
-    OOT_PC:
+    OOT_PC: // 10
         return pcV;
     endcase
 endfunction
