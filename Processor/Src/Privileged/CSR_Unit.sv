@@ -23,13 +23,13 @@ module CSR_Unit(
     PerformanceCounterIF.CSR perfCounter,
     input logic axLevelEn,
     input logic [AX_LEVEL_WIDTH-1 : 0] axLevelData,
-    output DataPath mcycle
+    output DataPath mcycle,
+    output DataPath mcycleh
 );
 
     CSR_BodyPath csrReg, csrNext;
     DataPath rv;
     CSR_ValuePath wv;
-    DataPath mcycleh;    // for debug
     DataPath nextmcycle, nextminstret;
     AddrPath jumpTarget;
     CommitLaneCountPath regCommitNum;

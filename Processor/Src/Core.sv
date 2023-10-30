@@ -69,7 +69,9 @@ output
     // 
     DataPath axThreshold;   //閾値レジスタ
     DataPath mcycle;    // サイクルカウンタ
+    DataPath mcycleh;
     DataPath begincycle;
+    DataPath begincycleh;
     //
     // --- Interfaces
     //
@@ -153,9 +155,9 @@ output
         AXBTB axbtb( npStageIF, ifStageIF  );
         AXBLTCycBTB axbltcycbtb( npStageIF, ifStageIF );
         Buffer buffer( npStageIF, ifStageIF );
-        BeginCycleCount begincyccnt( npStageIF, ifStageIF, mcycle, begincycle );
+        BeginCycleCount begincyccnt( npStageIF, ifStageIF, mcycle, mcycleh, begincycle, begincycleh );
         BranchDecider brDecid( npStageIF, ifStageIF, axLevel );
-        BranchDeciderCycle brDecidCyc( ifStageIF, mcycle, begincycle, axThreshold);
+        BranchDeciderCycle brDecidCyc( ifStageIF, mcycle, mcycleh, begincycle, begincycleh, axThreshold);
     FetchStage ifStage( ifStageIF, npStageIF, ctrlIF, debugIF, perfCounterIF );
         ICache iCache( npStageIF, ifStageIF, cacheSystemIF );
     
@@ -222,7 +224,7 @@ output
     CommitStage cmStage( cmStageIF, renameLogicIF, activeListIF, loadStoreUnitIF, recoveryManagerIF, csrUnitIF, debugIF );
         RecoveryManager recoveryManager( recoveryManagerIF, activeListIF, csrUnitIF, ctrlIF, perfCounterIF );
 
-    CSR_Unit csrUnit(csrUnitIF, perfCounterIF, axLevelEn, axLevelData, mcycle);
+    CSR_Unit csrUnit(csrUnitIF, perfCounterIF, axLevelEn, axLevelData, mcycle, mcycleh);
     CacheFlushManager cacheFlushManager( cacheFlushManagerIF, cacheSystemIF );
     InterruptController interruptCtrl(csrUnitIF, ctrlIF, npStageIF, recoveryManagerIF);
     IO_Unit ioUnit(ioUnitIF, csrUnitIF);

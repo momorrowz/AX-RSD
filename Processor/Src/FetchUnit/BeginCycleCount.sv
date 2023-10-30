@@ -7,7 +7,9 @@ module BeginCycleCount #()
     NextPCStageIF.BeginCycleCount port,
     FetchStageIF.BeginCycleCount fetch,
     input DataPath cyclecounter, //サイクルカウンタ
-    output DataPath begincycle //開始サイクル
+    input DataPath cyclecounterh,
+    output DataPath begincycle, //開始サイクル
+    output DataPath begincycleh
 );
 
 logic update;
@@ -16,6 +18,15 @@ FlipFlopWE#( DATA_WIDTH, DATA_ZERO )
     CycleReg( 
         .out( begincycle ), 
         .in ( cyclecounter ),
+        .we ( update ), 
+        .clk( port.clk ),
+        .rst( port.rst )
+    );
+
+FlipFlopWE#( DATA_WIDTH, DATA_ZERO ) 
+    CycleRegh( 
+        .out( begincycleh ), 
+        .in ( cyclecounterh ),
         .we ( update ), 
         .clk( port.clk ),
         .rst( port.rst )
