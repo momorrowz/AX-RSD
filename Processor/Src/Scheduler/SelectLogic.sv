@@ -17,27 +17,27 @@ module SelectLogic(
 );
 
     IssueQueueOneHotPath intRequest;
-    IssueQueueOneHotPath intGrant;
+    IssueQueueOneHotPath intGrant[INT_ISSUE_WIDTH];
     logic intSelected[ INT_ISSUE_WIDTH ];
     IssueQueueIndexPath intSelectedPtr[ INT_ISSUE_WIDTH ];
 
 `ifndef RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE
     IssueQueueOneHotPath compRequest;
-    IssueQueueOneHotPath compGrant;
+    IssueQueueOneHotPath compGrant[COMPLEX_ISSUE_WIDTH];
     logic compSelected[ COMPLEX_ISSUE_WIDTH ];
     IssueQueueIndexPath compSelectedPtr[ COMPLEX_ISSUE_WIDTH ];
 `endif
 
 `ifdef RSD_MARCH_UNIFIED_LDST_MEM_PIPE
     IssueQueueOneHotPath memRequest;
-    IssueQueueOneHotPath memGrant;
+    IssueQueueOneHotPath memGrant[MEM_ISSUE_WIDTH];
     logic memSelected[ MEM_ISSUE_WIDTH ];
     IssueQueueIndexPath memSelectedPtr[ MEM_ISSUE_WIDTH ];
 `else
     IssueQueueOneHotPath loadRequest;
     IssueQueueOneHotPath storeRequest;
-    IssueQueueOneHotPath loadGrant;
-    IssueQueueOneHotPath storeGrant;
+    IssueQueueOneHotPath loadGrant[LOAD_ISSUE_WIDTH];
+    IssueQueueOneHotPath storeGrant[STORE_ISSUE_WIDTH];
     logic loadSelected[ LOAD_ISSUE_WIDTH ];
     logic storeSelected[ STORE_ISSUE_WIDTH ];
     IssueQueueIndexPath loadSelectedPtr[ LOAD_ISSUE_WIDTH ];
@@ -50,7 +50,7 @@ module SelectLogic(
     IssueQueueOneHotPath fpDivSqrtRequest;
     logic canIssueFPDivSqrt;
 `endif
-    IssueQueueOneHotPath fpGrant;
+    IssueQueueOneHotPath fpGrant[FP_ISSUE_WIDTH];
     logic fpSelected[ FP_ISSUE_WIDTH ];
     IssueQueueIndexPath fpSelectedPtr[ FP_ISSUE_WIDTH ];
 `endif
@@ -253,7 +253,7 @@ module SelectLogic(
         for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
             portSelected[i] = intSelected[i];
             portSelectedPtr[i] = intSelectedPtr[i];
-            portSelectedVector[i] = intGrant;
+            portSelectedVector[i] = intGrant[i];
             recoverySelected[i] = intSelected[i];
             recoverySelectedPtr[i] = intSelectedPtr[i];
         end
@@ -262,7 +262,7 @@ module SelectLogic(
         for (int i = 0; i < COMPLEX_ISSUE_WIDTH; i++) begin
             portSelected[i+INT_ISSUE_WIDTH] = compSelected[i];
             portSelectedPtr[i+INT_ISSUE_WIDTH] = compSelectedPtr[i];
-            portSelectedVector[i+INT_ISSUE_WIDTH] = compGrant;
+            portSelectedVector[i+INT_ISSUE_WIDTH] = compGrant[i];
             recoverySelected[i+INT_ISSUE_WIDTH] = compSelected[i];
             recoverySelectedPtr[i+INT_ISSUE_WIDTH] = compSelectedPtr[i];
         end
@@ -272,7 +272,7 @@ module SelectLogic(
         for (int i = 0; i < MEM_ISSUE_WIDTH; i++) begin
             portSelected[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH] = memSelected[i];
             portSelectedPtr[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH] = memSelectedPtr[i];
-            portSelectedVector[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH] = memGrant;
+            portSelectedVector[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH] = memGrant[i];
             recoverySelected[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH] = memSelected[i];
             recoverySelectedPtr[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH] = memSelectedPtr[i];
         end
@@ -280,14 +280,14 @@ module SelectLogic(
         for (int i = 0; i < LOAD_ISSUE_WIDTH; i++) begin
             portSelected[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH] = loadSelected[i];
             portSelectedPtr[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH] = loadSelectedPtr[i];
-            portSelectedVector[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH] = loadGrant;
+            portSelectedVector[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH] = loadGrant[i];
             recoverySelected[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH] = loadSelected[i];
             recoverySelectedPtr[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH] = loadSelectedPtr[i];
         end
         for (int i = 0; i < STORE_ISSUE_WIDTH; i++) begin
             portSelected[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+LOAD_ISSUE_WIDTH] = storeSelected[i];
             portSelectedPtr[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+LOAD_ISSUE_WIDTH] = storeSelectedPtr[i];
-            portSelectedVector[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+LOAD_ISSUE_WIDTH] = storeGrant;
+            portSelectedVector[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+LOAD_ISSUE_WIDTH] = storeGrant[i];
             recoverySelected[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+LOAD_ISSUE_WIDTH] = storeSelected[i];
             recoverySelectedPtr[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+LOAD_ISSUE_WIDTH] = storeSelectedPtr[i];
         end
@@ -297,7 +297,7 @@ module SelectLogic(
         for (int i = 0; i < FP_ISSUE_WIDTH; i++) begin
             portSelected[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH] = fpSelected[i];
             portSelectedPtr[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH] = fpSelectedPtr[i];
-            portSelectedVector[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH] = fpGrant;
+            portSelectedVector[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH] = fpGrant[i];
             recoverySelected[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH] = fpSelected[i];
             recoverySelectedPtr[i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH] = fpSelectedPtr[i];
         end

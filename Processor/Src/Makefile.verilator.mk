@@ -72,6 +72,7 @@ VERILATOR_OPTION = \
 	--trace \
 	-CFLAGS "-Os -include limits" \
 	-output-split 15000 \
+    --unroll-count 200
 	#-CFLAGS "-O0 -g" \
 	#--MMD \
 	#-O3 \

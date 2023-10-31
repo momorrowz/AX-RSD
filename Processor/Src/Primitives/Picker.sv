@@ -13,7 +13,7 @@ module Picker #(
 input
     logic [ENTRY_NUM-1:0] req,
 output
-    logic [ENTRY_NUM-1:0] grant,
+    logic [ENTRY_NUM-1:0] grant[GRANT_NUM],
     logic [$clog2(ENTRY_NUM)-1:0] grantPtr[GRANT_NUM],
     logic granted[GRANT_NUM]
 );
@@ -24,15 +24,16 @@ output
     always_comb begin
 
         reqTmp = req;
-        grant = '0;
+        //grant = '0;
         for (int p = 0; p < GRANT_NUM; p++) begin
-            
+        
+            grant[p] = '0;
             granted[p] = '0;
             grantPtr[p] = '0;
             
             for (int e = 0; e < ENTRY_NUM; e++) begin
                 if(reqTmp[e]) begin
-                    grant[e] = '1;
+                    grant[p][e] = '1;
                     granted[p] = '1;
                     grantPtr[p] = e;
                     reqTmp[e] = '0;
@@ -59,7 +60,7 @@ module InterleavedPicker #(
 input
     logic [ENTRY_NUM-1:0] req,
 output
-    logic [ENTRY_NUM-1:0] grant,
+    logic [ENTRY_NUM-1:0] grant[GRANT_NUM],
     logic [$clog2(ENTRY_NUM)-1:0] grantPtr[GRANT_NUM],
     logic granted[GRANT_NUM]
 );
@@ -70,15 +71,16 @@ output
     always_comb begin
 
         reqTmp = req;
-        grant = '0;
+        //grant = '0;
         for (int p = 0; p < GRANT_NUM; p++) begin
             
+            grant[p] = '0;
             granted[p] = '0;
             grantPtr[p] = 0;
             
             for (int e = p; e < ENTRY_NUM; e += GRANT_NUM) begin
                 if(reqTmp[e]) begin
-                    grant[e] = '1;
+                    grant[p][e] = '1;
                     granted[p] = '1;
                     grantPtr[p] = e;
                     reqTmp[e] = '0;
@@ -98,7 +100,7 @@ input
     logic [$clog2(ENTRY_NUM)-1:0] shiftAmount,
     logic [ENTRY_NUM-1:0] req,
 output
-    logic [ENTRY_NUM-1:0] grant,
+    logic [ENTRY_NUM-1:0] grant[GRANT_NUM],
     logic [$clog2(ENTRY_NUM)-1:0] grantPtr[GRANT_NUM],
     logic granted[GRANT_NUM]
 );
@@ -125,9 +127,9 @@ output
     always_comb begin
         reqTmp = {req, req};
         shiftedReqTmp = shiftedReq;
-        grant = '0;
+        //grant = '0;
         for (int p = 0; p < GRANT_NUM; p++) begin
-
+            grant[p] = '0;
             granted[p] = '0;
             grantPtr[p] = '0;
             shiftedPtr[p] = '0;
@@ -135,7 +137,7 @@ output
             for (int e = 0; e < ENTRY_NUM; e++) begin
                 if(shiftedReqTmp[e]) begin
                     shiftedPtr[p] = e + shiftAmount;
-                    grant[shiftedPtr[p]] = '1;
+                    grant[p][shiftedPtr[p]] = '1;
                     granted[p] = '1;
                     grantPtr[p] = shiftedPtr[p];
                     shiftedReqTmp[e] = '0;
@@ -312,7 +314,7 @@ input
     logic [ENTRY_NUM-1:0] divsqrtreq,
     logic canissuedivsqrt,
 output
-    logic [ENTRY_NUM-1:0] grant,
+    logic [ENTRY_NUM-1:0] grant[GRANT_NUM],
     logic [$clog2(ENTRY_NUM)-1:0] grantPtr[GRANT_NUM],
     logic granted[GRANT_NUM]
 );
@@ -325,15 +327,16 @@ output
 
         reqTmp = req;
         divsqrtreqTmp = divsqrtreq;
-        grant = '0;
+        //grant = '0;
         grantdivSqrt = '0;
 
         for (int p = 0; p < DIVSQRT_GRANT_NUM; p++) begin
+            grant[p] = '0;
             granted[p] = '0;
             grantPtr[p] = '0;
             for (int e = 0; e < ENTRY_NUM; e++) begin
                 if(canissuedivsqrt && divsqrtreqTmp[e]) begin
-                    grant[e] = '1;
+                    grant[p][e] = '1;
                     granted[p] = '1;
                     grantPtr[p] = e;
                     divsqrtreqTmp[e] = '0;
@@ -344,11 +347,12 @@ output
         end
         for (int p = 0; p < GRANT_NUM; p++) begin
             if(p < grantdivSqrt) continue;
+            grant[p] = '0;
             granted[p] = '0;
             grantPtr[p] = '0;
             for (int e = 0; e < ENTRY_NUM; e++) begin
                 if(reqTmp[e]) begin
-                    grant[e] = '1;
+                    grant[p][e] = '1;
                     granted[p] = '1;
                     grantPtr[p] = e;
                     reqTmp[e] = '0;

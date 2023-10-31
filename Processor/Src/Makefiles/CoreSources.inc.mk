@@ -7,14 +7,15 @@
 # * RSD_MARCH_UNIFIED_MULDIV_MEM_PIPE: Integrate mul/div to a memory pipe
 RSD_SRC_CFG = \
 	+define+RSD_MARCH_FP_PIPE \
-	+define+RSD_MARCH_MULTIPLE_FP_ISSUE \
 	+define+RSD_MARCH_BYPASS_COMPLEX_FP \
 	+define+RSD_MARCH_LOW_LATENCY_FP \
 	+define+ENABLE_ANYTIME_FP \
 	+define+ENABLE_ZICOND \
-	#+define+SYNTHESIS_USE_SRAM \
-	+define+UNIT_DELAY \
-	+define+TSMC_CM_UNIT_DELAY \
+	#+define+RSD_MARCH_MULTIPLE_FP_ISSUE \
+
+#	+define+SYNTHESIS_USE_SRAM \
+#	+define+UNIT_DELAY \
+#	+define+TSMC_CM_UNIT_DELAY \
 
 #   +define+RSD_MARCH_INT_ISSUE_WIDTH=4 \
 #	+define+CIRCULAR_SELECT_LOGIC \
