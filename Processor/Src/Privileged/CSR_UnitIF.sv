@@ -19,7 +19,8 @@ import FetchUnitTypes::*;
 interface CSR_UnitIF(
     input logic clk, rst, rstStart, reqExternalInterrupt, 
     ExternalInterruptCodePath externalInterruptCode,
-    output logic [ AX_LEVEL_WIDTH-1:0 ] axLevel
+    output logic [ AX_LEVEL_WIDTH-1:0 ] axLevel,     
+    output DataPath axThreshold //approximate blt cycle
 );
 
     logic csrWE;  // CSR write enable
@@ -137,7 +138,8 @@ interface CSR_UnitIF(
         csrReadOut,
         excptTargetAddr,
         externalInterruptCodeInCSR,
-        axLevel
+        axLevel,
+        axThreshold
     );
 
     modport InterruptController(

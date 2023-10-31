@@ -23,11 +23,12 @@ localparam AXBTB_ENTRY_NUM = CONF_AXBTB_ENTRY_NUM;
 // The width of a block ram is 18bits, thus the sum of these parameters is set to 18 bits.
 
 // Tag width, only lower bits are checked and the results of the BTB may incorrect.
-localparam BTB_TAG_WIDTH = 4;                
+localparam BTB_TAG_WIDTH = 4;
+localparam AXBLTCYCBTB_TAG_WIDTH = 8;
+localparam BUFFER_TAG_WIDTH = 8;
 
 // BTB have bits with BTB_CONTENTS_ADDR_WIDTH. The remaining address bits are made from the PC.
-localparam BTB_CONTENTS_ADDR_WIDTH = 13;     
-
+localparam BTB_CONTENTS_ADDR_WIDTH = 13;
 
 localparam BTB_ENTRY_NUM_BIT_WIDTH = $clog2(BTB_ENTRY_NUM);
 localparam AXBTB_ENTRY_NUM_BIT_WIDTH = $clog2(AXBTB_ENTRY_NUM);
@@ -35,6 +36,8 @@ typedef logic [BTB_ENTRY_NUM_BIT_WIDTH-1:0] BTB_IndexPath;
 typedef logic [AXBTB_ENTRY_NUM_BIT_WIDTH-1:0] AXBTB_IndexPath;
 typedef logic [BTB_CONTENTS_ADDR_WIDTH-1:0] BTB_AddrPath;
 typedef logic [BTB_TAG_WIDTH-1:0] BTB_TagPath;
+typedef logic [AXBLTCYCBTB_TAG_WIDTH-1:0] AXBLTCYCBTB_TagPath;
+typedef logic [BUFFER_TAG_WIDTH-1:0] BUFFER_TagPath;
 
 
 localparam BTB_QUEUE_SIZE = 32;
@@ -58,11 +61,30 @@ typedef struct packed // struct AXBTB_Entry
     BTB_AddrPath data;
 } AXBTB_Entry;
 
+typedef struct packed // struct AXBLTCYCBTB_Entry
+{
+    logic valid;
+    logic [AXBLTCYCBTB_TAG_WIDTH-1:0] tag;
+    BTB_AddrPath data;
+} AXBLTCYCBTB_Entry;
+
+typedef struct packed // struct Buffer_Entry
+{
+    logic valid;
+    logic [BUFFER_TAG_WIDTH-1:0] tag;
+} Buffer_Entry;
+
 typedef struct packed // struct PhtQueueEntry
 {
     AddrPath wa;            // Write Address
     BTB_Entry wv;                        // result of bpred
 } BTBQueueEntry;
+
+typedef struct packed // struct Buffer_Entry
+{
+    AddrPath wa;
+    Buffer_Entry wv;
+} BufferQueueEntry;
 
 function automatic BTB_IndexPath ToBTB_Index(PC_Path addr);
     return addr[
@@ -88,6 +110,20 @@ endfunction
 function automatic BTB_TagPath ToAXBTB_Tag(PC_Path addr);
     return addr[
         AXBTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH + BTB_TAG_WIDTH - 1:
+        AXBTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH
+    ];
+endfunction
+
+function automatic AXBLTCYCBTB_TagPath ToAXBLTCYCBTB_Tag(PC_Path addr);
+    return addr[
+        AXBTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH + AXBLTCYCBTB_TAG_WIDTH - 1:
+        AXBTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH
+    ];
+endfunction
+
+function automatic BUFFER_TagPath ToBUFFER_Tag(PC_Path addr);
+    return addr[
+        AXBTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH + BUFFER_TAG_WIDTH - 1:
         AXBTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH
     ];
 endfunction
@@ -195,6 +231,10 @@ typedef struct packed // struct BranchResult
     RAS_CheckpointData rasCheckpoint;       // RAS's top&tail pointer
     logic isApBr;          // Whether this branch is ap.branch.
     logic decidTaken;      // Whether ap.branch is taken or not.
+    logic isApBLTCyc;                       // Whether this branch is ap.bltcycle.
+    logic isApBCC;    // Whether this branch is ap.bltcycle.
+    logic bufHit;                        // Whether buffer is hit or not.
+    logic decidCycTaken;    // Whether ap.bltcycle is taken or not.
 } BranchResult;
 
 typedef struct packed // struct BranchPred
@@ -208,7 +248,11 @@ typedef struct packed // struct BranchPred
     RAS_CheckpointData rasCheckpoint;       // RAS's top&tail pointer
     logic isApBr;                           // Whether this branch is ap.branch.
     logic isApBLT;                          // Whether this branch is ap.blt.
+    logic isApBLTCyc;                       // Whether this branch is ap.bltcycle.
+    logic isApBCC;                          // Whether this is ap.begincyclecount.
+    logic bufHit;                        // Whether buffer is hit or not.
     logic decidTaken;                       // Whether ap.branch is taken or not.
+    logic decidCycTaken;    // Whether ap.bltcycle is taken or not.
 } BranchPred;
 
 endpackage : FetchUnitTypes

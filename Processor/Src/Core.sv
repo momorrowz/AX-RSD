@@ -66,6 +66,12 @@ output
     // CSRUnit -> Ax modules
     logic [ AX_LEVEL_WIDTH-1:0 ] axLevel;
     
+    // 
+    DataPath axThreshold;   //閾値レジスタ
+    DataPath mcycle;    // サイクルカウンタ
+    DataPath mcycleh;
+    DataPath begincycle;
+    DataPath begincycleh;
     //
     // --- Interfaces
     //
@@ -115,7 +121,7 @@ output
     BypassNetworkIF bypassNetworkIF( clk, rst, rstStart );
     LoadStoreUnitIF loadStoreUnitIF( clk, rst, rstStart );
     RecoveryManagerIF recoveryManagerIF( clk, rst );
-    CSR_UnitIF csrUnitIF(clk, rst, rstStart, reqExternalInterrupt, externalInterruptCode, axLevel);
+    CSR_UnitIF csrUnitIF(clk, rst, rstStart, reqExternalInterrupt, externalInterruptCode, axLevel, axThreshold);
     IO_UnitIF ioUnitIF(clk, rst, rstStart, gazeIn, serialWE, serialWriteData);
     MulDivUnitIF mulDivUnitIF(clk, rst);
     CacheFlushManagerIF cacheFlushManagerIF(clk, rst);
@@ -146,8 +152,12 @@ output
         BTB btb( npStageIF, ifStageIF );
         RAS ras( npStageIF, ifStageIF, ctrlIF );
         BranchPredictor brPred( npStageIF, ifStageIF, ctrlIF );
-        AXBTB axbtb(npStageIF, ifStageIF);
+        AXBTB axbtb( npStageIF, ifStageIF  );
+        AXBLTCycBTB axbltcycbtb( npStageIF, ifStageIF );
+        Buffer buffer( npStageIF, ifStageIF );
+        BeginCycleCount begincyccnt( npStageIF, ifStageIF, mcycle, mcycleh, begincycle, begincycleh );
         BranchDecider brDecid( npStageIF, ifStageIF, axLevel );
+        BranchDeciderCycle brDecidCyc( ifStageIF, mcycle, mcycleh, begincycle, begincycleh, axThreshold);
     FetchStage ifStage( ifStageIF, npStageIF, ctrlIF, debugIF, perfCounterIF );
         ICache iCache( npStageIF, ifStageIF, cacheSystemIF );
     
@@ -214,7 +224,7 @@ output
     CommitStage cmStage( cmStageIF, renameLogicIF, activeListIF, loadStoreUnitIF, recoveryManagerIF, csrUnitIF, debugIF );
         RecoveryManager recoveryManager( recoveryManagerIF, activeListIF, csrUnitIF, ctrlIF, perfCounterIF );
 
-    CSR_Unit csrUnit(csrUnitIF, perfCounterIF, axLevelEn, axLevelData);
+    CSR_Unit csrUnit(csrUnitIF, perfCounterIF, axLevelEn, axLevelData, mcycle, mcycleh);
     CacheFlushManager cacheFlushManager( cacheFlushManagerIF, cacheSystemIF );
     InterruptController interruptCtrl(csrUnitIF, ctrlIF, npStageIF, recoveryManagerIF);
     IO_Unit ioUnit(ioUnitIF, csrUnitIF);

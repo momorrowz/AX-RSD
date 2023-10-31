@@ -22,13 +22,14 @@ module CSR_Unit(
     CSR_UnitIF.CSR_Unit port,
     PerformanceCounterIF.CSR perfCounter,
     input logic axLevelEn,
-    input logic [AX_LEVEL_WIDTH-1 : 0] axLevelData
+    input logic [AX_LEVEL_WIDTH-1 : 0] axLevelData,
+    output DataPath mcycle,
+    output DataPath mcycleh
 );
 
     CSR_BodyPath csrReg, csrNext;
     DataPath rv;
     CSR_ValuePath wv;
-    DataPath mcycle, mcycleh;    // for debug
     DataPath nextmcycle, nextminstret;
     AddrPath jumpTarget;
     CommitLaneCountPath regCommitNum;
@@ -54,6 +55,7 @@ module CSR_Unit(
         mcycle = csrReg.mcycle;
         mcycleh = csrReg.mcycleh;
         port.axLevel = csrReg.axlevel;
+        port.axThreshold = csrReg.axthreshold;
         
         // Read a CSR value
         unique case (port.csrNumber) 
@@ -72,6 +74,7 @@ module CSR_Unit(
             CSR_NUM_MINSTRETH: rv = csrReg.minstreth;
             
             CSR_NUM_AXLEVEL: rv = csrReg.axlevel;
+            CSR_NUM_AXTHRESHOLD: rv = csrReg.axthreshold;
 `ifndef RSD_DISABLE_PERFORMANCE_COUNTER
             CSR_NUM_MHPMCOUNTER3: rv = perfCounter.perfCounter.numLoadMiss;
             CSR_NUM_MHPMCOUNTER4: rv = perfCounter.perfCounter.numStoreMiss;
@@ -171,6 +174,7 @@ module CSR_Unit(
                 CSR_NUM_MINSTRETH:   csrNext.minstreth = wv;
                 
                 CSR_NUM_AXLEVEL:   csrNext.axlevel = wv;
+                CSR_NUM_AXTHRESHOLD: csrNext.axthreshold = wv;
 `ifdef RSD_MARCH_FP_PIPE
                 CSR_NUM_FFLAGS:     csrNext.fcsr.fflags = wv;
                 CSR_NUM_FRM:        csrNext.fcsr.frm = Rounding_Mode'(wv);
@@ -190,6 +194,10 @@ module CSR_Unit(
         if (axLevelEn == 1'b1) begin
             csrNext.axlevel = {{(DATA_WIDTH-AX_LEVEL_WIDTH){1'b0}}, axLevelData};
         end
+
+        // if (axThresholdEn == 1'b1) begin
+        //     csrNext.axthreshold = axThresholdData;
+        // end
 
         csrNext.mip.MTIP = port.reqTimerInterrupt;      // Timer interrupt request
         csrNext.mip.MEIP = port.reqExternalInterrupt;   // External interrupt request

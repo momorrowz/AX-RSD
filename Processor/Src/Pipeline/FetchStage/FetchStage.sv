@@ -119,21 +119,29 @@ module FetchStage(
         // The result of branch prediction
         for (int i = 0; i < FETCH_WIDTH; i++) begin
             // Don't use btbOut[i]; we are using RAS as well as BTB.
-            brPred[i].predAddr = port.brDecidTaken[i] ?
-                port.axbtbOut[i] : (port.brPredTaken[i] ? prev.predNextPC : pipeReg[i].pc + INSN_BYTE_WIDTH );
-            brPred[i].predTaken = port.brPredTaken[i] | port.brDecidTaken[i]; // used in IE Stage
+            // brPred[i].predAddr = port.brDecidTaken[i] ?
+            //     port.axbtbOut[i] : (port.brDecidCycTaken[i] ?
+            //         port.axbltcycbtbOut[i] : (port.brPredTaken[i] ?
+            //             prev.predNextPC : pipeReg[i].pc + INSN_BYTE_WIDTH ));
+            brPred[i].predAddr = port.brPredTaken[i]?
+                prev.predNextPC : (port.brDecidTaken[i] ?
+                    port.axbtbOut[i] : (port.brDecidCycTaken[i] ?
+                        port.axbltcycbtbOut[i] : pipeReg[i].pc + INSN_BYTE_WIDTH ));
+            brPred[i].predTaken = port.brPredTaken[i] | port.brDecidTaken[i] | port.brDecidCycTaken[i]; // used in IE Stage
             brPred[i].globalHistory = port.brGlobalHistory[i];
             brPred[i].phtIndex = port.phtIndex[i];
             brPred[i].phtPrevValue = port.phtPrevValue[i];
             brPred[i].rasCheckpoint = port.rasCheckpoint[i];
             brPred[i].decidTaken = port.brDecidTaken[i];
+            brPred[i].decidCycTaken = port.brDecidCycTaken[i];
+            brPred[i].bufHit = port.bufferHit[i];
         end
 
         // Check whether instructions are flushed by branch prediction
         flushCheckStart = FALSE;
         for (int i = 0; i < FETCH_WIDTH; i++) begin
             isFlushed[i] = flushCheckStart ? pipeReg[i].valid : FALSE;
-            if (!regStall && pipeReg[i].valid && (port.brPredTaken[i] | port.brDecidTaken[i])) begin
+            if (!regStall && pipeReg[i].valid && (port.brPredTaken[i] | port.brDecidTaken[i] | port.brDecidCycTaken[i])) begin
                 flushCheckStart = TRUE;
             end
         end

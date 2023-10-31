@@ -125,7 +125,7 @@ module NextPCStage(
             writePC_FromOuter = FALSE;
             for (int i = 0; i < FETCH_WIDTH; i++) begin
                 if (!regStall && fetch.fetchStageIsValid[i] && 
-                        (fetch.btbHit[i] || fetch.axbtbHit[i])) begin
+                        (fetch.btbHit[i] || fetch.axbtbHit[i] || fetch.axbltcycbtbHit[i])) begin
                     writePC_FromOuter = TRUE;
                 end
             end
@@ -184,14 +184,19 @@ module NextPCStage(
                 end
                 */
                 if (!regStall && fetch.fetchStageIsValid[i]) begin
-                    if (fetch.brDecidTaken[i]) begin
+                    if( fetch.brPredTaken[i]) begin
+                        // Use PC from BTB or RAS
+                        predNextPC = fetch.readIsRASPopBr[i] ? fetch.rasOut[i] : fetch.btbOut[i];
+                        break;
+                    end
+                    else if (fetch.brDecidTaken[i]) begin
                         // Use PC from AXBTB
                         predNextPC = fetch.axbtbOut[i];
                         break;
                     end
-                    else if( fetch.brPredTaken[i]) begin
-                        // Use PC from BTB or RAS
-                        predNextPC = fetch.readIsRASPopBr[i] ? fetch.rasOut[i] : fetch.btbOut[i];
+                    else if ( fetch.brDecidCycTaken[i] ) begin
+                        // Use PC from AXBLTCycBTB
+                        predNextPC = fetch.axbltcycbtbOut[i];
                         break;
                     end
                 end

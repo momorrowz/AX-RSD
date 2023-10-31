@@ -135,10 +135,14 @@ module IntegerExecutionStage(
     logic isJump   [ INT_ISSUE_WIDTH ];
     logic isApBr   [ INT_ISSUE_WIDTH ];
     logic isApBLT  [ INT_ISSUE_WIDTH ];
+    logic isApBCC  [ INT_ISSUE_WIDTH ];
+    logic isApBLTCyc [ INT_ISSUE_WIDTH ];
+    logic bufHit   [ INT_ISSUE_WIDTH ];
     logic brTaken  [ INT_ISSUE_WIDTH ];
     BranchResult brResult [ INT_ISSUE_WIDTH ];
     logic predMiss [ INT_ISSUE_WIDTH ];
     logic regValid [ INT_ISSUE_WIDTH ];
+    CondCode cond [ INT_ISSUE_WIDTH ];
 
     IntOpSubInfo intSubInfo[ INT_ISSUE_WIDTH ];
     BrOpSubInfo  brSubInfo[ INT_ISSUE_WIDTH ];
@@ -165,8 +169,9 @@ module IntegerExecutionStage(
             fuOpA[i] = ( pipeReg[i].bCtrl.rA.valid ? bypass.intSrcRegDataOutA[i] : pipeReg[i].operandA );
             fuOpB[i] = ( pipeReg[i].bCtrl.rB.valid ? bypass.intSrcRegDataOutB[i] : pipeReg[i].operandB );
 
+            cond[i] = iqData[i].cond;
             // Condition
-            isCondEnabled[i] = IsConditionEnabledInt( iqData[i].cond, fuOpA[i].data, fuOpB[i].data );
+            isCondEnabled[i] = IsConditionEnabledInt( cond[i], fuOpA[i].data, fuOpB[i].data );
 
             // Shifter
             shiftOperandType[i] = intSubInfo[i].shiftType;
@@ -205,17 +210,21 @@ module IntegerExecutionStage(
             bPred[i] = brSubInfo[i].bPred;
             isBranch[i] = ( iqData[i].opType inside { INT_MOP_TYPE_BR, INT_MOP_TYPE_RIJ } );
             isJump[i] = 
-                (iqData[i].opType == INT_MOP_TYPE_BR && iqData[i].cond == COND_AL)
+                (iqData[i].opType == INT_MOP_TYPE_BR && cond[i] == COND_AL)
                     || iqData[i].opType == INT_MOP_TYPE_RIJ;
             isApBr[i]  = bPred[i].isApBr;
             isApBLT[i] = bPred[i].isApBLT;
+            isApBCC[i] = bPred[i].isApBCC;
+            isApBLTCyc[i] = bPred[i].isApBLTCyc;
+            bufHit[i]  = bPred[i].bufHit;
 
             // 分岐orレジスタ間接分岐で，条件が有効ならTaken
             // ap.branchは分岐決定器がtakenのときもtaken
-            brTaken[i] = (pipeReg[i].valid && isBranch[i] && isCondEnabled[i] ) || (bPred[i].decidTaken && isApBr[i]);
+            // ap.bltcycleは分岐決定器がtakenかつその命令がap.bltcycleであるときのみtaken
+            brTaken[i] = (pipeReg[i].valid && isBranch[i] && isCondEnabled[i] ) || (bPred[i].decidTaken && isApBr[i]) || (bPred[i].decidCycTaken && isApBLTCyc[i]);
 
             // Whether this branch is conditional one or not.
-            brResult[i].isCondBr = !isJump[i] && !isApBr[i];
+            brResult[i].isCondBr = !isJump[i] && !isApBr[i] && !isApBLTCyc[i] && !isApBCC[i];
             brResult[i].isRASPushBr = brSubInfo[i].isRASPushBr;
             brResult[i].isRASPopBr = brSubInfo[i].isRASPopBr;
             
@@ -225,6 +234,9 @@ module IntegerExecutionStage(
             // ターゲットアドレスの計算
             if (bPred[i].isApBr) begin
                 brResult[i].nextAddr = ToPC_FromAddr(pc[i] + ExtendApproxBranchDisplacement(brSubInfo[i].brDisp));
+            end
+            else if (bPred[i].isApBLTCyc) begin
+                brResult[i].nextAddr = ToPC_FromAddr(pc[i] + ExtendBranchDisplacement(brSubInfo[i].brDisp));
             end
             else if( brTaken[i] ) begin
                 brResult[i].nextAddr =
@@ -253,11 +265,17 @@ module IntegerExecutionStage(
                      (bPred[i].predTaken != brTaken[i]) ||
                      (brTaken[i] == TRUE &&
                       bPred[i].predAddr != brResult[i].nextAddr)
-                ) && !(isApBr[i] || isApBLT[i]);
+                ) && !(isApBr[i] || isApBLT[i] || isApBLTCyc[i] || isApBCC[i]);
 
             brResult[i].mispred = predMiss[i];
             // ap.branch?
             brResult[i].isApBr = isApBr[i];
+            // ap.begincyclecount?
+            brResult[i].isApBCC = isApBCC[i];
+            // ap.bltcycle?
+            brResult[i].isApBLTCyc = isApBLTCyc[i];
+            // buffer is hit or not ?
+            brResult[i].bufHit = bufHit[i];
         end
     end
 

@@ -179,7 +179,7 @@ module Gshare(
 
         // Write request from IntEx Stage
         for (int i = 0; i < INT_ISSUE_WIDTH; i++) begin
-            phtWE[i] = port.brResult[i].valid && !port.brResult[i].isApBr;
+            phtWE[i] = port.brResult[i].valid && !port.brResult[i].isApBr && !port.brResult[i].isApBLTCyc && !port.brResult[i].isApBCC;
             phtWA[i] = port.brResult[i].phtIndex;
             //phtWA[i] = ToPHT_Index_Global(
             //    port.brResult[i].brAddr,

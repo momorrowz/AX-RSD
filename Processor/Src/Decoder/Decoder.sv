@@ -1457,6 +1457,153 @@ function automatic void RISCV_DecodeApprox(
 
 endfunction
 
+function automatic void RISCV_EmitApproxBltCycle(
+    output OpInfo opInfo,
+    input RISCV_ISF_Common isf
+);
+
+    RISCV_ISF_R isfR;
+
+    isfR = isf;
+
+    // 論理レジスタ番号
+`ifdef RSD_MARCH_FP_PIPE
+    opInfo.operand.brOp.dstRegNum.isFP  = FALSE;
+    opInfo.operand.brOp.srcRegNumA.isFP = FALSE;
+    opInfo.operand.brOp.srcRegNumB.isFP = FALSE;
+`endif
+    opInfo.operand.brOp.dstRegNum.regNum  = 0;
+    opInfo.operand.brOp.srcRegNumA.regNum = isfR.rs1;
+    opInfo.operand.brOp.srcRegNumB.regNum = isfR.rs2;
+
+    // レジスタ書き込みを行うかどうか
+    // 比較系の命令はレジスタに書き込みを行わない
+    // ゼロレジスタへの書き込みは書き込みフラグをFALSEとする
+    opInfo.writeReg  = FALSE;
+
+    // 論理レジスタを読むかどうか
+    opInfo.opTypeA = OOT_PC;
+    opInfo.opTypeB = OOT_IMM;
+`ifdef RSD_MARCH_FP_PIPE 
+    opInfo.opTypeC = OOT_IMM;
+`endif
+
+    // 命令の種類
+    opInfo.mopType = MOP_TYPE_INT;
+    opInfo.mopSubType.intType = INT_MOP_TYPE_BR;
+
+    // 条件コード
+    opInfo.cond = COND_AP;
+
+    // 分岐ターゲット
+    opInfo.operand.brOp.brDisp = GetBranchDisplacement( isfR );
+    opInfo.operand.brOp.padding = '0;
+
+    // RAS operations
+    opInfo.operand.brOp.isRASPushBr = FALSE;
+    opInfo.operand.brOp.isRASPopBr = FALSE;
+
+    // 未定義命令
+    opInfo.unsupported = FALSE;
+    opInfo.undefined = FALSE;
+
+    // Serialized
+    opInfo.serialized = FALSE;
+
+    // Control
+    opInfo.valid = TRUE;    // Valid outputs
+
+endfunction
+
+function automatic void RISCV_EmitApproxBeginCycleCount(
+    output OpInfo opInfo,
+    input RISCV_ISF_Common isf
+);
+    RISCV_ISF_R isfR;
+
+    isfR = isf;
+
+    // 論理レジスタ番号
+`ifdef RSD_MARCH_FP_PIPE
+    opInfo.operand.brOp.dstRegNum.isFP  = FALSE;
+    opInfo.operand.brOp.srcRegNumA.isFP = FALSE;
+    opInfo.operand.brOp.srcRegNumB.isFP = FALSE;
+`endif
+    opInfo.operand.brOp.dstRegNum.regNum  = 0;
+    opInfo.operand.brOp.srcRegNumA.regNum = isfR.rs1;
+    opInfo.operand.brOp.srcRegNumB.regNum = isfR.rs2;
+
+    // レジスタ書き込みを行うかどうか
+    // 比較系の命令はレジスタに書き込みを行わない
+    // ゼロレジスタへの書き込みは書き込みフラグをFALSEとする
+    opInfo.writeReg  = FALSE;
+
+    // 論理レジスタを読むかどうか
+    opInfo.opTypeA = OOT_IMM;
+    opInfo.opTypeB = OOT_IMM;
+`ifdef RSD_MARCH_FP_PIPE 
+    opInfo.opTypeC = OOT_IMM;
+`endif
+
+    // 命令の種類
+    opInfo.mopType = MOP_TYPE_INT;
+    opInfo.mopSubType.intType = INT_MOP_TYPE_BR; // 分岐命令ではないが、分岐命令のような動き（BufferにPCを書き込むなど）をするため命令タイプは分岐とする。
+
+    // 条件コード
+    opInfo.cond = COND_AP;
+
+    // 分岐ターゲット
+    opInfo.operand.brOp.brDisp = GetBranchDisplacement( isfR );
+    opInfo.operand.brOp.padding = '0;
+
+    // RAS operations
+    opInfo.operand.brOp.isRASPushBr = FALSE;
+    opInfo.operand.brOp.isRASPopBr = FALSE;
+
+    // 未定義命令
+    opInfo.unsupported = FALSE;
+    opInfo.undefined = FALSE;
+
+    // Serialized
+    opInfo.serialized = FALSE;
+
+    // Control
+    opInfo.valid = TRUE;    // Valid outputs
+endfunction
+
+function automatic void RISCV_DecodeApCycle(
+    output OpInfo [MICRO_OP_MAX_NUM-1:0] microOps,
+    output InsnInfo insnInfo,
+    input RISCV_ISF_Common isf
+);
+    OpInfo opInfo;
+    MicroOpIndex mid;
+    logic writePC, isRelBranch;
+    if (ApCycleFunct3'(isf.funct3) == APCYCLE_FUNCT3_BLT) begin
+        RISCV_EmitApproxBltCycle(.opInfo(opInfo), .isf(isf));
+        writePC = TRUE;
+        isRelBranch = TRUE;
+    end else begin
+        RISCV_EmitApproxBeginCycleCount(.opInfo(opInfo), .isf(isf));
+        writePC = FALSE;
+        isRelBranch = FALSE;
+    end
+
+    mid = 0;
+    for(int i = 0; i < MICRO_OP_MAX_NUM; i++) begin
+        EmitInvalidOp(microOps[i]);
+    end
+
+    microOps[1] = ModifyMicroOp(opInfo, mid, FALSE, TRUE);
+
+    insnInfo.writePC    = writePC;
+    insnInfo.isCall     = FALSE;
+    insnInfo.isReturn   = FALSE;
+    insnInfo.isRelBranch = isRelBranch;
+    insnInfo.isSerialized = FALSE;
+
+endfunction
+
 `ifdef RSD_MARCH_FP_PIPE
 //
 // --- FP ld/st
@@ -2053,6 +2200,10 @@ output
             // I: APPROXIMATE
             RISCV_APPROX : begin
                 RISCV_DecodeApprox(microOps, insnInfo, insn);
+            end
+
+            RISCV_APCYCLE : begin
+                RISCV_DecodeApCycle(microOps, insnInfo, insn);
             end
             default : begin
                 RISCV_DecodeIllegal(microOps, insnInfo, insn, illegalPC);

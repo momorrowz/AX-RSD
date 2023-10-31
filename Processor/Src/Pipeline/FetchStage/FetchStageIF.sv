@@ -32,6 +32,15 @@ interface FetchStageIF( input logic clk, rst, rstStart );
     //AXBTB
     PC_Path axbtbOut[FETCH_WIDTH];
     logic axbtbHit[FETCH_WIDTH];
+
+    // BUFFER
+    // PC_Path bufferOut[FETCH_WIDTH];
+    logic bufferHit[FETCH_WIDTH];
+
+
+    //AXBLTCycBTB
+    PC_Path axbltcycbtbOut[FETCH_WIDTH];
+    logic axbltcycbtbHit[FETCH_WIDTH];
     
     // BranchPredictor
     logic updateBrHistory[FETCH_WIDTH];
@@ -42,6 +51,9 @@ interface FetchStageIF( input logic clk, rst, rstStart );
 
     // BranchDecider
     logic brDecidTaken[FETCH_WIDTH];
+
+    // BranchDeciderCycle
+    logic brDecidCycTaken[FETCH_WIDTH];
 
     // I-Cache
     logic     icReadHit [ FETCH_WIDTH ];
@@ -66,7 +78,10 @@ interface FetchStageIF( input logic clk, rst, rstStart );
         phtPrevValue,
         rasCheckpoint,
         axbtbOut,
+        axbltcycbtbOut,
         brDecidTaken,
+        brDecidCycTaken,
+        bufferHit,
     output
         fetchStageIsValid,
         fetchStagePC,
@@ -87,7 +102,11 @@ interface FetchStageIF( input logic clk, rst, rstStart );
         brPredTaken,
         axbtbOut,
         axbtbHit,
-        brDecidTaken
+        axbltcycbtbOut,
+        axbltcycbtbHit,
+        bufferHit,
+        brDecidTaken,
+        brDecidCycTaken
     );
 
     modport NextStage(
@@ -133,6 +152,18 @@ interface FetchStageIF( input logic clk, rst, rstStart );
         axbtbHit
     );
 
+    modport BUFFER(
+    output
+        // bufferOut,
+        bufferHit
+    );
+    
+    modport AXBLTCycBTB(
+    output
+        axbltcycbtbOut,
+        axbltcycbtbHit
+    );
+
     modport BranchPredictor(
     input
         updateBrHistory,
@@ -152,6 +183,19 @@ interface FetchStageIF( input logic clk, rst, rstStart );
         brPredTaken,
     output
         brDecidTaken
+    );
+
+    modport BranchDeciderCycle(
+    input
+        axbltcycbtbHit,
+        brPredTaken,
+    output
+        brDecidCycTaken
+    );
+
+    modport BeginCycleCount(
+    input
+        bufferHit
     );
 
 endinterface : FetchStageIF
