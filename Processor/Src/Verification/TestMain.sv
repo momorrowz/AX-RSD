@@ -67,13 +67,13 @@ module TestMain;
 
                 // Copy RMT to local variable.
                 for( int i = 0; i < LSCALAR_NUM; i++ ) begin
-                   phyRegNum[i] = main.main.core.retirementRMT.regRMT.debugValue[i];
+                   phyRegNum[i] = main.topCore.core.retirementRMT.regRMT.debugValue[i];
                 end
 
                 // Update RRMT
-                alHeadPtr = main.main.core.activeList.headPtr;
+                alHeadPtr = main.topCore.core.activeList.headPtr;
                 for( int i = 0; i < commitNumInThisCycle; i++ ) begin
-                    alHead = main.main.core.activeList.activeList.debugValue[ alHeadPtr ];
+                    alHead = main.topCore.core.activeList.activeList.debugValue[ alHeadPtr ];
                     if ( alHead.writeReg ) begin
                         phyRegNum[ alHead.logDstRegNum ] = alHead.phyDstRegNum;
                     end
@@ -82,7 +82,7 @@ module TestMain;
 
                 // Get regData
                 for( int i = 0; i < LSCALAR_NUM; i++ ) begin
-                    regData[i] = main.main.core.registerFile.phyReg.debugValue[ phyRegNum[i] ];
+                    regData[i] = main.topCore.core.registerFile.phyReg.debugValue[ phyRegNum[i] ];
                 end
             endtask
         `endif
@@ -134,6 +134,8 @@ module TestMain;
     LED_Path ledOut;
     LED_Path lastCommittedPC;
     DebugRegister debugRegister;
+    SW_Path swIn;
+    PSW_Path pswIn;
     logic rxd, txd;
     logic serialWE;
     SerialDataPath serialWriteData;
@@ -257,9 +259,9 @@ module TestMain;
                         registerFileCSV_Dumper.ProceedCycle();
 
                         for ( int i = 0; i < COMMIT_WIDTH; i++ ) begin
-                            if ( main.main.core.cmStage.commit[i] ) begin
+                            if ( main.topCore.core.cmStage.commit[i] ) begin
                                 GetCommittedRegisterValue( i, regData );
-                                registerFileCSV_Dumper.Dump( main.main.core.cmStage.alReadData[i].pc, regData );
+                                registerFileCSV_Dumper.Dump( main.topCore.core.cmStage.alReadData[i].pc, regData );
                             end
                         end
                     end
@@ -317,7 +319,7 @@ module TestMain;
             `ifndef RSD_POST_SYNTHESIS_SIMULATION
                 // Count the number of commit in the last cycle.
                 for ( count = 0; count < COMMIT_WIDTH; count++ ) begin
-                    if ( !main.main.core.cmStage.commit[count] )
+                    if ( !main.topCore.core.cmStage.commit[count] )
                         break;
                 end
                 commitNumInLastCycle = count;
