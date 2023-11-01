@@ -11,7 +11,7 @@ RSD_SRC_CFG = \
 	+define+RSD_MARCH_LOW_LATENCY_FP \
 	+define+ENABLE_ANYTIME_FP \
 	+define+ENABLE_ZICOND \
-	#+define+RSD_MARCH_MULTIPLE_FP_ISSUE \
+	+define+RSD_MARCH_MULTIPLE_FP_ISSUE \
 
 #	+define+SYNTHESIS_USE_SRAM \
 #	+define+UNIT_DELAY \

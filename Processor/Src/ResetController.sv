@@ -5,7 +5,7 @@
 import BasicTypes::*;
 
 module ResetController #(
-    parameter CYCLE_OF_RESET_SEQUENCE = 20000
+    parameter CYCLE_OF_RESET_SEQUENCE = 10000
 )(
     input  logic clk, rstTrigger, locked,
     output logic rst, rstStart
@@ -44,7 +44,7 @@ module ResetController #(
 endmodule
 
 module ResetControllerCore #(
-    parameter CYCLE_OF_RESET_SEQUENCE = 20000
+    parameter CYCLE_OF_RESET_SEQUENCE = 10000
 )(
     input  logic clk, rstTrigger, locked,
     output logic rst, rstStart
