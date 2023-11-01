@@ -47,7 +47,7 @@ localparam SW_WIDTH = 8;
 typedef logic [ SW_WIDTH-1:0 ] SW_Path;
 
 // Push Switch IO
-localparam PSW_WIDTH = 5;
+localparam PSW_WIDTH = 6;
 typedef logic [ PSW_WIDTH-1:0 ] PSW_Path;
 
 // Serial IO

@@ -15,7 +15,7 @@ import MemoryTypes::*;
 import MemoryMapTypes::*;
 import IO_UnitTypes::*;
 import DebugTypes::*;
-import FetchUnitTypes::*;
+import CommuteTypes::*;
 
 module Main_Zynq #(
 `ifdef RSD_POST_SYNTHESIS
@@ -24,13 +24,14 @@ module Main_Zynq #(
     parameter MEM_INIT_HEX_FILE = ""
 `endif
 )(
-
+input
+    CtoMPort mpmodIn,
+output
+    MtoCPort mpmodOut,
 `ifdef RSD_SYNTHESIS_ZEDBOARD
 input
     logic clk,
     logic negResetIn, // 負論理
-    SW_Path swIn, // Switch Input
-    PSW_Path pswIn, // Push Switch Input
 output
     LED_Path ledOut, // LED Output
 `else
@@ -43,8 +44,8 @@ input
 `endif
 
 `ifndef RSD_DISABLE_DEBUG_REGISTER
-output
-    DebugRegister debugRegister,
+//output
+//    DebugRegister debugRegister,
 `endif
 
 `ifdef RSD_USE_EXTERNAL_MEMORY
@@ -124,7 +125,7 @@ logic clk;
     logic memAccessReadBusy;
     logic memAccessWriteBusy;
     logic memAccessBusy;
-    
+
     MemoryEntryDataPath memAccessWriteData;
     MemoryEntryDataPath memAccessWriteDataFromCore;
     MemoryEntryDataPath memAccessWriteDataFromProgramLoader;
@@ -141,6 +142,28 @@ logic clk;
     MemAccessSerial memReadSerial; // メモリの読み出しデータのシリアル
     MemAccessResponse memAccessResponse; // メモリ書き込み完了通知
 
+    logic [CTOM_BUS_WIDTH-1:0] memAccessIn;
+    logic serialIn;
+    logic lastCommittedPCIn;
+    logic memAccessReadBusyOut;
+    logic memAccessWriteBusyOut;
+    logic memAccessReadOut;
+    logic memAccessWriteOut;
+    logic [MTOC_BUS_WIDTH-1:0] memReadDataOut;
+    logic memWriteOut;
+    logic debugLED;
+
+    assign memAccessIn = mpmodIn[CTOM_BUS_WIDTH+1:2];
+    assign serialIn = mpmodIn[0];
+    assign lastCommittedPCIn = mpmodIn[1];
+    assign mpmodOut[0] = memAccessReadBusyOut;
+    assign mpmodOut[1] = memAccessWriteBusyOut;
+    assign mpmodOut[2] = memAccessReadOut;
+    assign mpmodOut[3] = memAccessWriteOut;
+    assign mpmodOut[MTOC_BUS_WIDTH+6:7] = memReadDataOut;
+    assign mpmodOut[4] = memWriteOut;
+    assign mpmodOut[5] = programLoaded;
+    assign mpmodOut[6] = debugLED;
 
 `ifdef RSD_USE_EXTERNAL_MEMORY
     Axi4Memory axi4Memory(
@@ -241,26 +264,6 @@ logic clk;
     assign ledOut = lastCommittedPC[ LED_WIDTH-1:0 ];
 `endif
 
-
-    // --- Switch IO => axLevel, gaze
-    logic axLevelEn;
-    logic [ AX_LEVEL_WIDTH-1:0 ] axLevelData;
-    GazeDataPath gazeIn;
-
-`ifdef RSD_SYNTHESIS_ZEDBOARD
-    always_ff @( posedge clk ) begin
-        axLevelEn <= pswIn[0];
-        axLevelData <= {pswIn[ AX_LEVEL_WIDTH - 1 : 1], 1'b0};
-        gazeIn <= swIn;
-    end
-`else
-    always_comb begin
-        axLevelEn = '0;
-        axLevelData = '0;
-        gazeIn = '0;
-    end
-`endif
-
     //
     // --- AXI4Lite Control Register IO for ZYNQ
     //
@@ -278,41 +281,35 @@ logic clk;
                             memAccessWE_FromProgramLoader,
                             programLoaded);
 `endif
-    logic reqExternalInterrupt;
-    ExternalInterruptCodePath externalInterruptCode; 
-    always_comb begin
-        reqExternalInterrupt = FALSE;
-        externalInterruptCode = 0;
-    end
 
-    //
-    // --- Processor core
-    //
-    Core core (
+Commute commute (
         .clk( clk ),
         .rst( rst || !programLoaded ),
+        .memAccessIn( memAccessIn ),
+        .serialIn( serialIn ),
+        .lastCommittedPCIn( lastCommittedPCIn ),
+        .memAccessReadBusyOut( memAccessReadBusyOut ),
+        .memAccessWriteBusyOut( memAccessWriteBusyOut ),
+        .memAccessReadOut( memAccessReadOut ),
+        .memAccessWriteOut( memAccessWriteOut ),
+        .memReadDataOut( memReadDataOut ),
+        .memWriteOut( memWriteOut ),
         .memAccessAddr( memAccessAddrFromCore ),
         .memAccessWriteData( memAccessWriteDataFromCore ),
         .memAccessRE( memAccessRE_FromCore ),
         .memAccessWE( memAccessWE_FromCore ),
         .memAccessReadBusy( memAccessReadBusy ),
         .memAccessWriteBusy( memAccessWriteBusy ),
-        .reqExternalInterrupt( reqExternalInterrupt ),
-        .externalInterruptCode( externalInterruptCode ),
         .nextMemReadSerial( nextMemReadSerial ),
         .nextMemWriteSerial( nextMemWriteSerial ),
         .memReadDataReady( memReadDataReady ),
         .memReadData( memReadData ),
         .memReadSerial( memReadSerial ),
         .memAccessResponse( memAccessResponse ),
-        .rstStart( rstStart ),
         .serialWE( serialWE ),
         .serialWriteData( serialWriteData ),
         .lastCommittedPC( lastCommittedPC ),
-        .debugRegister ( debugRegister ),
-        .axLevelData(axLevelData),
-        .axLevelEn(axLevelEn),
-        .gazeIn(gazeIn)
+        .debugLED( debugLED )
     );
     
 endmodule : Main_Zynq

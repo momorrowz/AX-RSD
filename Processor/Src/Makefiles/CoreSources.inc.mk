@@ -46,6 +46,7 @@ TYPES = \
 	IO/IO_UnitTypes.sv \
 	Privileged/CSR_UnitTypes.sv \
 	Debug/DebugTypes.sv \
+    CommuteTypes.sv \
 
 # CORE_MODULES specifies files that defines the RSD core.
 # The order of the files in this section is arbitrary.
@@ -201,6 +202,10 @@ CORE_MODULES = \
 MODULES = \
 	Main_Zynq_Wrapper.sv \
 	Main_Zynq.sv \
+    Top_Core.sv \
+ 	Commute.sv \
+ 	Primitives/RecieveSend.sv \
+ 	Cable.sv \
 	Memory/Axi4LiteControlRegisterIF.sv \
 	Memory/Axi4LiteControlRegister.sv \
 	Memory/ControlQueue.sv \

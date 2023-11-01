@@ -901,11 +901,11 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>swIn</spirit:name>
+        <spirit:name>mpmodOut</spirit:name>
         <spirit:wire>
-          <spirit:direction>in</spirit:direction>
+          <spirit:direction>out</spirit:direction>
           <spirit:vector>
-            <spirit:left spirit:format="long">7</spirit:left>
+            <spirit:left spirit:format="long">34</spirit:left>
             <spirit:right spirit:format="long">0</spirit:right>
           </spirit:vector>
           <spirit:wireTypeDefs>
@@ -918,11 +918,11 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>pswIn</spirit:name>
+        <spirit:name>mpmodIn</spirit:name>
         <spirit:wire>
           <spirit:direction>in</spirit:direction>
           <spirit:vector>
-            <spirit:left spirit:format="long">4</spirit:left>
+            <spirit:left spirit:format="long">36</spirit:left>
             <spirit:right spirit:format="long">0</spirit:right>
           </spirit:vector>
           <spirit:wireTypeDefs>

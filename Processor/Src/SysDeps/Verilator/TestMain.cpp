@@ -31,7 +31,7 @@ int GetCommittedRegisterValue(
     int commitNumInThisCycle,
     DataPath* regData)
 {
-    auto* core = top->Main_Zynq_Wrapper->main->core;
+    auto* core = top->Main_Zynq_Wrapper->topCore->core;
     auto* helper = top->VerilatorHelper;
     static const int LSCALAR_NUM = helper->LSCALAR_NUM;
 
@@ -81,7 +81,7 @@ int main(int argc, char** argv)
     Verilated::commandArgs(argc, argv);  // Remember args
 
     auto* top = new VMain_Zynq_Wrapper();
-    auto* core = top->Main_Zynq_Wrapper->main->core;
+    auto* core = top->Main_Zynq_Wrapper->topCore->core;
     auto* helper = top->VerilatorHelper;
 
 

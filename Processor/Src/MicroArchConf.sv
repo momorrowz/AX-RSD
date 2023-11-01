@@ -10,6 +10,17 @@ localparam CONF_AX_LEVEL_WIDTH = 5;
 localparam CONF_LFSR_WIDTH = 32;
 localparam CONF_LFSR_SEED = 32'h1010;
 
+// ---- Core-Memory split
+localparam CONF_CTOM_BUS_WIDTH = 35;
+localparam CONF_MTOC_BUS_WIDTH = 28;
+// Core
+localparam CONF_COM_CLK_DIV = 4;
+localparam CONF_COM_START_BIT_JUDGE_COUNT = 2;
+localparam CONF_COM_CHECK_POINT = 2;
+// Memory
+localparam CONF_COM_MEM_CLK_DIV = 4;
+localparam CONF_COM_MEM_START_BIT_JUDGE_COUNT = 2;
+localparam CONF_COM_MEM_CHECK_POINT = 2;
 
 // ---- Front-end
 // Fetch width (instructions). This parameter is configurable.

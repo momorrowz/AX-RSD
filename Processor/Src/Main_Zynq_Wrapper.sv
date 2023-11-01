@@ -18,6 +18,7 @@ import MemoryTypes::*;
 import DebugTypes::*;
 import MemoryMapTypes::*;
 import IO_UnitTypes::*;
+import CommuteTypes::*;
 
 module Main_Zynq_Wrapper #(
 `ifdef RSD_POST_SYNTHESIS
@@ -31,10 +32,10 @@ module Main_Zynq_Wrapper #(
 input
     logic clk,
     logic negResetIn, // 負論理
-    SW_Path swIn, // Switch Input
-    PSW_Path pswIn, // Push Switch Input
+    CtoMPort mpmodIn,
 output
     LED_Path ledOut, // LED Output
+    MtoCPort mpmodOut,
 `else
 // RSD_POST_SYNTHESIS
 // RSD_FUNCTIONAL_SIMULATION
@@ -42,6 +43,8 @@ input
     logic clk_p, clk_n,
     logic negResetIn, // 負論理
     logic rxd,
+    SW_Path swIn, // Switch Input
+    PSW_Path pswIn, // Push Switch Input
 `endif
 
 `ifndef RSD_SYNTHESIS_VIVADO
@@ -90,14 +93,33 @@ output
     end
 `endif
 
+`ifndef RSD_SYNTHESIS_ZEDBOARD
+    MtoCPort mpmodOut;
+    MtoCPort cpmodIn;
+    CtoMPort mpmodIn;
+    CtoMPort cpmodOut;
+
+    Cable cable(
+        `ifdef RSD_SYNTHESIS_ZEDBOARD
+                .clk(clk),
+        `else
+                .clk(clk_p),
+        `endif
+        .cpmodIn( cpmodIn ),
+        .mpmodIn( mpmodIn ),
+        .cpmodOut( cpmodOut ),
+        .mpmodOut( mpmodOut )
+    );
+`endif
+
     Main_Zynq #(
         .MEM_INIT_HEX_FILE (MEM_INIT_HEX_FILE)
     ) main (
+        mpmodIn,
+        mpmodOut,
 `ifdef RSD_SYNTHESIS_ZEDBOARD
         clk,
         negResetIn,
-        swIn,
-        pswIn,
         ledOut,
 `else
         clk_p,
@@ -106,9 +128,9 @@ output
         rxd,
 `endif
 
-`ifndef RSD_DISABLE_DEBUG_REGISTER
-        debugRegister,
-`endif
+//`ifndef RSD_DISABLE_DEBUG_REGISTER
+//        debugRegister,
+//`endif
 
 `ifdef RSD_USE_EXTERNAL_MEMORY
         axi4MemoryIF,
@@ -126,6 +148,25 @@ output
 `endif
     );
 
+`ifndef RSD_SYNTHESIS_ZEDBOARD
+    logic dled, rstled;
+    Top_Core topCore (
+`ifndef RSD_DISABLE_DEBUG_REGISTER
+        .debugRegister ( debugRegister ),
+`endif
+        .negResetIn(negResetIn),
+        .dled(dled),
+`ifdef RSD_SYNTHESIS_ZEDBOARD
+        .clk(clk),
+`else
+        .clk(clk_p),
+`endif
+        .swIn(swIn),
+        .pswIn(pswIn),
+        .cpmodIn(cpmodIn),
+        .cpmodOut(cpmodOut)
+        );
+`endif
 
 endmodule : Main_Zynq_Wrapper
 
