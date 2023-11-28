@@ -254,7 +254,7 @@ int main(int argc, char** argv)
 
             // ダンプ
 #ifdef RSD_VERILATOR_TRACE
-            if (tfp && sim_start <= cycle && cycle < sim_end)
+            if (tfp) // && sim_start <= cycle && cycle < sim_end)
                 tfp->dump(main_time);
 #endif
             // 実行が開始されていたらクロックをインクリメント
@@ -282,7 +282,7 @@ int main(int argc, char** argv)
                     top->serialWriteData);
 
                 // Dump RSD.log for Kanata
-                if (enableDumpKanata && sim_start <= cycle && cycle < sim_end) {
+                if (enableDumpKanata) { // && sim_start <= cycle && cycle < sim_end) {
                     kanataDumper.DumpCycle(debugRegister);
                 }
 

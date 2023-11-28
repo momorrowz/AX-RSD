@@ -18,9 +18,9 @@ localparam CONF_COM_CLK_DIV = 32;
 localparam CONF_COM_START_BIT_JUDGE_COUNT = 16;
 localparam CONF_COM_CHECK_POINT = 11;
 // Memory
-localparam CONF_COM_MEM_CLK_DIV = 4;
-localparam CONF_COM_MEM_START_BIT_JUDGE_COUNT = 2;
-localparam CONF_COM_MEM_CHECK_POINT = 2;
+localparam CONF_COM_MEM_CLK_DIV = 32;
+localparam CONF_COM_MEM_START_BIT_JUDGE_COUNT = 16;
+localparam CONF_COM_MEM_CHECK_POINT = 11;
 
 // ---- Front-end
 // Fetch width (instructions). This parameter is configurable.
