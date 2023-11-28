@@ -10,7 +10,6 @@ localparam CONF_AX_LEVEL_WIDTH = 5;
 localparam CONF_LFSR_WIDTH = 32;
 localparam CONF_LFSR_SEED = 32'h1010;
 
-
 // ---- Front-end
 // Fetch width (instructions). This parameter is configurable.
 localparam CONF_FETCH_WIDTH = 4;
@@ -32,17 +31,17 @@ localparam CONF_COMMIT_WIDTH = 4;
 // --- Back-end
 // The number of physical registers
 // INT and FP must be the same at present.
-localparam CONF_PSCALAR_NUM = 64;
-localparam CONF_PSCALAR_FP_NUM = 64;
+localparam CONF_PSCALAR_NUM = 128;
+localparam CONF_PSCALAR_FP_NUM = 128;
 
 // The number of issue-queue entries
-localparam CONF_ISSUE_QUEUE_ENTRY_NUM = 16;
+localparam CONF_ISSUE_QUEUE_ENTRY_NUM = 32;
 
 // Return width of freelist of issue-queue entries
-localparam CONF_ISSUE_QUEUE_RETURN_INDEX_WIDTH = 4;
+localparam CONF_ISSUE_QUEUE_RETURN_INDEX_WIDTH = 16;
 
 // The number of active-list (ROB: reorder buffer) entries
-localparam CONF_ACTIVE_LIST_ENTRY_NUM = 64;
+localparam CONF_ACTIVE_LIST_ENTRY_NUM = 128;
 
 // The number of replay-queue entries
 localparam CONF_REPLAY_QUEUE_ENTRY_NUM = 20;
@@ -58,7 +57,7 @@ localparam CONF_REPLAY_QUEUE_ENTRY_NUM = 20;
 `ifdef RSD_MARCH_INT_ISSUE_WIDTH
     localparam CONF_INT_ISSUE_WIDTH =`RSD_MARCH_INT_ISSUE_WIDTH;
 `else
-    localparam CONF_INT_ISSUE_WIDTH = 2;
+    localparam CONF_INT_ISSUE_WIDTH = 4;
 `endif
 
 // The issue width of memory pipelines.
@@ -88,8 +87,8 @@ localparam CONF_REPLAY_QUEUE_ENTRY_NUM = 20;
 
 // --- Load store unit
 // These parameters must be a power of two.
-localparam CONF_LOAD_QUEUE_ENTRY_NUM = 16;  // The size of a load queue
-localparam CONF_STORE_QUEUE_ENTRY_NUM = 16; // The size of a store queue
+localparam CONF_LOAD_QUEUE_ENTRY_NUM = 32;  // The size of a load queue
+localparam CONF_STORE_QUEUE_ENTRY_NUM = 32; // The size of a store queue
 
 // The issue width of complex pipelines.
 // CONF_COMPLEX_ISSUE_WIDTH is configurable.
